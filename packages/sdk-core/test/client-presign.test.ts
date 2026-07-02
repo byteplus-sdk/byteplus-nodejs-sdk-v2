@@ -10,7 +10,7 @@ describe("Client.presign", () => {
     const client = new Client({
       accessKeyId: "AKTEST123",
       secretAccessKey: "SKTEST456",
-      region: "cn-beijing",
+      region: "ap-southeast-1",
     });
 
     const command = new Command({
@@ -34,15 +34,15 @@ describe("Client.presign", () => {
         UserName: "testuser",
         Version: "2018-01-01",
       },
-      region: "cn-beijing",
+      region: "ap-southeast-1",
       serviceName: "iam",
       accessKeyId: "AKTEST123",
       secretAccessKey: "SKTEST456",
-      host: "open.volcengineapi.com",
+      host: "iam.byteplusapi.com",
     });
 
     expect(url).toBe(expected);
-    expect(url.startsWith("https://open.volcengineapi.com/")).toBe(true);
+    expect(url.startsWith("https://iam.byteplusapi.com/")).toBe(true);
 
     jest.useRealTimers();
   });

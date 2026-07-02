@@ -4,7 +4,7 @@
 
 ## Credentials
 
-To ensure secure resource access, the Volcengine Node.js SDK supports both explicit credentials and automatic resolution via `CredentialProvider`.
+To ensure secure resource access, the BytePlus Node.js SDK supports both explicit credentials and automatic resolution via `CredentialProvider`.
 
 ### CredentialProvider Overview
 
@@ -15,13 +15,13 @@ To ensure secure resource access, the Volcengine Node.js SDK supports both expli
 | `OidcCredentialProvider`                | STS AssumeRoleWithOIDC           | Yes                       | OIDC federated identity               |
 | `SamlCredentialProvider`                | STS AssumeRoleWithSAML           | Yes                       | SAML federated identity               |
 | `EnvironmentVariableCredentialProvider` | Read environment variables       | No                        | CI/CD, container injection            |
-| `CLIConfigCredentialProvider`           | Read `~/.volcengine/config.json` | No                        | Reuse CLI configuration               |
+| `CLIConfigCredentialProvider`           | Read `~/.byteplus/config.json` | No                        | Reuse CLI configuration               |
 | `EcsRoleCredentialProvider`             | Read ECS IMDS                    | Yes                       | ECS instance role                     |
 | `DefaultCredentialProvider`             | Default chain wrapper            | Depends on proxy Provider | No AK/SK in business code             |
 
 ### AK/SK Configuration
 
-AK/SK is a pair of permanent access keys created by Volcengine users in the console. The SDK uses these keys to sign each request for authentication.
+AK/SK is a pair of permanent access keys created by BytePlus users in the console. The SDK uses these keys to sign each request for authentication.
 
 > ⚠️ **Important**
 >
@@ -32,12 +32,12 @@ AK/SK is a pair of permanent access keys created by Volcengine users in the cons
 #### 1. Configure in Code (⚠️ Not Recommended)
 
 ```typescript
-import { ECSClient } from "@volcengine/ecs";
+import { ECSClient } from "@byteplus/ecs";
 
 const client = new ECSClient({
   accessKeyId: "YOUR_AK",
   secretAccessKey: "YOUR_SK",
-  region: "cn-beijing",
+  region: "ap-southeast-1",
 });
 ```
 
@@ -45,21 +45,21 @@ const client = new ECSClient({
 
 The SDK automatically reads the following environment variables:
 
-- **Access Key ID**: `VOLCENGINE_ACCESS_KEY`
-- **Secret Access Key**: `VOLCENGINE_SECRET_KEY`
+- **Access Key ID**: `BYTEPLUS_ACCESS_KEY`
+- **Secret Access Key**: `BYTEPLUS_SECRET_KEY`
 
 ```bash
-export VOLCENGINE_ACCESS_KEY="YOUR_AK"
-export VOLCENGINE_SECRET_KEY="YOUR_SK"
+export BYTEPLUS_ACCESS_KEY="YOUR_AK"
+export BYTEPLUS_SECRET_KEY="YOUR_SK"
 ```
 
 ```typescript
-const client = new ECSClient({ region: "cn-beijing" });
+const client = new ECSClient({ region: "ap-southeast-1" });
 ```
 
 ### STS Token Configuration
 
-STS (Security Token Service) is a temporary credential mechanism provided by Volcengine. Developers call the STS API on the server side to obtain temporary credentials (temporary AK, SK, and Token) with a configurable expiry, suitable for scenarios with high security requirements.
+STS (Security Token Service) is a temporary credential mechanism provided by BytePlus. Developers call the STS API on the server side to obtain temporary credentials (temporary AK, SK, and Token) with a configurable expiry, suitable for scenarios with high security requirements.
 
 > ⚠️ **Important**
 >
@@ -71,18 +71,18 @@ const client = new ECSClient({
   accessKeyId: "YOUR_TEMP_AK",
   secretAccessKey: "YOUR_TEMP_SK",
   sessionToken: "YOUR_SESSION_TOKEN",
-  region: "cn-beijing",
+  region: "ap-southeast-1",
 });
 
 // Or via environment variable:
-// export VOLCENGINE_SESSION_TOKEN="YOUR_SESSION_TOKEN"
+// export BYTEPLUS_SESSION_TOKEN="YOUR_SESSION_TOKEN"
 ```
 
 ### STS AssumeRole Example
 
-STS AssumeRole is a temporary credential mechanism provided by Volcengine. It uses an IAM sub-account role to perform the AssumeRole operation, then obtains temporary credentials to make API requests.
+STS AssumeRole is a temporary credential mechanism provided by BytePlus. It uses an IAM sub-account role to perform the AssumeRole operation, then obtains temporary credentials to make API requests.
 
-Reference: https://www.volcengine.com/docs/6257/86374
+Reference: https://www.byteplus.com/docs/6257/86374
 
 > ⚠️ **Important**
 >
@@ -90,15 +90,15 @@ Reference: https://www.volcengine.com/docs/6257/86374
 > 2. Set a reasonable expiry: the shorter the safer, recommended no more than 1 hour.
 
 ```typescript
-import { StsAssumeRoleProvider } from "@volcengine/sdk-core";
-import { ECSClient } from "@volcengine/ecs";
+import { StsAssumeRoleProvider } from "@byteplus/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
 
 const credentialProvider = new StsAssumeRoleProvider({
   accessKeyId: "ASSUME_ROLE_CALLER_AK",
   secretAccessKey: "ASSUME_ROLE_CALLER_SK",
   roleTrn: "trn:iam::2110400000:role/role123",
-  region: "cn-beijing",
-  host: "sts.volcengineapi.com",
+  region: "ap-southeast-1",
+  host: "sts.ap-southeast-1.byteplusapi.com",
   protocol: "https",
   durationSeconds: 3600,
   policy:
@@ -107,7 +107,7 @@ const credentialProvider = new StsAssumeRoleProvider({
 });
 
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   credentialProvider,
 });
 ```
@@ -116,7 +116,7 @@ const client = new ECSClient({
 
 `OidcCredentialProvider` obtains temporary credentials via STS `AssumeRoleWithOIDC`. Suitable for scenarios where an OIDC identity provider is already integrated. It uses an OIDC Token to perform the AssumeRoleWithOIDC operation to obtain temporary credentials for API requests.
 
-Reference: https://www.volcengine.com/docs/6257/1494877
+Reference: https://www.byteplus.com/docs/6257/1494877
 
 > ⚠️ **Important**
 >
@@ -127,22 +127,22 @@ Supported environment variables:
 
 | Variable                            | Description                  | Required |
 | ----------------------------------- | ---------------------------- | :------: |
-| `VOLCENGINE_OIDC_ROLE_TRN`          | Role TRN to assume           |    ✅    |
-| `VOLCENGINE_OIDC_TOKEN_FILE`        | OIDC token file path         |    ✅    |
-| `VOLCENGINE_OIDC_ROLE_SESSION_NAME` | Role session name            |    ❌    |
-| `VOLCENGINE_OIDC_ROLE_POLICY`       | Session policy (JSON string) |    ❌    |
-| `VOLCENGINE_OIDC_STS_ENDPOINT`      | Custom STS endpoint          |    ❌    |
+| `BYTEPLUS_OIDC_ROLE_TRN`          | Role TRN to assume           |    ✅    |
+| `BYTEPLUS_OIDC_TOKEN_FILE`        | OIDC token file path         |    ✅    |
+| `BYTEPLUS_OIDC_ROLE_SESSION_NAME` | Role session name            |    ❌    |
+| `BYTEPLUS_OIDC_ROLE_POLICY`       | Session policy (JSON string) |    ❌    |
+| `BYTEPLUS_OIDC_STS_ENDPOINT`      | Custom STS endpoint          |    ❌    |
 
 ```typescript
-import { OidcCredentialProvider } from "@volcengine/sdk-core";
-import { ECSClient } from "@volcengine/ecs";
+import { OidcCredentialProvider } from "@byteplus/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
 
 // Explicit parameters (all options)
 const credentialProvider = new OidcCredentialProvider({
   roleTrn: "trn:iam::2110400000:role/oidc-role",
   oidcTokenFile: "/path/to/oidc/token",
   roleSessionName: "my-session",
-  host: "sts.volcengineapi.com",
+  host: "sts.ap-southeast-1.byteplusapi.com",
   policy:
     '{"Statement":[{"Effect":"Allow","Action":["ecs:Describe*"],"Resource":["*"]}]}',
 });
@@ -151,7 +151,7 @@ const credentialProvider = new OidcCredentialProvider({
 const credentialProvider2 = new OidcCredentialProvider();
 
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   credentialProvider,
 });
 ```
@@ -160,7 +160,7 @@ const client = new ECSClient({
 
 `SamlCredentialProvider` obtains temporary credentials via STS `AssumeRoleWithSAML`. Suitable for SAML federated identity scenarios. It uses a SAML assertion to perform the AssumeRoleWithSAML operation to obtain temporary credentials for API requests.
 
-Reference: https://www.volcengine.com/docs/6257/1631607
+Reference: https://www.byteplus.com/docs/6257/1631607
 
 > ⚠️ **Important**
 >
@@ -171,16 +171,16 @@ Supported environment variables:
 
 | Variable                       | Description                     | Required |
 | ------------------------------ | ------------------------------- | :------: |
-| `VOLCENGINE_SAML_ROLE_TRN`     | Role TRN to assume              |    ✅    |
-| `VOLCENGINE_SAML_ACCOUNT_ID`   | Volcengine account ID           |    ✅    |
-| `VOLCENGINE_SAML_PROVIDER_TRN` | SAML identity provider TRN      |    ✅    |
-| `VOLCENGINE_SAML_ASSERTION`    | SAML assertion (Base64 encoded) |    ✅    |
-| `VOLCENGINE_SAML_ENDPOINT`     | Custom STS endpoint             |    ❌    |
-| `VOLCENGINE_SAML_POLICY`       | Session policy (JSON string)    |    ❌    |
+| `BYTEPLUS_SAML_ROLE_TRN`     | Role TRN to assume              |    ✅    |
+| `BYTEPLUS_SAML_ACCOUNT_ID`   | BytePlus account ID           |    ✅    |
+| `BYTEPLUS_SAML_PROVIDER_TRN` | SAML identity provider TRN      |    ✅    |
+| `BYTEPLUS_SAML_ASSERTION`    | SAML assertion (Base64 encoded) |    ✅    |
+| `BYTEPLUS_SAML_ENDPOINT`     | Custom STS endpoint             |    ❌    |
+| `BYTEPLUS_SAML_POLICY`       | Session policy (JSON string)    |    ❌    |
 
 ```typescript
-import { SamlCredentialProvider } from "@volcengine/sdk-core";
-import { ECSClient } from "@volcengine/ecs";
+import { SamlCredentialProvider } from "@byteplus/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
 
 // Explicit parameters (all options)
 const credentialProvider = new SamlCredentialProvider({
@@ -188,7 +188,7 @@ const credentialProvider = new SamlCredentialProvider({
   accountId: "2110400000",
   samlProviderTrn: "trn:iam::2110400000:saml-provider/my-provider",
   samlAssertion: "BASE64_ENCODED_SAML_ASSERTION",
-  host: "sts.volcengineapi.com",
+  host: "sts.ap-southeast-1.byteplusapi.com",
   policy:
     '{"Statement":[{"Effect":"Allow","Action":["ecs:Describe*"],"Resource":["*"]}]}',
 });
@@ -197,7 +197,7 @@ const credentialProvider = new SamlCredentialProvider({
 const credentialProvider2 = new SamlCredentialProvider();
 
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   credentialProvider,
 });
 ```
@@ -206,34 +206,34 @@ const client = new ECSClient({
 
 `EnvironmentVariableCredentialProvider` reads the following environment variables:
 
-- `VOLCSTACK_ACCESS_KEY_ID` / `VOLCSTACK_ACCESS_KEY`
-- `VOLCSTACK_SECRET_ACCESS_KEY` / `VOLCSTACK_SECRET_KEY`
-- `VOLCSTACK_SESSION_TOKEN` (optional)
+- `BYTEPLUS_ACCESS_KEY_ID` / `BYTEPLUS_ACCESS_KEY`
+- `BYTEPLUS_SECRET_ACCESS_KEY` / `BYTEPLUS_SECRET_KEY`
+- `BYTEPLUS_SESSION_TOKEN` (optional)
 
 ```typescript
-import { ECSClient } from "@volcengine/ecs";
-import { EnvironmentVariableCredentialProvider } from "@volcengine/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
+import { EnvironmentVariableCredentialProvider } from "@byteplus/sdk-core";
 
 const credentialProvider = new EnvironmentVariableCredentialProvider();
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   credentialProvider,
 });
 ```
 
 ### CLI Config Credential Provider
 
-`CLIConfigCredentialProvider` reads from `~/.volcengine/config.json` by default.
+`CLIConfigCredentialProvider` reads from `~/.byteplus/config.json` by default.
 
-- Config file priority: `VOLCENGINE_CLI_CONFIG_FILE` env var > default path `~/.volcengine/config.json`
+- Config file priority: `BYTEPLUS_CLI_CONFIG_FILE` env var > default path `~/.byteplus/config.json`
 
 ```typescript
-import { ECSClient } from "@volcengine/ecs";
-import { CLIConfigCredentialProvider } from "@volcengine/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
+import { CLIConfigCredentialProvider } from "@byteplus/sdk-core";
 
 const credentialProvider = new CLIConfigCredentialProvider();
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   credentialProvider,
 });
 ```
@@ -242,26 +242,26 @@ const client = new ECSClient({
 
 `EcsRoleCredentialProvider` obtains temporary credentials from the ECS Instance Metadata Service (IMDSv2):
 
-- `roleName` priority: constructor parameter > `VOLCENGINE_ECS_METADATA` > auto-detect from IMDS
-- Disable switch: `VOLCENGINE_ECS_METADATA_DISABLED=true`
+- `roleName` priority: constructor parameter > `BYTEPLUS_ECS_METADATA` > auto-detect from IMDS
+- Disable switch: `BYTEPLUS_ECS_METADATA_DISABLED=true`
 - IMDS endpoint: `http://100.96.0.96` (IMDSv2 token-based authentication)
 - Credentials are automatically refreshed before expiration (5-minute buffer by default)
 
 > ⚠️ **Notes**
 >
 > 1. Only works on ECS instances with an IAM role attached.
-> 2. Pass `roleName` explicitly or set `VOLCENGINE_ECS_METADATA` to avoid ambiguity; otherwise the SDK auto-detects the role name from IMDS.
+> 2. Pass `roleName` explicitly or set `BYTEPLUS_ECS_METADATA` to avoid ambiguity; otherwise the SDK auto-detects the role name from IMDS.
 
 | Variable                           | Description                                                             |
 | ---------------------------------- | ----------------------------------------------------------------------- |
-| `VOLCENGINE_ECS_METADATA`          | Specify ECS instance role name; if unset, auto-detected from IMDS       |
-| `VOLCENGINE_ECS_METADATA_DISABLED` | Set to `true` to disable IMDS credential retrieval                      |
+| `BYTEPLUS_ECS_METADATA`          | Specify ECS instance role name; if unset, auto-detected from IMDS       |
+| `BYTEPLUS_ECS_METADATA_DISABLED` | Set to `true` to disable IMDS credential retrieval                      |
 
 ```typescript
-import { EcsRoleCredentialProvider } from "@volcengine/sdk-core";
-import { ECSClient } from "@volcengine/ecs";
+import { EcsRoleCredentialProvider } from "@byteplus/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
 
-// Explicit role name; omit roleName to read VOLCENGINE_ECS_METADATA or auto-detect from IMDS.
+// Explicit role name; omit roleName to read BYTEPLUS_ECS_METADATA or auto-detect from IMDS.
 const credentialProvider = new EcsRoleCredentialProvider({
   roleName: "your-ecs-role-name",
 });
@@ -277,7 +277,7 @@ const credentialProvider2 = new EcsRoleCredentialProvider({
 });
 
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   credentialProvider,
 });
 ```
@@ -289,17 +289,17 @@ const client = new ECSClient({
 1. **EnvironmentVariableCredentialProvider** — read from environment variables
 2. **OidcCredentialProvider** — obtain temporary credentials via OIDC
 3. **CLIConfigCredentialProvider** — read from CLI config file
-4. **EcsRoleCredentialProvider** — obtain temporary credentials via ECS IMDS (skipped when `VOLCENGINE_ECS_METADATA_DISABLED=true`)
+4. **EcsRoleCredentialProvider** — obtain temporary credentials via ECS IMDS (skipped when `BYTEPLUS_ECS_METADATA_DISABLED=true`)
 
 ```typescript
-import { ECSClient } from "@volcengine/ecs";
-import { DefaultCredentialProvider } from "@volcengine/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
+import { DefaultCredentialProvider } from "@byteplus/sdk-core";
 
 // Basic usage
 const credentialProvider = new DefaultCredentialProvider();
 
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   credentialProvider,
 });
 ```

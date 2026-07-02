@@ -22,7 +22,7 @@ describe("Built-in Middleware - Core Features", () => {
         host: "example.com",
         accessKeyId: "AK_TEST",
         secretAccessKey: "SK_TEST",
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         requestHandler: mockHandler,
         clock: mockClock,
       });
@@ -46,16 +46,16 @@ describe("Built-in Middleware - Core Features", () => {
     test("should sign request without credentials,but env has credentials", async () => {
       const mockHandler = new MockRequestHandler();
       const mockClock = new MockClock();
-      delete process.env.VOLCSTACK_ACCESS_KEY_ID;
-      delete process.env.VOLCSTACK_SECRET_ACCESS_KEY;
-      delete process.env.VOLCSTACK_ACCESS_KEY;
-      delete process.env.VOLCSTACK_SECRET_KEY;
-      delete process.env.VOLCENGINE_ACCESS_KEY_ID;
-      delete process.env.VOLCENGINE_SECRET_ACCESS_KEY;
-      delete process.env.VOLCENGINE_ACCESS_KEY;
-      delete process.env.VOLCENGINE_SECRET_KEY;
-      process.env.VOLCSTACK_ACCESS_KEY_ID = "AK_TEST";
-      process.env.VOLCSTACK_SECRET_ACCESS_KEY = "SK_TEST";
+      delete process.env.BYTEPLUS_ACCESS_KEY_ID;
+      delete process.env.BYTEPLUS_SECRET_ACCESS_KEY;
+      delete process.env.BYTEPLUS_ACCESS_KEY;
+      delete process.env.BYTEPLUS_SECRET_KEY;
+      delete process.env.BYTEPLUS_ACCESS_KEY_ID;
+      delete process.env.BYTEPLUS_SECRET_ACCESS_KEY;
+      delete process.env.BYTEPLUS_ACCESS_KEY;
+      delete process.env.BYTEPLUS_SECRET_KEY;
+      process.env.BYTEPLUS_ACCESS_KEY_ID = "AK_TEST";
+      process.env.BYTEPLUS_SECRET_ACCESS_KEY = "SK_TEST";
 
       mockHandler.mock("https://example.com/api/test", {
         status: 200,

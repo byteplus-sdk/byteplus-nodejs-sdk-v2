@@ -45,8 +45,8 @@ describe("EcsRoleCredentialProvider", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env = { ...originalEnv };
-    delete process.env.VOLCENGINE_ECS_METADATA;
-    delete process.env.VOLCENGINE_ECS_METADATA_DISABLED;
+    delete process.env.BYTEPLUS_ECS_METADATA;
+    delete process.env.BYTEPLUS_ECS_METADATA_DISABLED;
   });
 
   afterEach(() => {
@@ -101,7 +101,7 @@ describe("EcsRoleCredentialProvider", () => {
   });
 
   it("should use env roleName before IMDS auto detection", async () => {
-    process.env.VOLCENGINE_ECS_METADATA = "env-role";
+    process.env.BYTEPLUS_ECS_METADATA = "env-role";
     mockHttpResponses([
       { body: "imdsv2-token" },
       {

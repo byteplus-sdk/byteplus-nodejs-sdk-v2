@@ -14,18 +14,18 @@
 
 ```typescript
 const client = new ECSClient({
-  host: "open.volcengineapi.com",
-  region: "cn-beijing",
+  host: "open.ap-southeast-1.byteplusapi.com",
+  region: "ap-southeast-1",
 });
 ```
 
 ### 自定义 RegionId
 
-Region 是大多数火山引擎服务的关键概念。你可以在客户端级别配置一个默认的 `region`。
+Region 是大多数BytePlus服务的关键概念。你可以在客户端级别配置一个默认的 `region`。
 
 ```typescript
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
 });
 ```
 
@@ -35,46 +35,46 @@ const client = new ECSClient({
 >
 > 默认支持自动寻址，无需手动指定 Endpoint。
 
-为了简化用户配置，Volcengine 提供了灵活的 Endpoint 自动寻址机制。用户无需手动指定服务地址，SDK 会根据服务名称、区域（Region）等信息自动拼接出合理的访问地址，并支持 DualStack（双栈）。
+为了简化用户配置，BytePlus 提供了灵活的 Endpoint 自动寻址机制。用户无需手动指定服务地址，SDK 会根据服务名称、区域（Region）等信息自动拼接出合理的访问地址，并支持 DualStack（双栈）。
 
 #### Endpoint 默认寻址
 
 ##### 寻址逻辑
 
 1. **是否自动寻址 Region**
-   SDK 仅对内置引导区域列表中的区域执行自动寻址；其他区域默认返回 Endpoint：`open.volcengineapi.com`。
+   SDK 仅对内置引导区域列表中的区域执行自动寻址；其他区域默认返回 Endpoint：`open.ap-southeast-1.byteplusapi.com`。
 
    内置引导区域列表（源码：[packages/sdk-core/src/utils/endpoint.ts](../packages/sdk-core/src/utils/endpoint.ts#L154-L160)）：
 
-   - `cn-beijing-autodriving`
+   - `ap-southeast-1`
    - `ap-southeast-2`
    - `ap-southeast-3`
-   - `cn-shanghai-autodriving`
-   - `cn-beijing-selfdrive`
+   - `ap-southeast-2`
+   - `ap-southeast-3`
 
-   用户可通过环境变量 `VOLC_BOOTSTRAP_REGION_LIST_CONF`（配置文件地址）或代码中自定义 `customBootstrapRegion`（Record<string, any>）来扩展引导区域列表。
+   用户可通过环境变量 `BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF`（配置文件地址）或代码中自定义 `customBootstrapRegion`（Record<string, any>）来扩展引导区域列表。
 
 2. **DualStack 支持（IPv6）**
    SDK 支持双栈网络（IPv4 + IPv6）访问地址，自动启用条件如下：
-   显式传入参数 `useDualStack`，或设置环境变量 `VOLC_ENABLE_DUALSTACK`。优先级：`useDualStack` > `VOLC_ENABLE_DUALSTACK`。
-   启用后，域名后缀将从 `volcengineapi.com` 切换为 `volcengine-api.com`。
+   显式传入参数 `useDualStack`，或设置环境变量 `BYTEPLUS_ENABLE_DUALSTACK`。优先级：`useDualStack` > `BYTEPLUS_ENABLE_DUALSTACK`。
+   启用后，域名后缀将从 `byteplusapi.com` 切换为 `byteplus-api.com`。
 
 3. **根据服务名和区域自动构造 Endpoint 地址**
 
-   - **全局服务（如 CDN、IAM）**：使用 `<服务名>.volcengineapi.com`（或启用双栈时使用 `volcengine-api.com`）。示例：`cdn.volcengineapi.com`
-   - **区域服务（如 ECS、RDS）**：使用 `<服务名>.<区域名>.volcengineapi.com`。示例：`ecs.cn-beijing.volcengineapi.com`
-   - **未注册的服务**：如果服务未在 SDK 内置的服务列表中注册，即使区域在引导列表中，仍返回默认 Endpoint `open.volcengineapi.com`
+   - **全局服务（如 CDN、IAM）**：使用 `<服务名>.byteplusapi.com`（或启用双栈时使用 `byteplus-api.com`）。示例：`cdn.byteplusapi.com`
+   - **区域服务（如 ECS、RDS）**：使用 `<服务名>.<区域名>.byteplusapi.com`。示例：`ecs.ap-southeast-1.byteplusapi.com`
+   - **未注册的服务**：如果服务未在 SDK 内置的服务列表中注册，即使区域在引导列表中，仍返回默认 Endpoint `open.ap-southeast-1.byteplusapi.com`
 
-   > 服务名在拼接域名时会进行标准化：大写转小写，下划线 `_` 转连字符 `-`。例如 `rds_mysql` → `rds-mysql.cn-beijing.volcengineapi.com`
+   > 服务名在拼接域名时会进行标准化：大写转小写，下划线 `_` 转连字符 `-`。例如 `rds_mysql` → `rds-mysql.ap-southeast-1.byteplusapi.com`
 
 ##### 代码示例
 
 ```typescript
-import { ECSClient } from "@volcengine/ecs";
+import { ECSClient } from "@byteplus/ecs";
 
-// SDK 会根据引导区域自动推导 Endpoint 为: ecs.cn-beijing-autodriving.volcengineapi.com
+// SDK 会根据引导区域自动推导 Endpoint 为: ecs.ap-southeast-1.byteplusapi.com
 const client = new ECSClient({
-  region: "cn-beijing-autodriving",
+  region: "ap-southeast-1",
 });
 ```
 
@@ -82,20 +82,20 @@ const client = new ECSClient({
 
 ```typescript
 const client = new ECSClient({
-  region: "cn-beijing-autodriving",
+  region: "ap-southeast-1",
   useDualStack: true,
 });
-// 生成的 Endpoint: ecs.cn-beijing-autodriving.volcengine-api.com
+// 生成的 Endpoint: ecs.ap-southeast-1.byteplus-api.com
 ```
 
 #### 非引导区域
 
-如果请求的 `region` 不在 SDK 的引导区域列表中，SDK 将默认使用 `open.volcengineapi.com` 作为 Endpoint。
-例如，默认配置下 `cn-beijing` 不在内置引导区域列表中，ECS 自动 Endpoint 会回退为 `open.volcengineapi.com`；如需生成 `ecs.cn-beijing.volcengineapi.com`，请通过 `customBootstrapRegion` 或 `VOLC_BOOTSTRAP_REGION_LIST_CONF` 将 `cn-beijing` 加入引导区域列表。
+如果请求的 `region` 不在 SDK 的引导区域列表中，SDK 将默认使用 `open.ap-southeast-1.byteplusapi.com` 作为 Endpoint。
+例如，默认配置下 `ap-southeast-1` 不在内置引导区域列表中，ECS 自动 Endpoint 会回退为 `open.ap-southeast-1.byteplusapi.com`；如需生成 `ecs.ap-southeast-1.byteplusapi.com`，请通过 `customBootstrapRegion` 或 `BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF` 将 `ap-southeast-1` 加入引导区域列表。
 
 ### 自定义引导区域列表
 
-SDK 内部维护了一个引导区域列表。你可以通过环境变量 `VOLC_BOOTSTRAP_REGION_LIST_CONF` 指向一个文件路径来扩展这个列表，该文件每行一个区域代码。
+SDK 内部维护了一个引导区域列表。你可以通过环境变量 `BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF` 指向一个文件路径来扩展这个列表，该文件每行一个区域代码。
 
 ```bash
 # /path/to/my_regions.conf
@@ -104,13 +104,13 @@ eu-central-1
 ```
 
 ```bash
-export VOLC_BOOTSTRAP_REGION_LIST_CONF=/path/to/my_regions.conf
+export BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF=/path/to/my_regions.conf
 ```
 
 或者在创建 Client 时通过 `customBootstrapRegion` 参数直接指定：
 
 ```typescript
-import { ECSClient } from "@volcengine/ecs";
+import { ECSClient } from "@byteplus/ecs";
 
 const client = new ECSClient({
   region: "my-private-region",
@@ -118,17 +118,17 @@ const client = new ECSClient({
     "my-private-region": {},
   },
 });
-// 生成的 Endpoint: ecs.my-private-region.volcengineapi.com
+// 生成的 Endpoint: ecs.my-private-region.byteplusapi.com
 ```
 
 ### Endpoint 标准寻址
 
 | Global 服务 | 双栈 | 格式                                    |
 | ----------- | ---- | --------------------------------------- |
-| 是          | 是   | `{Service}.volcengine-api.com`          |
-| 是          | 否   | `{Service}.volcengineapi.com`           |
-| 否          | 是   | `{Service}.{region}.volcengine-api.com` |
-| 否          | 否   | `{Service}.{region}.volcengineapi.com`  |
+| 是          | 是   | `{Service}.byteplus-api.com`          |
+| 是          | 否   | `{Service}.byteplusapi.com`           |
+| 否          | 是   | `{Service}.{region}.byteplus-api.com` |
+| 否          | 否   | `{Service}.{region}.byteplusapi.com`  |
 
 ---
 

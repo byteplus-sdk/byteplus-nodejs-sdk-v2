@@ -19,7 +19,7 @@
 ### 代码示例
 
 ```typescript
-import { HttpRequestError } from "@volcengine/sdk-core";
+import { HttpRequestError } from "@byteplus/sdk-core";
 
 try {
   await client.send(command);

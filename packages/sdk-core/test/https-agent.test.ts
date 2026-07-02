@@ -20,7 +20,7 @@ describe("httpsAgent SSL Verification", () => {
   describe("默认行为（启用 SSL 验证）", () => {
     it("应该阻止自签名证书", async () => {
       const client = new Client({
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         host: BAD_SSL_HOSTS.selfSigned,
         protocol: "https",
         accessKeyId: "test-key",
@@ -44,7 +44,7 @@ describe("httpsAgent SSL Verification", () => {
 
     it("应该阻止过期证书", async () => {
       const client = new Client({
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         host: BAD_SSL_HOSTS.expired,
         protocol: "https",
         accessKeyId: "test-key",
@@ -67,7 +67,7 @@ describe("httpsAgent SSL Verification", () => {
 
     it("应该阻止域名不匹配证书", async () => {
       const client = new Client({
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         host: BAD_SSL_HOSTS.wrongHost,
         protocol: "https",
         accessKeyId: "test-key",
@@ -88,7 +88,7 @@ describe("httpsAgent SSL Verification", () => {
 
     it("应该阻止不受信任的根证书", async () => {
       const client = new Client({
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         host: BAD_SSL_HOSTS.untrustedRoot,
         protocol: "https",
         accessKeyId: "test-key",
@@ -113,7 +113,7 @@ describe("httpsAgent SSL Verification", () => {
   describe("禁用 SSL 验证（使用 httpsAgent）", () => {
     it("应该允许自签名证书通过", async () => {
       const client = new Client({
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         host: BAD_SSL_HOSTS.selfSigned,
         protocol: "https",
         accessKeyId: "test-key",
@@ -140,7 +140,7 @@ describe("httpsAgent SSL Verification", () => {
 
     it("应该允许过期证书通过", async () => {
       const client = new Client({
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         host: BAD_SSL_HOSTS.expired,
         protocol: "https",
         accessKeyId: "test-key",
@@ -166,7 +166,7 @@ describe("httpsAgent SSL Verification", () => {
 
     it("应该允许域名不匹配证书通过", async () => {
       const client = new Client({
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         host: BAD_SSL_HOSTS.wrongHost,
         protocol: "https",
         accessKeyId: "test-key",
@@ -201,7 +201,7 @@ describe("httpsAgent SSL Verification", () => {
       });
 
       const client = new Client({
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         host: BAD_SSL_HOSTS.selfSigned,
         protocol: "https",
         accessKeyId: "test-key",
@@ -231,7 +231,7 @@ describe("httpsAgent SSL Verification", () => {
       });
 
       const client = new Client({
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         host: BAD_SSL_HOSTS.expired,
         protocol: "https",
         accessKeyId: "test-key",
@@ -273,7 +273,7 @@ describe("httpsAgent SSL Verification", () => {
       expect(customHandler).toBeDefined();
 
       const client = new Client({
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         host: BAD_SSL_HOSTS.selfSigned,
         protocol: "https",
         accessKeyId: "test-key",
@@ -310,7 +310,7 @@ CgKCAQEAw7E0K7Da7u0qMzSr5GJ9c9v1KWgz82FHwFv4yKJ3l6MZ5aLjh3x
       });
 
       const client = new Client({
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         host: "test.example.com",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",

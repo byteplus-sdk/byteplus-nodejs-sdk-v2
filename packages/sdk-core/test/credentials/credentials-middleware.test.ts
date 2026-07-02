@@ -170,8 +170,8 @@ describe("credentialsMiddleware", () => {
     // 设置环境变量让 DefaultCredentialProvider 的 EnvironmentVariableCredentialProvider 命中
     const originalEnv = process.env;
     process.env = { ...originalEnv };
-    process.env.VOLCENGINE_ACCESS_KEY = "default-ak";
-    process.env.VOLCENGINE_SECRET_KEY = "default-sk";
+    process.env.BYTEPLUS_ACCESS_KEY = "default-ak";
+    process.env.BYTEPLUS_SECRET_KEY = "default-sk";
 
     try {
       const clientConfig = {} as any;
@@ -188,33 +188,33 @@ describe("credentialsMiddleware", () => {
     }
   });
 
-  it("should fall back to legacy ~/.volc/config when default credential chain fails", async () => {
+  it("should fall back to legacy ~/.byteplus/config when default credential chain fails", async () => {
     const originalEnv = process.env;
     const tempHome = fs.mkdtempSync(path.join(os.tmpdir(), "volc-legacy-"));
 
     process.env = { ...originalEnv };
-    delete process.env.VOLCENGINE_ACCESS_KEY;
-    delete process.env.VOLCENGINE_SECRET_KEY;
-    delete process.env.VOLCENGINE_SESSION_TOKEN;
-    delete process.env.VOLCSTACK_ACCESS_KEY_ID;
-    delete process.env.VOLCSTACK_SECRET_ACCESS_KEY;
-    delete process.env.VOLCSTACK_ACCESS_KEY;
-    delete process.env.VOLCSTACK_SECRET_KEY;
-    delete process.env.VOLCSTACK_SESSION_TOKEN;
-    delete process.env.VOLCENGINE_OIDC_ROLE_TRN;
-    delete process.env.VOLCENGINE_OIDC_TOKEN_FILE;
-    delete process.env.VOLCENGINE_CLI_CONFIG_FILE;
-    process.env.VOLCENGINE_ECS_METADATA_DISABLED = "true";
+    delete process.env.BYTEPLUS_ACCESS_KEY;
+    delete process.env.BYTEPLUS_SECRET_KEY;
+    delete process.env.BYTEPLUS_SESSION_TOKEN;
+    delete process.env.BYTEPLUS_ACCESS_KEY_ID;
+    delete process.env.BYTEPLUS_SECRET_ACCESS_KEY;
+    delete process.env.BYTEPLUS_ACCESS_KEY;
+    delete process.env.BYTEPLUS_SECRET_KEY;
+    delete process.env.BYTEPLUS_SESSION_TOKEN;
+    delete process.env.BYTEPLUS_OIDC_ROLE_TRN;
+    delete process.env.BYTEPLUS_OIDC_TOKEN_FILE;
+    delete process.env.BYTEPLUS_CLI_CONFIG_FILE;
+    process.env.BYTEPLUS_ECS_METADATA_DISABLED = "true";
     process.env.HOME = tempHome;
 
     try {
-      const legacyConfigDir = path.join(tempHome, ".volc");
+      const legacyConfigDir = path.join(tempHome, ".byteplus");
       fs.mkdirSync(legacyConfigDir);
       fs.writeFileSync(
         path.join(legacyConfigDir, "config"),
         JSON.stringify({
-          VOLC_ACCESSKEY: "legacy-ak",
-          VOLC_SECRETKEY: "legacy-sk",
+          BYTEPLUS_ACCESS_KEY: "legacy-ak",
+          BYTEPLUS_SECRET_KEY: "legacy-sk",
         }),
       );
 

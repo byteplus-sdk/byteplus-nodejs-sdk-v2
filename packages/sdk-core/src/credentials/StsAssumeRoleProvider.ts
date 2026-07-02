@@ -75,10 +75,10 @@ export class StsAssumeRoleProvider implements Provider {
         );
 
         const client = new STSClient({
-          region: this.params.region || "cn-beijing",
+          region: this.params.region || "ap-southeast-1",
           accessKeyId: this.params.accessKeyId,
           secretAccessKey: this.params.secretAccessKey,
-          host: this.params.host || "sts.volcengineapi.com",
+          host: this.params.host || "sts.ap-southeast-1.byteplusapi.com",
           protocol: this.params.protocol || "https",
         });
 

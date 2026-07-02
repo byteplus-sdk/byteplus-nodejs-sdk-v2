@@ -11,7 +11,7 @@
 ```typescript
 const client = new ECSClient({
   protocol: "http",
-  region: "cn-beijing",
+  region: "ap-southeast-1",
 });
 ```
 
@@ -25,7 +25,7 @@ const client = new ECSClient({
 
 ```typescript
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   httpOptions: {
     ignoreSSL: true,
   },
@@ -36,7 +36,7 @@ const client = new ECSClient({
 
 ```typescript
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   httpOptions: {
     pool: {
       keepAlive: true,

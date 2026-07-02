@@ -15,16 +15,16 @@ interface ServiceEndpointInfo {
 
 const separator = ".";
 const openPrefix = "open";
-const endpointSuffix = separator + "volcengineapi.com";
-const dualstackEndpointSuffix = separator + "volcengine-api.com";
+const endpointSuffix = separator + "byteplusapi.com";
+const dualstackEndpointSuffix = separator + "byteplus-api.com";
 
-const endpoint = openPrefix + endpointSuffix;
+const endpoint = openPrefix + separator + "ap-southeast-1" + endpointSuffix;
 
-const regionCodeCNBeijingAutoDriving = "cn-beijing-autodriving";
+const regionCodeAPSingapore1 = "ap-singapore-1";
+const regionCodeAPSouthEast1 = "ap-southeast-1";
 const regionCodeAPSouthEast2 = "ap-southeast-2";
 const regionCodeAPSouthEast3 = "ap-southeast-3";
-const regionCodeCNShanghaiAutoDriving = "cn-shanghai-autodriving";
-const regionCodeCNBeijingSelfdrive = "cn-beijing-selfdrive";
+const regionCodeByteplusGlobal = "byteplus-global";
 
 const defaultEndpoint: Record<string, ServiceEndpointInfo> = {
   vpc: { Service: "vpc", IsGlobal: false },
@@ -146,6 +146,9 @@ const defaultEndpoint: Record<string, ServiceEndpointInfo> = {
   vms: { Service: "vms", IsGlobal: false },
   eco_partner: { Service: "eco_partner", IsGlobal: true },
   smc: { Service: "smc", IsGlobal: true },
+  cpaas: { Service: "cpaas", IsGlobal: true },
+  kickart: { Service: "kickart", IsGlobal: true },
+  vs: { Service: "vs", IsGlobal: true },
   i18n_openapi: { Service: "i18n_openapi", IsGlobal: true },
   arkclaw: { Service: "arkclaw", IsGlobal: false },
   insight: { Service: "insight", IsGlobal: true },
@@ -156,11 +159,11 @@ const defaultEndpoint: Record<string, ServiceEndpointInfo> = {
 };
 
 const bootstrapRegion: Record<string, unknown> = {
-  [regionCodeCNBeijingAutoDriving]: {},
+  [regionCodeAPSingapore1]: {},
+  [regionCodeAPSouthEast1]: {},
   [regionCodeAPSouthEast2]: {},
   [regionCodeAPSouthEast3]: {},
-  [regionCodeCNShanghaiAutoDriving]: {},
-  [regionCodeCNBeijingSelfdrive]: {},
+  [regionCodeByteplusGlobal]: {},
 };
 
 function standardizeDomainServiceCode(serviceCode: string): string {

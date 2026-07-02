@@ -17,7 +17,7 @@ import { AxiosRequestHandler } from "../src/request-handlers/axios-handler";
 // 创建客户端时配置超时（适用于所有请求）
 const clientWithTimeout = new Client({
   host: "example.com",
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   accessKeyId: "your-access-key",
   secretAccessKey: "your-secret-key",
 
@@ -37,7 +37,7 @@ const axiosHandler = new AxiosRequestHandler({
 
 const clientWithHandler = new Client({
   host: "example.com",
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   accessKeyId: "your-access-key",
   secretAccessKey: "your-secret-key",
   requestHandler: axiosHandler,
@@ -46,7 +46,7 @@ const clientWithHandler = new Client({
 // 方式 B: 使用默认的 AxiosRequestHandler（通过 httpOptions 配置）
 const clientDefaultHandler = new Client({
   host: "example.com",
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   accessKeyId: "your-access-key",
   secretAccessKey: "your-secret-key",
 
@@ -62,7 +62,7 @@ const clientDefaultHandler = new Client({
 // 为特定请求设置不同的超时（优先级最高）
 const client = new Client({
   host: "example.com",
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   accessKeyId: "your-access-key",
   secretAccessKey: "your-secret-key",
   httpOptions: {

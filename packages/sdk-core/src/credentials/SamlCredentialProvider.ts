@@ -86,7 +86,7 @@ export class SamlCredentialProvider implements Provider {
       !samlEnv.samlAssertion
     ) {
       throw new Error(
-        "SamlCredentialProvider: 未传入参数，且环境变量 VOLCENGINE_SAML_ROLE_TRN、VOLCENGINE_SAML_ACCOUNT_ID、VOLCENGINE_SAML_PROVIDER_TRN、VOLCENGINE_SAML_ASSERTION 未设置",
+        "SamlCredentialProvider: 未传入参数，且环境变量 BYTEPLUS_SAML_ROLE_TRN、BYTEPLUS_SAML_ACCOUNT_ID、BYTEPLUS_SAML_PROVIDER_TRN、BYTEPLUS_SAML_ASSERTION 未设置",
       );
     }
 
@@ -128,8 +128,8 @@ export class SamlCredentialProvider implements Provider {
         );
 
         const client = new STSClient({
-          region: this.params.region || "cn-beijing",
-          host: this.params.host || "sts.volcengineapi.com",
+          region: this.params.region || "ap-southeast-1",
+          host: this.params.host || "sts.ap-southeast-1.byteplusapi.com",
           protocol: this.params.protocol || "https",
           _jumpCredential: true,
         });

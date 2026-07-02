@@ -15,7 +15,7 @@
 
 ```typescript
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   // autoRetry: false,  // 完全禁用重试
   maxRetries: 5,
 });
@@ -45,10 +45,10 @@ SDK 只会对特定的错误进行重试：
 | `ExponentialWithRandomJitterBackoffStrategy` | 带抖动的指数退避（默认） | `base = min(minRetryDelay * 2^(n-1), maxRetryDelay)`, `delay = min(base + random(0, base), maxRetryDelay)` |
 
 ```typescript
-import { StrategyName } from "@volcengine/sdk-core";
+import { StrategyName } from "@byteplus/sdk-core";
 
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   strategyName: StrategyName.ExponentialWithRandomJitterBackoffStrategy,
 });
 ```
@@ -59,7 +59,7 @@ const client = new ECSClient({
 
 ```typescript
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   retryStrategy: {
     minRetryDelay: 500,
     maxRetryDelay: 20000,

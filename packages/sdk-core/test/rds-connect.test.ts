@@ -5,11 +5,11 @@ import { Client } from "../src";
 describe("RDS Connect Utils", () => {
   describe("buildAuthToken", () => {
     const envKeysToClear = [
-      "VOLCSTACK_ACCESS_KEY_ID",
-      "VOLCSTACK_ACCESS_KEY",
-      "VOLCSTACK_SECRET_ACCESS_KEY",
-      "VOLCSTACK_SECRET_KEY",
-      "VOLCSTACK_SESSION_TOKEN",
+      "BYTEPLUS_ACCESS_KEY_ID",
+      "BYTEPLUS_ACCESS_KEY",
+      "BYTEPLUS_SECRET_ACCESS_KEY",
+      "BYTEPLUS_SECRET_KEY",
+      "BYTEPLUS_SESSION_TOKEN",
     ] as const;
 
     const originalEnv: Record<string, string | undefined> = {};
@@ -20,7 +20,7 @@ describe("RDS Connect Utils", () => {
         delete process.env[key];
       }
       originalEnv.HOME = process.env.HOME;
-      process.env.HOME = "/__volcengine_nodejs_sdk_test_home__";
+      process.env.HOME = "/__byteplus_nodejs_sdk_test_home__";
     });
 
     afterAll(() => {
@@ -42,7 +42,7 @@ describe("RDS Connect Utils", () => {
     const validClientConfig = {
       accessKeyId: "test-access-key",
       secretAccessKey: "test-secret-key",
-      region: "cn-beijing",
+      region: "ap-southeast-1",
     };
 
     const createClient = (overrides: Partial<Client["config"]> = {}) =>
@@ -55,7 +55,7 @@ describe("RDS Connect Utils", () => {
 
     test("should return presigned auth token", async () => {
       const token = await buildAuthToken(createClient(), validOptions);
-      expect(token).toContain("https://open.volcengineapi.com");
+      expect(token).toContain("https://rds-mysql.ap-southeast-1.byteplusapi.com");
 
       // Should contain required parameters
       expect(token).toContain("Action=ConnectDatabase");
@@ -83,7 +83,7 @@ describe("RDS Connect Utils", () => {
         validOptions,
       );
 
-      expect(tokenBeijing).toContain("%2Fcn-beijing%2Frds_mysql%2Frequest");
+      expect(tokenBeijing).toContain("%2Fap-southeast-1%2Frds_mysql%2Frequest");
       expect(tokenShanghai).toContain("%2Fcn-shanghai%2Frds_mysql%2Frequest");
     });
 

@@ -52,10 +52,10 @@ export async function getAssumeRole(assumeRoleParams: AssumeRoleParams) {
       );
 
       const client = new STSClient({
-        region: assumeRoleParams?.region || "cn-beijing",
+        region: assumeRoleParams?.region || "ap-southeast-1",
         accessKeyId: assumeRoleParams.accessKeyId,
         secretAccessKey: assumeRoleParams.secretAccessKey,
-        host: assumeRoleParams?.host || "sts.volcengineapi.com",
+        host: assumeRoleParams?.host || "sts.ap-southeast-1.byteplusapi.com",
         protocol: assumeRoleParams?.protocol || "https",
       });
 

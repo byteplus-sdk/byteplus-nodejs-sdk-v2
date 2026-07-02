@@ -1,5 +1,0 @@
-{
-  "description": "I18N_OPENAPI: 新增 VideoProjectAddTargetLangsToExistingDrama, VideoProjectDeleteVideoDrama, VideoProjectListToolProjectResources, VideoProjectListVideoDrama；修改 VideoProjectGetToolTask, VideoProjectCreateToolTask, VideoProjectListToolTaskByResourceIDs, VideoProjectTaskDetail",
-  "modules": "service/i18n_openapi",
-  "type": "breaking-change"
-}

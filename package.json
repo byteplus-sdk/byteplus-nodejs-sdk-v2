@@ -1,7 +1,7 @@
 {
-  "name": "@volcengine/sdk-monorepo",
+  "name": "@byteplus/sdk-monorepo",
   "version": "1.0.0",
-  "description": "VolcEngine SDK monorepo",
+  "description": "BytePlus SDK monorepo",
   "license": "Apache-2.0",
   "private": true,
   "workspaces": [

@@ -77,7 +77,7 @@ export class OidcCredentialProvider implements Provider {
 
     if (!oidcEnv || !oidcEnv.roleTrn || !oidcEnv.oidcTokenFile) {
       throw new Error(
-        "OidcCredentialProvider: 未传入参数，且环境变量 VOLCENGINE_OIDC_ROLE_TRN 和 VOLCENGINE_OIDC_TOKEN_FILE 未设置",
+        "OidcCredentialProvider: 未传入参数，且环境变量 BYTEPLUS_OIDC_ROLE_TRN 和 BYTEPLUS_OIDC_TOKEN_FILE 未设置",
       );
     }
 
@@ -117,8 +117,8 @@ export class OidcCredentialProvider implements Provider {
           await import("../client/stsClient");
 
         const client = new STSClient({
-          region: this.params.region || "cn-beijing",
-          host: this.params.host || "sts.volcengineapi.com",
+          region: this.params.region || "ap-southeast-1",
+          host: this.params.host || "sts.ap-southeast-1.byteplusapi.com",
           protocol: this.params.protocol || "https",
           _jumpCredential: true,
         });

@@ -20,7 +20,7 @@ describe("Presign URL Integration Tests", () => {
   const testFn = SKIP_INTEGRATION ? test.skip : test;
 
   testFn("IAM GetUser request - real API call", async () => {
-    const region = "cn-beijing";
+    const region = "ap-southeast-1";
     const service = "iam";
 
     const url = presignUrl({
@@ -35,7 +35,7 @@ describe("Presign URL Integration Tests", () => {
       serviceName: service,
       accessKeyId: AK,
       secretAccessKey: SK,
-      host: "open.volcengineapi.com",
+      host: "open.ap-southeast-1.byteplusapi.com",
     });
 
     console.log("Generated URL:", url);
@@ -83,21 +83,21 @@ describe("Presign URL Integration Tests", () => {
         UserName: "testuser",
         Version: "2018-01-01",
       },
-      region: "cn-beijing",
+      region: "ap-southeast-1",
       serviceName: "iam",
       accessKeyId: "AKTEST123",
       secretAccessKey: "SKTEST456",
-      host: "open.volcengineapi.com",
+      host: "open.ap-southeast-1.byteplusapi.com",
       timestamp: "20240101T120000Z",
     });
 
     // 验证 URL 结构
-    expect(url).toContain("https://open.volcengineapi.com/?");
+    expect(url).toContain("https://open.ap-southeast-1.byteplusapi.com/?");
     expect(url).toContain("Action=GetUser");
     expect(url).toContain("UserName=testuser");
     expect(url).toContain("Version=2018-01-01");
     expect(url).toContain("X-Algorithm=HMAC-SHA256");
-    expect(url).toContain("X-Credential=AKTEST123%2F20240101%2Fcn-beijing%2Fiam%2Frequest");
+    expect(url).toContain("X-Credential=AKTEST123%2F20240101%2Fap-southeast-1%2Fiam%2Frequest");
     expect(url).toContain("X-Date=20240101T120000Z");
     expect(url).toContain("X-NotSignBody=");
     expect(url).toContain("X-SignedHeaders=");

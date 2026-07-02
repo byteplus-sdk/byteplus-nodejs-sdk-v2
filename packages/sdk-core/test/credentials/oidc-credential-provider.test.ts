@@ -46,7 +46,7 @@ function buildMockResponse() {
       Action: "AssumeRoleWithOIDC",
       Version: "2018-01-01",
       Service: "sts",
-      Region: "cn-beijing",
+      Region: "ap-southeast-1",
     },
     Result: {
       Credentials: {
@@ -313,7 +313,7 @@ describe("OidcCredentialProvider", () => {
       });
 
       expect(() => new OidcCredentialProvider()).toThrow(
-        "VOLCENGINE_OIDC_ROLE_TRN",
+        "BYTEPLUS_OIDC_ROLE_TRN",
       );
     });
   });

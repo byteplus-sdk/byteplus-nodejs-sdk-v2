@@ -2,7 +2,7 @@
 
 ---
 
-# 火山引擎 Node.js SDK 接入文档
+# BytePlus Node.js SDK 接入文档
 
 ## 环境要求
 
@@ -16,13 +16,13 @@
 
 ```bash
 # pnpm
-pnpm add @volcengine/sdk-core
+pnpm add @byteplus/sdk-core
 
 # npm
-npm install @volcengine/sdk-core
+npm install @byteplus/sdk-core
 
 # yarn
-yarn add @volcengine/sdk-core
+yarn add @byteplus/sdk-core
 ```
 
 2. 安装云产品 SDK 包
@@ -31,13 +31,13 @@ yarn add @volcengine/sdk-core
 
 ```bash
 # pnpm
-pnpm add @volcengine/ecs
+pnpm add @byteplus/ecs
 
 # npm
-npm install @volcengine/ecs
+npm install @byteplus/ecs
 
 # yarn
-yarn add @volcengine/ecs
+yarn add @byteplus/ecs
 ```
 
 ## 章节索引

@@ -12,7 +12,7 @@ describe("Error Parsing Logic", () => {
         Action: "Test",
         Version: "1",
         Service: "test",
-        Region: "cn-beijing",
+        Region: "ap-southeast-1",
         Error: {
           Code: "InvalidAction",
           Message: "The action is not supported",
@@ -58,7 +58,7 @@ describe("Error Parsing Logic", () => {
         Action: "Test",
         Version: "1",
         Service: "test",
-        Region: "cn-beijing",
+        Region: "ap-southeast-1",
         Error: {
           Code: "BusinessError",
           Message: "Something went wrong logically",

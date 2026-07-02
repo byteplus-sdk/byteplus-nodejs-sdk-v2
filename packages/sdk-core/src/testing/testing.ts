@@ -1,12 +1,12 @@
 /**
- * @volcengine/sdk-core/testing
+ * @byteplus/sdk-core/testing
  *
  * Testing utilities for unit testing SDK clients.
  * Import these tools to mock HTTP requests and time in your tests.
  *
  * @example
  * ```typescript
- * import { MockRequestHandler, MockClock } from '@volcengine/sdk-core/testing';
+ * import { MockRequestHandler, MockClock } from '@byteplus/sdk-core/testing';
  *
  * const mockHandler = new MockRequestHandler();
  * mockHandler.mock('https://api.example.com', {

@@ -246,7 +246,7 @@ export const debugMiddleware: {
         `${tag} Signing: credentials=${
           hasCredentials ? "present" : "missing"
         }, ` +
-          `region=${request.region || clientConfig.region || "cn-beijing"}, ` +
+          `region=${request.region || clientConfig.region || "ap-southeast-1"}, ` +
           `serviceName=${request.serviceName || "<unknown>"}`,
       );
     }

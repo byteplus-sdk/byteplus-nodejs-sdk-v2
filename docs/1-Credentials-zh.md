@@ -4,7 +4,7 @@
 
 ## 访问凭据
 
-为保障资源访问安全，火山引擎 Node.js SDK 支持显式凭证和 `CredentialProvider` 自动解析两种方式。
+为保障资源访问安全，BytePlus Node.js SDK 支持显式凭证和 `CredentialProvider` 自动解析两种方式。
 
 ### CredentialProvider 总览
 
@@ -15,13 +15,13 @@
 | `OidcCredentialProvider`                | STS AssumeRoleWithOIDC           | 是                  | OIDC 联邦身份      |
 | `SamlCredentialProvider`                | STS AssumeRoleWithSAML           | 是                  | SAML 联邦身份      |
 | `EnvironmentVariableCredentialProvider` | 读取环境变量                     | 否                  | CI/CD、容器注入    |
-| `CLIConfigCredentialProvider`           | 读取 `~/.volcengine/config.json` | 否                  | 复用 CLI 配置      |
+| `CLIConfigCredentialProvider`           | 读取 `~/.byteplus/config.json` | 否                  | 复用 CLI 配置      |
 | `EcsRoleCredentialProvider`             | 读取 ECS IMDS                    | 是                  | ECS 实例角色       |
 | `DefaultCredentialProvider`             | 默认链包装                       | 取决于代理 Provider | 业务代码不写 AK/SK |
 
 ### AK/SK 设置
 
-AK/SK 是由火山引擎用户在控制台创建的一对永久访问密钥。SDK 使用该密钥对每次请求进行签名，从而完成身份验证。
+AK/SK 是由BytePlus用户在控制台创建的一对永久访问密钥。SDK 使用该密钥对每次请求进行签名，从而完成身份验证。
 
 > ⚠️ **注意事项**
 >
@@ -32,12 +32,12 @@ AK/SK 是由火山引擎用户在控制台创建的一对永久访问密钥。SD
 #### 1. 在代码中配置（⚠️ 不建议明文传入）
 
 ```typescript
-import { ECSClient } from "@volcengine/ecs";
+import { ECSClient } from "@byteplus/ecs";
 
 const client = new ECSClient({
   accessKeyId: "YOUR_AK",
   secretAccessKey: "YOUR_SK",
-  region: "cn-beijing",
+  region: "ap-southeast-1",
 });
 ```
 
@@ -45,21 +45,21 @@ const client = new ECSClient({
 
 SDK 会自动读取以下环境变量：
 
-- **Access Key ID**: `VOLCENGINE_ACCESS_KEY`
-- **Secret Access Key**: `VOLCENGINE_SECRET_KEY`
+- **Access Key ID**: `BYTEPLUS_ACCESS_KEY`
+- **Secret Access Key**: `BYTEPLUS_SECRET_KEY`
 
 ```bash
-export VOLCENGINE_ACCESS_KEY="YOUR_AK"
-export VOLCENGINE_SECRET_KEY="YOUR_SK"
+export BYTEPLUS_ACCESS_KEY="YOUR_AK"
+export BYTEPLUS_SECRET_KEY="YOUR_SK"
 ```
 
 ```typescript
-const client = new ECSClient({ region: "cn-beijing" });
+const client = new ECSClient({ region: "ap-southeast-1" });
 ```
 
 ### STS Token 设置
 
-STS（Security Token Service）是火山引擎提供的临时访问凭证机制。开发者通过服务端调用 STS 接口获取临时凭证（临时 AK、SK 和 Token），有效期可配置，适用于安全要求较高的场景。
+STS（Security Token Service）是BytePlus提供的临时访问凭证机制。开发者通过服务端调用 STS 接口获取临时凭证（临时 AK、SK 和 Token），有效期可配置，适用于安全要求较高的场景。
 
 > ⚠️ **注意事项**
 >
@@ -71,18 +71,18 @@ const client = new ECSClient({
   accessKeyId: "YOUR_TEMP_AK",
   secretAccessKey: "YOUR_TEMP_SK",
   sessionToken: "YOUR_SESSION_TOKEN",
-  region: "cn-beijing",
+  region: "ap-southeast-1",
 });
 
 // 或通过环境变量设置：
-// export VOLCENGINE_SESSION_TOKEN="YOUR_SESSION_TOKEN"
+// export BYTEPLUS_SESSION_TOKEN="YOUR_SESSION_TOKEN"
 ```
 
 ### STS AssumeRole 示例
 
-STS AssumeRole 是火山引擎提供的临时访问凭证机制。使用 IAM 子账号角色进行 AssumeRole 操作后，获取临时凭证发起 API 请求。
+STS AssumeRole 是BytePlus提供的临时访问凭证机制。使用 IAM 子账号角色进行 AssumeRole 操作后，获取临时凭证发起 API 请求。
 
-参考文档：https://www.volcengine.com/docs/6257/86374
+参考文档：https://www.byteplus.com/docs/6257/86374
 
 > ⚠️ **注意事项**
 >
@@ -90,15 +90,15 @@ STS AssumeRole 是火山引擎提供的临时访问凭证机制。使用 IAM 子
 > 2. 设置合理的有效期：越短越安全，建议不要超过 1 小时。
 
 ```typescript
-import { StsAssumeRoleProvider } from "@volcengine/sdk-core";
-import { ECSClient } from "@volcengine/ecs";
+import { StsAssumeRoleProvider } from "@byteplus/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
 
 const credentialProvider = new StsAssumeRoleProvider({
   accessKeyId: "ASSUME_ROLE_CALLER_AK",
   secretAccessKey: "ASSUME_ROLE_CALLER_SK",
   roleTrn: "trn:iam::2110400000:role/role123",
-  region: "cn-beijing",
-  host: "sts.volcengineapi.com",
+  region: "ap-southeast-1",
+  host: "sts.ap-southeast-1.byteplusapi.com",
   protocol: "https",
   durationSeconds: 3600,
   policy:
@@ -107,7 +107,7 @@ const credentialProvider = new StsAssumeRoleProvider({
 });
 
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   credentialProvider,
 });
 ```
@@ -116,7 +116,7 @@ const client = new ECSClient({
 
 `OidcCredentialProvider` 通过 STS `AssumeRoleWithOIDC` 接口获取临时凭证，适用于已接入 OIDC 身份提供者的场景。使用 OIDC Token 进行 AssumeRoleWithOIDC 操作后，获取临时凭证发起 API 请求。
 
-参考文档：https://www.volcengine.com/docs/6257/1494877
+参考文档：https://www.byteplus.com/docs/6257/1494877
 
 > ⚠️ **注意事项**
 >
@@ -127,22 +127,22 @@ const client = new ECSClient({
 
 | 环境变量                            | 说明                    | 必填 |
 | ----------------------------------- | ----------------------- | :--: |
-| `VOLCENGINE_OIDC_ROLE_TRN`          | 要扮演的角色 TRN        |  ✅  |
-| `VOLCENGINE_OIDC_TOKEN_FILE`        | OIDC Token 文件路径     |  ✅  |
-| `VOLCENGINE_OIDC_ROLE_SESSION_NAME` | 角色会话名称            |  ❌  |
-| `VOLCENGINE_OIDC_ROLE_POLICY`       | 会话策略（JSON 字符串） |  ❌  |
-| `VOLCENGINE_OIDC_STS_ENDPOINT`      | 自定义 STS Endpoint     |  ❌  |
+| `BYTEPLUS_OIDC_ROLE_TRN`          | 要扮演的角色 TRN        |  ✅  |
+| `BYTEPLUS_OIDC_TOKEN_FILE`        | OIDC Token 文件路径     |  ✅  |
+| `BYTEPLUS_OIDC_ROLE_SESSION_NAME` | 角色会话名称            |  ❌  |
+| `BYTEPLUS_OIDC_ROLE_POLICY`       | 会话策略（JSON 字符串） |  ❌  |
+| `BYTEPLUS_OIDC_STS_ENDPOINT`      | 自定义 STS Endpoint     |  ❌  |
 
 ```typescript
-import { OidcCredentialProvider } from "@volcengine/sdk-core";
-import { ECSClient } from "@volcengine/ecs";
+import { OidcCredentialProvider } from "@byteplus/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
 
 // 显式传参（全部参数）
 const credentialProvider = new OidcCredentialProvider({
   roleTrn: "trn:iam::2110400000:role/oidc-role",
   oidcTokenFile: "/path/to/oidc/token",
   roleSessionName: "my-session",
-  host: "sts.volcengineapi.com",
+  host: "sts.ap-southeast-1.byteplusapi.com",
   policy:
     '{"Statement":[{"Effect":"Allow","Action":["ecs:Describe*"],"Resource":["*"]}]}',
 });
@@ -151,7 +151,7 @@ const credentialProvider = new OidcCredentialProvider({
 const credentialProvider2 = new OidcCredentialProvider();
 
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   credentialProvider,
 });
 ```
@@ -160,7 +160,7 @@ const client = new ECSClient({
 
 `SamlCredentialProvider` 通过 STS `AssumeRoleWithSAML` 接口获取临时凭证，适用于 SAML 联邦身份场景。使用 SAML 断言进行 AssumeRoleWithSAML 操作后，获取临时凭证发起 API 请求。
 
-参考文档：https://www.volcengine.com/docs/6257/1631607
+参考文档：https://www.byteplus.com/docs/6257/1631607
 
 > ⚠️ **注意事项**
 >
@@ -171,16 +171,16 @@ const client = new ECSClient({
 
 | 环境变量                       | 说明                     | 必填 |
 | ------------------------------ | ------------------------ | :--: |
-| `VOLCENGINE_SAML_ROLE_TRN`     | 要扮演的角色 TRN         |  ✅  |
-| `VOLCENGINE_SAML_ACCOUNT_ID`   | 火山引擎账号 ID          |  ✅  |
-| `VOLCENGINE_SAML_PROVIDER_TRN` | SAML 身份提供者 TRN      |  ✅  |
-| `VOLCENGINE_SAML_ASSERTION`    | SAML 断言（Base64 编码） |  ✅  |
-| `VOLCENGINE_SAML_ENDPOINT`     | 自定义 STS Endpoint      |  ❌  |
-| `VOLCENGINE_SAML_POLICY`       | 会话策略（JSON 字符串）  |  ❌  |
+| `BYTEPLUS_SAML_ROLE_TRN`     | 要扮演的角色 TRN         |  ✅  |
+| `BYTEPLUS_SAML_ACCOUNT_ID`   | BytePlus账号 ID          |  ✅  |
+| `BYTEPLUS_SAML_PROVIDER_TRN` | SAML 身份提供者 TRN      |  ✅  |
+| `BYTEPLUS_SAML_ASSERTION`    | SAML 断言（Base64 编码） |  ✅  |
+| `BYTEPLUS_SAML_ENDPOINT`     | 自定义 STS Endpoint      |  ❌  |
+| `BYTEPLUS_SAML_POLICY`       | 会话策略（JSON 字符串）  |  ❌  |
 
 ```typescript
-import { SamlCredentialProvider } from "@volcengine/sdk-core";
-import { ECSClient } from "@volcengine/ecs";
+import { SamlCredentialProvider } from "@byteplus/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
 
 // 显式传参（全部参数）
 const credentialProvider = new SamlCredentialProvider({
@@ -188,7 +188,7 @@ const credentialProvider = new SamlCredentialProvider({
   accountId: "2110400000",
   samlProviderTrn: "trn:iam::2110400000:saml-provider/my-provider",
   samlAssertion: "BASE64_ENCODED_SAML_ASSERTION",
-  host: "sts.volcengineapi.com",
+  host: "sts.ap-southeast-1.byteplusapi.com",
   policy:
     '{"Statement":[{"Effect":"Allow","Action":["ecs:Describe*"],"Resource":["*"]}]}',
 });
@@ -197,7 +197,7 @@ const credentialProvider = new SamlCredentialProvider({
 const credentialProvider2 = new SamlCredentialProvider();
 
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   credentialProvider,
 });
 ```
@@ -206,34 +206,34 @@ const client = new ECSClient({
 
 `EnvironmentVariableCredentialProvider` 读取以下环境变量：
 
-- `VOLCSTACK_ACCESS_KEY_ID` / `VOLCSTACK_ACCESS_KEY`
-- `VOLCSTACK_SECRET_ACCESS_KEY` / `VOLCSTACK_SECRET_KEY`
-- `VOLCSTACK_SESSION_TOKEN`（可选）
+- `BYTEPLUS_ACCESS_KEY_ID` / `BYTEPLUS_ACCESS_KEY`
+- `BYTEPLUS_SECRET_ACCESS_KEY` / `BYTEPLUS_SECRET_KEY`
+- `BYTEPLUS_SESSION_TOKEN`（可选）
 
 ```typescript
-import { ECSClient } from "@volcengine/ecs";
-import { EnvironmentVariableCredentialProvider } from "@volcengine/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
+import { EnvironmentVariableCredentialProvider } from "@byteplus/sdk-core";
 
 const credentialProvider = new EnvironmentVariableCredentialProvider();
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   credentialProvider,
 });
 ```
 
 ### CLI 配置凭证 Provider
 
-`CLIConfigCredentialProvider` 默认读取 `~/.volcengine/config.json`。
+`CLIConfigCredentialProvider` 默认读取 `~/.byteplus/config.json`。
 
-- 配置文件优先级：`VOLCENGINE_CLI_CONFIG_FILE` 环境变量 > 默认路径 `~/.volcengine/config.json`
+- 配置文件优先级：`BYTEPLUS_CLI_CONFIG_FILE` 环境变量 > 默认路径 `~/.byteplus/config.json`
 
 ```typescript
-import { ECSClient } from "@volcengine/ecs";
-import { CLIConfigCredentialProvider } from "@volcengine/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
+import { CLIConfigCredentialProvider } from "@byteplus/sdk-core";
 
 const credentialProvider = new CLIConfigCredentialProvider();
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   credentialProvider,
 });
 ```
@@ -242,32 +242,32 @@ const client = new ECSClient({
 
 `EcsRoleCredentialProvider` 从 ECS 实例元数据服务（IMDSv2）获取临时凭证：
 
-- `roleName` 优先级：构造参数 > `VOLCENGINE_ECS_METADATA` > 从 IMDS 自动探测
-- 禁用开关：`VOLCENGINE_ECS_METADATA_DISABLED=true`
+- `roleName` 优先级：构造参数 > `BYTEPLUS_ECS_METADATA` > 从 IMDS 自动探测
+- 禁用开关：`BYTEPLUS_ECS_METADATA_DISABLED=true`
 - IMDS 端点：`http://100.96.0.96`（IMDSv2 基于 token 的认证）
 - 凭证在过期前自动刷新（默认 5 分钟缓冲窗口）
 
 > ⚠️ **注意事项**
 >
 > 1. 仅在绑定了 IAM 角色的 ECS 实例上可用。
-> 2. 显式传入 `roleName` 或设置 `VOLCENGINE_ECS_METADATA` 可避免歧义；否则 SDK 会从 IMDS 自动探测角色名。
+> 2. 显式传入 `roleName` 或设置 `BYTEPLUS_ECS_METADATA` 可避免歧义；否则 SDK 会从 IMDS 自动探测角色名。
 
 | 环境变量                           | 说明                                                  |
 | ---------------------------------- | ----------------------------------------------------- |
-| `VOLCENGINE_ECS_METADATA`          | 指定 ECS 实例角色名；未设置时从 IMDS 自动探测         |
-| `VOLCENGINE_ECS_METADATA_DISABLED` | 设为 `true` 禁用 IMDS 凭证获取                        |
+| `BYTEPLUS_ECS_METADATA`          | 指定 ECS 实例角色名；未设置时从 IMDS 自动探测         |
+| `BYTEPLUS_ECS_METADATA_DISABLED` | 设为 `true` 禁用 IMDS 凭证获取                        |
 
 ```typescript
-import { EcsRoleCredentialProvider } from "@volcengine/sdk-core";
-import { ECSClient } from "@volcengine/ecs";
+import { EcsRoleCredentialProvider } from "@byteplus/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
 
-// 显式指定角色名；省略 roleName 时读取 VOLCENGINE_ECS_METADATA 或从 IMDS 自动探测。
+// 显式指定角色名；省略 roleName 时读取 BYTEPLUS_ECS_METADATA 或从 IMDS 自动探测。
 const credentialProvider = new EcsRoleCredentialProvider({
   roleName: "your-ecs-role-name",
 });
 
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   credentialProvider,
 });
 ```
@@ -279,17 +279,17 @@ const client = new ECSClient({
 1. **EnvironmentVariableCredentialProvider** — 从环境变量读取
 2. **OidcCredentialProvider** — 通过 OIDC 获取临时凭证
 3. **CLIConfigCredentialProvider** — 从 CLI 配置文件读取
-4. **EcsRoleCredentialProvider** — 通过 ECS IMDS 获取临时凭证（`VOLCENGINE_ECS_METADATA_DISABLED=true` 时跳过）
+4. **EcsRoleCredentialProvider** — 通过 ECS IMDS 获取临时凭证（`BYTEPLUS_ECS_METADATA_DISABLED=true` 时跳过）
 
 ```typescript
-import { ECSClient } from "@volcengine/ecs";
-import { DefaultCredentialProvider } from "@volcengine/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
+import { DefaultCredentialProvider } from "@byteplus/sdk-core";
 
 // 基本用法
 const credentialProvider = new DefaultCredentialProvider();
 
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   credentialProvider,
 });
 ```

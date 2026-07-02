@@ -12,7 +12,7 @@
 
 ```typescript
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   httpOptions: {
     proxy: {
       protocol: "http",
@@ -27,9 +27,9 @@ const client = new ECSClient({
 
 The SDK reads the following environment variables:
 
-- `VOLC_PROXY_PROTOCOL`: Proxy protocol (`http` or `https`)
-- `VOLC_PROXY_HOST`: Proxy host
-- `VOLC_PROXY_PORT`: Proxy port
+- `BYTEPLUS_PROXY_PROTOCOL`: Proxy protocol (`http` or `https`)
+- `BYTEPLUS_PROXY_HOST`: Proxy host
+- `BYTEPLUS_PROXY_PORT`: Proxy port
 
 Priority: Code configuration > environment variables.
 

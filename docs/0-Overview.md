@@ -2,7 +2,7 @@
 
 ---
 
-# Volcengine Node.js SDK Integration Guide
+# BytePlus Node.js SDK Integration Guide
 
 ## Requirements
 
@@ -16,13 +16,13 @@ It is recommended to use `pnpm` for installation, but `npm` and `yarn` are also 
 
 ```bash
 # pnpm
-pnpm add @volcengine/sdk-core
+pnpm add @byteplus/sdk-core
 
 # npm
-npm install @volcengine/sdk-core
+npm install @byteplus/sdk-core
 
 # yarn
-yarn add @volcengine/sdk-core
+yarn add @byteplus/sdk-core
 ```
 
 2. Install Service SDK Package
@@ -31,13 +31,13 @@ yarn add @volcengine/sdk-core
 
 ```bash
 # pnpm
-pnpm add @volcengine/ecs
+pnpm add @byteplus/ecs
 
 # npm
-npm install @volcengine/ecs
+npm install @byteplus/ecs
 
 # yarn
-yarn add @volcengine/ecs
+yarn add @byteplus/ecs
 ```
 
 ## Section Index

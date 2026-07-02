@@ -23,7 +23,7 @@ const FIELD_TOKEN = "SessionToken";
 const FIELD_EXPIRATION = "ExpiredTime";
 
 export interface EcsRoleCredentialProviderOptions {
-  /** IAM 角色名。优先级：构造参数 > 环境变量 VOLCENGINE_ECS_METADATA > IMDS 自动获取 */
+  /** IAM 角色名。优先级：构造参数 > 环境变量 BYTEPLUS_ECS_METADATA > IMDS 自动获取 */
   roleName?: string;
   /** 连接超时(秒)，默认 1 */
   connectTimeout?: number;
@@ -45,7 +45,7 @@ export interface EcsRoleCredentialProviderOptions {
  *   Step 2: 确定 roleName：构造参数 > 环境变量 > GET ?type=user&format=json 自动获取
  *   Step 3: GET /volcstack/latest/iam/security_credentials/{roleName} → 获取 STS 凭证
  *
- * 开关：VOLCENGINE_ECS_METADATA_DISABLED=true → 构造时直接抛异常
+ * 开关：BYTEPLUS_ECS_METADATA_DISABLED=true → 构造时直接抛异常
  *
  * 特性：
  *   - 临时凭证，支持自动刷新（过期前 expiredBufferSeconds 触发）
@@ -68,11 +68,11 @@ export class EcsRoleCredentialProvider implements Provider {
 
   constructor(options: EcsRoleCredentialProviderOptions = {}) {
     const disabled = (
-      process.env.VOLCENGINE_ECS_METADATA_DISABLED || ""
+      process.env.BYTEPLUS_ECS_METADATA_DISABLED || ""
     ).toLowerCase();
     if (disabled === "true") {
       throw new Error(
-        `${this.providerName}: IMDS credentials are disabled via VOLCENGINE_ECS_METADATA_DISABLED=true.`,
+        `${this.providerName}: IMDS credentials are disabled via BYTEPLUS_ECS_METADATA_DISABLED=true.`,
       );
     }
 
@@ -146,7 +146,7 @@ export class EcsRoleCredentialProvider implements Provider {
 
   // ---------------------------------------------------------------------------
   // Step 2: roleName 解析
-  // 优先级：构造参数 > 环境变量 VOLCENGINE_ECS_METADATA > IMDS 自动获取
+  // 优先级：构造参数 > 环境变量 BYTEPLUS_ECS_METADATA > IMDS 自动获取
   // 不缓存 — 角色可能在实例上动态绑定/解绑，且 IMDS 是本地调用（~1-5ms）
   // ---------------------------------------------------------------------------
 
@@ -155,7 +155,7 @@ export class EcsRoleCredentialProvider implements Provider {
       return this.roleName;
     }
 
-    const envRole = (process.env.VOLCENGINE_ECS_METADATA || "").trim();
+    const envRole = (process.env.BYTEPLUS_ECS_METADATA || "").trim();
     if (envRole) {
       return envRole;
     }
@@ -201,7 +201,7 @@ export class EcsRoleCredentialProvider implements Provider {
           roles,
         )}。` +
           `使用第一个 '${roles[0]}'。` +
-          `请设置 VOLCENGINE_ECS_METADATA 或显式传入 roleName 以避免歧义。`,
+          `请设置 BYTEPLUS_ECS_METADATA 或显式传入 roleName 以避免歧义。`,
       );
     }
 

@@ -44,7 +44,7 @@ export const signerMiddleware: {
         query: request.params,
         headers: request.headers || {},
         body: request.body,
-        region: request.region || clientConfig.region || "cn-beijing",
+        region: request.region || clientConfig.region || "ap-southeast-1",
         serviceName: request.serviceName || "",
         accessKeyId: clientConfig.accessKeyId,
         secretAccessKey: clientConfig.secretAccessKey,

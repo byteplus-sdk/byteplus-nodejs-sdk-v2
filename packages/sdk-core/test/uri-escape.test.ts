@@ -7,7 +7,7 @@ describe("uriEscape", () => {
   });
 
   it("should escape reserved characters", () => {
-    // ! ' ( ) * are sub-delimiters but AWS/Volcengine requires them to be escaped
+    // ! ' ( ) * are sub-delimiters but AWS/Byteplus requires them to be escaped
     const special = "!'()*";
     const escaped = uriEscape(special);
     // ! -> %21

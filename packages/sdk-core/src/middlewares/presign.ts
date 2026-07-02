@@ -27,7 +27,7 @@ export const createPresignMiddleware = (): {
         method: request.method,
         uri: request.pathname,
         query: request.params,
-        region: request.region || clientConfig?.region || "cn-beijing",
+        region: request.region || clientConfig?.region || "ap-southeast-1",
         serviceName: request.serviceName || "",
         accessKeyId,
         secretAccessKey,

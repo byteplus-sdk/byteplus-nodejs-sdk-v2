@@ -12,7 +12,7 @@
 
 ```typescript
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   httpOptions: {
     proxy: {
       protocol: "http",
@@ -27,9 +27,9 @@ const client = new ECSClient({
 
 SDK 会自动读取以下环境变量来配置代理：
 
-- `VOLC_PROXY_PROTOCOL`：代理协议（`http` 或 `https`）
-- `VOLC_PROXY_HOST`：代理主机
-- `VOLC_PROXY_PORT`：代理端口
+- `BYTEPLUS_PROXY_PROTOCOL`：代理协议（`http` 或 `https`）
+- `BYTEPLUS_PROXY_HOST`：代理主机
+- `BYTEPLUS_PROXY_PORT`：代理端口
 
 优先级：代码配置 > 环境变量。
 

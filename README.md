@@ -1,6 +1,6 @@
 中文 | [English](README.EN.md)
 
-# Volcengine SDK for Node.js
+# BytePlus SDK for Node.js
 
 ## 环境要求
 
@@ -14,13 +14,13 @@
 
 ```bash
 # pnpm
-pnpm add @volcengine/sdk-core
+pnpm add @byteplus/sdk-core
 
 # npm
-npm install @volcengine/sdk-core
+npm install @byteplus/sdk-core
 
 # yarn
-yarn add @volcengine/sdk-core
+yarn add @byteplus/sdk-core
 ```
 
 2. 安装云产品 SDK 包
@@ -29,27 +29,27 @@ yarn add @volcengine/sdk-core
 
 ```bash
 # pnpm
-pnpm add @volcengine/ecs
+pnpm add @byteplus/ecs
 
 # npm
-npm install @volcengine/ecs
+npm install @byteplus/ecs
 
 # yarn
-yarn add @volcengine/ecs
+yarn add @byteplus/ecs
 ```
 
 ## 环境变量设置
 
 SDK 会自动读取以下环境变量作为访问凭据：
 
-- `VOLCSTACK_ACCESS_KEY_ID` 或 `VOLCSTACK_ACCESS_KEY`: Access Key ID
-- `VOLCSTACK_SECRET_ACCESS_KEY` 或 `VOLCSTACK_SECRET_KEY`: Secret Access Key
+- `BYTEPLUS_ACCESS_KEY_ID` 或 `BYTEPLUS_ACCESS_KEY`: Access Key ID
+- `BYTEPLUS_SECRET_ACCESS_KEY` 或 `BYTEPLUS_SECRET_KEY`: Secret Access Key
 
 配置环境变量后，无需在代码中再次配置凭据。
 
 ```bash
-export VOLCSTACK_ACCESS_KEY_ID="YOUR_AK"
-export VOLCSTACK_SECRET_ACCESS_KEY="YOUR_SK"
+export BYTEPLUS_ACCESS_KEY_ID="YOUR_AK"
+export BYTEPLUS_SECRET_ACCESS_KEY="YOUR_SK"
 ```
 
 ## 快速开始
@@ -57,18 +57,18 @@ export VOLCSTACK_SECRET_ACCESS_KEY="YOUR_SK"
 以下示例展示了如何初始化客户端并发送请求。
 
 ```typescript
-import { ECSClient, DescribeZonesCommand } from "@volcengine/ecs"; // 需安装对应的业务包
+import { ECSClient, DescribeZonesCommand } from "@byteplus/ecs"; // 需安装对应的业务包
 
 // 1. 使用环境变量中的 AK/SK，并指定 Region
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
 });
 
 // 2. 或者在代码中显式传入 AK/SK
 // const client = new ECSClient({
 //   accessKeyId: "YOUR_AK",
 //   secretAccessKey: "YOUR_SK",
-//   region: "cn-beijing",
+//   region: "ap-southeast-1",
 // });
 
 async function main() {

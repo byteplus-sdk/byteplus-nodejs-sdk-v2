@@ -15,7 +15,7 @@ The SDK has built-in automatic retry logic for network errors and throttling. Bu
 
 ```typescript
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   // autoRetry: false,  // Completely disable retry
   maxRetries: 5,
 });
@@ -45,10 +45,10 @@ Where `minRetryDelay` is minimum delay, `maxRetryDelay` is maximum delay, `n` is
 | `ExponentialWithRandomJitterBackoffStrategy` | Exponential with jitter (default) | `base = min(minRetryDelay * 2^(n-1), maxRetryDelay)`, `delay = min(base + random(0, base), maxRetryDelay)` |
 
 ```typescript
-import { StrategyName } from "@volcengine/sdk-core";
+import { StrategyName } from "@byteplus/sdk-core";
 
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   strategyName: StrategyName.ExponentialWithRandomJitterBackoffStrategy,
 });
 ```
@@ -57,7 +57,7 @@ const client = new ECSClient({
 
 ```typescript
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   retryStrategy: {
     minRetryDelay: 500,
     maxRetryDelay: 20000,

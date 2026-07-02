@@ -41,9 +41,9 @@ describe("resolveHttpOptions", () => {
   });
 
   test("should use environment variables if proxy config is not provided", () => {
-    process.env.VOLC_PROXY_PROTOCOL = "http";
-    process.env.VOLC_PROXY_HOST = "env-proxy";
-    process.env.VOLC_PROXY_PORT = "1234";
+    process.env.BYTEPLUS_PROXY_PROTOCOL = "http";
+    process.env.BYTEPLUS_PROXY_HOST = "env-proxy";
+    process.env.BYTEPLUS_PROXY_PORT = "1234";
 
     const config: ClientConfig = {};
     const result = resolveHttpOptions(config);
@@ -55,10 +55,10 @@ describe("resolveHttpOptions", () => {
     });
   });
 
-  test("should use default port 80 if VOLC_PROXY_PORT is missing and protocol is http", () => {
-    process.env.VOLC_PROXY_PROTOCOL = "http";
-    process.env.VOLC_PROXY_HOST = "env-proxy-no-port";
-    delete process.env.VOLC_PROXY_PORT;
+  test("should use default port 80 if BYTEPLUS_PROXY_PORT is missing and protocol is http", () => {
+    process.env.BYTEPLUS_PROXY_PROTOCOL = "http";
+    process.env.BYTEPLUS_PROXY_HOST = "env-proxy-no-port";
+    delete process.env.BYTEPLUS_PROXY_PORT;
 
     const config: ClientConfig = {};
     const result = resolveHttpOptions(config);
@@ -70,10 +70,10 @@ describe("resolveHttpOptions", () => {
     });
   });
 
-  test("should use default port 443 if VOLC_PROXY_PORT is missing and protocol is https", () => {
-    process.env.VOLC_PROXY_PROTOCOL = "https";
-    process.env.VOLC_PROXY_HOST = "env-proxy-secure";
-    delete process.env.VOLC_PROXY_PORT;
+  test("should use default port 443 if BYTEPLUS_PROXY_PORT is missing and protocol is https", () => {
+    process.env.BYTEPLUS_PROXY_PROTOCOL = "https";
+    process.env.BYTEPLUS_PROXY_HOST = "env-proxy-secure";
+    delete process.env.BYTEPLUS_PROXY_PORT;
 
     const config: ClientConfig = {};
     const result = resolveHttpOptions(config);
@@ -86,9 +86,9 @@ describe("resolveHttpOptions", () => {
   });
 
   test("should not use proxy if env vars are missing and proxy config is not provided", () => {
-    delete process.env.VOLC_PROXY_PROTOCOL;
-    delete process.env.VOLC_PROXY_HOST;
-    delete process.env.VOLC_PROXY_PORT;
+    delete process.env.BYTEPLUS_PROXY_PROTOCOL;
+    delete process.env.BYTEPLUS_PROXY_HOST;
+    delete process.env.BYTEPLUS_PROXY_PORT;
 
     const config: ClientConfig = {};
     const result = resolveHttpOptions(config);

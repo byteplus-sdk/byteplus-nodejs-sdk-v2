@@ -15,8 +15,8 @@ export interface DefaultCredentialProviderOptions {
  * 按顺序尝试以下 Provider，第一个成功即返回：
  *   ① EnvironmentVariableCredentialProvider — 环境变量 AK/SK(/Token)
  *   ② OidcCredentialProvider（无参模式）  — 环境变量 OIDC 配置 → STS AssumeRoleWithOIDC
- *   ③ CLIConfigCredentialProvider          — ~/.volcengine/config.json
- *   ④ EcsRoleCredentialProvider            — ECS IMDS（VOLCENGINE_ECS_METADATA_DISABLED=true 时跳过）
+ *   ③ CLIConfigCredentialProvider          — ~/.byteplus/config.json
+ *   ④ EcsRoleCredentialProvider            — ECS IMDS（BYTEPLUS_ECS_METADATA_DISABLED=true 时跳过）
  *
  * 全部失败则抛出包含每个 Provider 失败原因的聚合异常。
  */
@@ -57,7 +57,7 @@ export class DefaultCredentialProvider implements Provider {
     ];
 
     const disabled = (
-      process.env.VOLCENGINE_ECS_METADATA_DISABLED || ""
+      process.env.BYTEPLUS_ECS_METADATA_DISABLED || ""
     ).toLowerCase();
     if (disabled !== "true") {
       factories.push({

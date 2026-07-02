@@ -118,7 +118,7 @@ export class Client {
    *
    * @example
    * ```ts
-   * import { StaticCredentialProvider } from "@volcengine/sdk-core";
+   * import { StaticCredentialProvider } from "@byteplus/sdk-core";
    * client.setCredentials(new StaticCredentialProvider({ accessKeyId: "AK", secretAccessKey: "SK" }));
    * ```
    */
@@ -146,7 +146,7 @@ export class Client {
     const request: Request = {
       host: this.config.host,
       protocol: this.config.protocol || "https",
-      region: this.config.region || "cn-beijing",
+      region: this.config.region || "ap-southeast-1",
       signal: options?.abortSignal,
       timeout: options?.timeout,
     };
@@ -212,7 +212,7 @@ export class Client {
     const { handler, request } = this.createHandlerAndRequest(stack, command, {
       host: this.config.host,
       protocol: this.config.protocol || "https",
-      region: this.config.region || "cn-beijing",
+      region: this.config.region || "ap-southeast-1",
     });
 
     const result = await handler({ input: command.input, request });

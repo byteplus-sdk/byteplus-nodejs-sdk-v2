@@ -26,7 +26,7 @@ function buildMockResponse() {
       Action: "AssumeRoleWithSAML",
       Version: "2018-01-01",
       Service: "sts",
-      Region: "cn-beijing",
+      Region: "ap-southeast-1",
     },
     Result: {
       Credentials: {
@@ -39,7 +39,7 @@ function buildMockResponse() {
         SubjectType: "persistent",
         Subject: "user@example.com",
         Issuer: "https://idp.example.com",
-        Recipient: "https://sts.volcengineapi.com",
+        Recipient: "https://sts.ap-southeast-1.byteplusapi.com",
       },
       AssumedRoleUser: {
         Trn: "trn:sts::2000012345:assumed-role/test-role/session",

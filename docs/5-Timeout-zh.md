@@ -14,7 +14,7 @@
 
 ```typescript
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   httpOptions: {
     timeout: 5000,
   },
@@ -40,7 +40,7 @@ SDK 支持更细粒度的超时控制：
 
 ```typescript
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   httpOptions: {
     connectTimeout: 3000,
     readTimeout: 30000,

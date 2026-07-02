@@ -21,7 +21,7 @@ describe("Signer (Functional API)", () => {
         uri: "/test",
         query: { foo: "bar" },
         headers: {},
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         serviceName: "test-service",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
@@ -42,7 +42,7 @@ describe("Signer (Functional API)", () => {
         uri: "/",
         query: {},
         headers: {},
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         serviceName: "sts",
         accessKeyId: "key",
         secretAccessKey: "secret",
@@ -61,7 +61,7 @@ describe("Signer (Functional API)", () => {
         query: {},
         headers: { "content-type": "application/json" },
         body: { data: "test-payload" },
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         serviceName: "test-service",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
@@ -79,7 +79,7 @@ describe("Signer (Functional API)", () => {
         uri: "/",
         query: {},
         headers: {},
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         serviceName: "test",
         accessKeyId: "key",
         secretAccessKey: "secret",
@@ -151,7 +151,7 @@ describe("Signer (Functional API)", () => {
         uri: "/test",
         query: { foo: "bar" },
         headers: {},
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         serviceName: "test",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
@@ -172,7 +172,7 @@ describe("Signer (Functional API)", () => {
         uri: "/test",
         query: {},
         headers: {},
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         serviceName: "test",
         accessKeyId: "key",
         secretAccessKey: "secret1",
@@ -198,7 +198,7 @@ describe("Signer (Functional API)", () => {
         uri: "/",
         query: {},
         headers: {},
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         serviceName: "test-service",
         accessKeyId: "my-access-key",
         secretAccessKey: "my-secret-key",
@@ -232,8 +232,8 @@ describe("Signer (Functional API)", () => {
 
     describe("createScope", () => {
       test("should create scope with date, region, and service", () => {
-        const scope = createScope("20240101T120000Z", "cn-beijing", "iam");
-        expect(scope).toBe("20240101/cn-beijing/iam/request");
+        const scope = createScope("20240101T120000Z", "ap-southeast-1", "iam");
+        expect(scope).toBe("20240101/ap-southeast-1/iam/request");
       });
 
       test("should extract only date part (first 8 characters) from timestamp", () => {
@@ -242,8 +242,8 @@ describe("Signer (Functional API)", () => {
       });
 
       test("should handle different regions and services", () => {
-        expect(createScope("20240101T000000Z", "cn-beijing", "ecs")).toBe(
-          "20240101/cn-beijing/ecs/request"
+        expect(createScope("20240101T000000Z", "ap-southeast-1", "ecs")).toBe(
+          "20240101/ap-southeast-1/ecs/request"
         );
         expect(createScope("20240102T120000Z", "ap-southeast-1", "rds")).toBe(
           "20240102/ap-southeast-1/rds/request"
@@ -255,14 +255,14 @@ describe("Signer (Functional API)", () => {
       test("should create string to sign with algorithm, timestamp, scope, and hashed canonical request", () => {
         const stringToSign = createStringToSign(
           "20240101T120000Z",
-          "cn-beijing",
+          "ap-southeast-1",
           "iam",
           "GET\n/\n\nhost:example.com\n\nhost\ne3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         );
 
         expect(stringToSign).toContain("HMAC-SHA256");
         expect(stringToSign).toContain("20240101T120000Z");
-        expect(stringToSign).toContain("20240101/cn-beijing/iam/request");
+        expect(stringToSign).toContain("20240101/ap-southeast-1/iam/request");
       });
 
       test("should handle different canonical request formats", () => {
@@ -418,16 +418,16 @@ describe("Signer (Functional API)", () => {
         method: "GET",
         uri: "/test/object.txt",
         query: { "response-content-type": "application/octet-stream" },
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         serviceName: "tos",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
-        host: "open.volcengineapi.com",
+        host: "open.ap-southeast-1.byteplusapi.com",
         timestamp: "20240101T120000Z",
       });
 
       // 验证 URL 格式
-      expect(url).toContain("https://open.volcengineapi.com");
+      expect(url).toContain("https://open.ap-southeast-1.byteplusapi.com");
       expect(url).toContain("/test/object.txt");
 
       // 验证必要的签名参数
@@ -447,12 +447,12 @@ describe("Signer (Functional API)", () => {
       const url = presignUrl({
         method: "GET",
         uri: "/",
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         serviceName: "tos",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
         sessionToken: "session-token-123",
-        host: "open.volcengineapi.com",
+        host: "open.ap-southeast-1.byteplusapi.com",
         timestamp: "20240101T120000Z",
       });
 
@@ -463,7 +463,7 @@ describe("Signer (Functional API)", () => {
       const url = presignUrl({
         method: "GET",
         uri: "/",
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         serviceName: "tos",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
@@ -480,11 +480,11 @@ describe("Signer (Functional API)", () => {
         method: "GET" as const,
         uri: "/bucket/key",
         query: { foo: "bar" },
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         serviceName: "tos",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
-        host: "open.volcengineapi.com",
+        host: "open.ap-southeast-1.byteplusapi.com",
         timestamp: "20240101T120000Z",
       };
 
@@ -498,10 +498,10 @@ describe("Signer (Functional API)", () => {
       const baseParams = {
         method: "GET" as const,
         uri: "/bucket/key",
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         serviceName: "tos",
         accessKeyId: "test-key",
-        host: "open.volcengineapi.com",
+        host: "open.ap-southeast-1.byteplusapi.com",
         timestamp: "20240101T120000Z",
       };
 
@@ -519,11 +519,11 @@ describe("Signer (Functional API)", () => {
       const url = presignUrl({
         method: "GET",
         uri: "/bucket/path with spaces/file[1].txt",
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         serviceName: "tos",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
-        host: "open.volcengineapi.com",
+        host: "open.ap-southeast-1.byteplusapi.com",
         timestamp: "20240101T120000Z",
       });
 
@@ -537,11 +537,11 @@ describe("Signer (Functional API)", () => {
         method: "GET",
         uri: "/",
         query: { zebra: "z", alpha: "a" },
-        region: "cn-beijing",
+        region: "ap-southeast-1",
         serviceName: "tos",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
-        host: "open.volcengineapi.com",
+        host: "open.ap-southeast-1.byteplusapi.com",
         timestamp: "20240101T120000Z",
       });
 

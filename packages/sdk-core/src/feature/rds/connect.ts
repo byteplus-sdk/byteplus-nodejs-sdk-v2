@@ -32,7 +32,7 @@ export interface BuildAuthTokenOptions {
  * const client = new Client({
  *   accessKeyId: "your-access-key",
  *   secretAccessKey: "your-secret-key",
- *   region: "cn-beijing",
+ *   region: "ap-southeast-1",
  * });
  *
  * const token = await buildAuthToken(client, {

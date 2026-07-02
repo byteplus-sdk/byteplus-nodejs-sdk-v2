@@ -28,13 +28,13 @@ describe("Middleware Guide - Essential Tests", () => {
     test("✅ 正确的签名包含 context 参数", async () => {
       const mockHandler = new MockRequestHandler();
       const mockClock = new MockClock();
-      mockHandler.mock("https://cdn.volcengineapi.com/", {
+      mockHandler.mock("https://cdn.ap-southeast-1.byteplusapi.com/", {
         status: 200,
         data: { success: true },
       });
 
       const client = new Client({
-        host: "cdn.volcengineapi.com",
+        host: "cdn.ap-southeast-1.byteplusapi.com",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
         requestHandler: mockHandler,
@@ -76,13 +76,13 @@ describe("Middleware Guide - Essential Tests", () => {
       const mockClock = new MockClock();
       const executionOrder: string[] = [];
 
-      mockHandler.mock("https://cdn.volcengineapi.com/", {
+      mockHandler.mock("https://cdn.ap-southeast-1.byteplusapi.com/", {
         status: 200,
         data: { success: true },
       });
 
       const client = new Client({
-        host: "cdn.volcengineapi.com",
+        host: "cdn.ap-southeast-1.byteplusapi.com",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
         requestHandler: mockHandler,
@@ -137,13 +137,13 @@ describe("Middleware Guide - Essential Tests", () => {
       const mockClock = new MockClock();
       const executionOrder: string[] = [];
 
-      mockHandler.mock("https://cdn.volcengineapi.com/", {
+      mockHandler.mock("https://cdn.ap-southeast-1.byteplusapi.com/", {
         status: 200,
         data: { success: true },
       });
 
       const client = new Client({
-        host: "cdn.volcengineapi.com",
+        host: "cdn.ap-southeast-1.byteplusapi.com",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
         requestHandler: mockHandler,
@@ -193,14 +193,14 @@ describe("Middleware Guide - Essential Tests", () => {
       const mockClock = new MockClock();
       let duration = 0;
 
-      mockHandler.mock("https://cdn.volcengineapi.com/", {
+      mockHandler.mock("https://cdn.ap-southeast-1.byteplusapi.com/", {
         status: 200,
         data: { success: true },
         delayMs: 50, // 模拟 50ms 延迟
       });
 
       const client = new Client({
-        host: "cdn.volcengineapi.com",
+        host: "cdn.ap-southeast-1.byteplusapi.com",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
         requestHandler: mockHandler,
@@ -244,13 +244,13 @@ describe("Middleware Guide - Essential Tests", () => {
       let middlewareExecuted = false;
 
       // 模拟 HTTP 400 错误
-      mockHandler.mock("https://cdn.volcengineapi.com/", {
+      mockHandler.mock("https://cdn.ap-southeast-1.byteplusapi.com/", {
         status: 400,
         data: { error: "Bad Request" },
       });
 
       const client = new Client({
-        host: "cdn.volcengineapi.com",
+        host: "cdn.ap-southeast-1.byteplusapi.com",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
         requestHandler: mockHandler,
@@ -283,13 +283,13 @@ describe("Middleware Guide - Essential Tests", () => {
       const mockClock = new MockClock();
       let middlewareExecuted = false;
 
-      mockHandler.mock("https://cdn.volcengineapi.com/", {
+      mockHandler.mock("https://cdn.ap-southeast-1.byteplusapi.com/", {
         status: 400,
         data: { error: "Bad Request" },
       });
 
       const client = new Client({
-        host: "cdn.volcengineapi.com",
+        host: "cdn.ap-southeast-1.byteplusapi.com",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
         requestHandler: mockHandler,
@@ -327,13 +327,13 @@ describe("Middleware Guide - Essential Tests", () => {
       const mockHandler = new MockRequestHandler();
       const mockClock = new MockClock();
 
-      mockHandler.mock("https://cdn.volcengineapi.com/", {
+      mockHandler.mock("https://cdn.ap-southeast-1.byteplusapi.com/", {
         status: 500,
         data: { error: "Server Error" },
       });
 
       const client = new Client({
-        host: "cdn.volcengineapi.com",
+        host: "cdn.ap-southeast-1.byteplusapi.com",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
         requestHandler: mockHandler,
@@ -380,13 +380,13 @@ describe("Middleware Guide - Essential Tests", () => {
       let globalExecuted = false;
       let commandExecuted = false;
 
-      mockHandler.mock("https://cdn.volcengineapi.com/", {
+      mockHandler.mock("https://cdn.ap-southeast-1.byteplusapi.com/", {
         status: 200,
         data: { success: true },
       });
 
       const client = new Client({
-        host: "cdn.volcengineapi.com",
+        host: "cdn.ap-southeast-1.byteplusapi.com",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
         requestHandler: mockHandler,
@@ -433,13 +433,13 @@ describe("Middleware Guide - Essential Tests", () => {
       const mockHandler = new MockRequestHandler();
       const mockClock = new MockClock();
 
-      mockHandler.mock("https://cdn.volcengineapi.com/", {
+      mockHandler.mock("https://cdn.ap-southeast-1.byteplusapi.com/", {
         status: 200,
         data: { success: true },
       });
 
       const client = new Client({
-        host: "cdn.volcengineapi.com",
+        host: "cdn.ap-southeast-1.byteplusapi.com",
         accessKeyId: "test-key",
         secretAccessKey: "test-secret",
         requestHandler: mockHandler,

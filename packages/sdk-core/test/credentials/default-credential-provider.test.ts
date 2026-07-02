@@ -6,20 +6,20 @@ describe("DefaultCredentialProvider", () => {
   beforeEach(() => {
     process.env = { ...originalEnv };
     // 清理所有可能干扰的环境变量
-    delete process.env.VOLCENGINE_ACCESS_KEY;
-    delete process.env.VOLCENGINE_SECRET_KEY;
-    delete process.env.VOLCENGINE_SESSION_TOKEN;
-    delete process.env.VOLCSTACK_ACCESS_KEY_ID;
-    delete process.env.VOLCSTACK_SECRET_ACCESS_KEY;
-    delete process.env.VOLCSTACK_ACCESS_KEY;
-    delete process.env.VOLCSTACK_SECRET_KEY;
-    delete process.env.VOLCSTACK_SESSION_TOKEN;
-    delete process.env.VOLCENGINE_OIDC_ROLE_NAME;
-    delete process.env.VOLCENGINE_OIDC_ACCOUNT_ID;
-    delete process.env.VOLCENGINE_OIDC_TOKEN_FILE;
-    delete process.env.VOLCENGINE_ECS_METADATA;
-    delete process.env.VOLCENGINE_ECS_METADATA_DISABLED;
-    delete process.env.VOLCENGINE_CLI_CONFIG_FILE;
+    delete process.env.BYTEPLUS_ACCESS_KEY;
+    delete process.env.BYTEPLUS_SECRET_KEY;
+    delete process.env.BYTEPLUS_SESSION_TOKEN;
+    delete process.env.BYTEPLUS_ACCESS_KEY_ID;
+    delete process.env.BYTEPLUS_SECRET_ACCESS_KEY;
+    delete process.env.BYTEPLUS_ACCESS_KEY;
+    delete process.env.BYTEPLUS_SECRET_KEY;
+    delete process.env.BYTEPLUS_SESSION_TOKEN;
+    delete process.env.BYTEPLUS_OIDC_ROLE_NAME;
+    delete process.env.BYTEPLUS_OIDC_ACCOUNT_ID;
+    delete process.env.BYTEPLUS_OIDC_TOKEN_FILE;
+    delete process.env.BYTEPLUS_ECS_METADATA;
+    delete process.env.BYTEPLUS_ECS_METADATA_DISABLED;
+    delete process.env.BYTEPLUS_CLI_CONFIG_FILE;
   });
 
   afterAll(() => {
@@ -34,8 +34,8 @@ describe("DefaultCredentialProvider", () => {
   });
 
   it("should resolve from EnvironmentVariableCredentialProvider when env vars are set", async () => {
-    process.env.VOLCENGINE_ACCESS_KEY = "chain-ak";
-    process.env.VOLCENGINE_SECRET_KEY = "chain-sk";
+    process.env.BYTEPLUS_ACCESS_KEY = "chain-ak";
+    process.env.BYTEPLUS_SECRET_KEY = "chain-sk";
 
     const provider = new DefaultCredentialProvider();
     const creds = await provider.resolveCredentials();
@@ -69,9 +69,9 @@ describe("DefaultCredentialProvider", () => {
   );
 
   it("should skip failing providers and try the next one", async () => {
-    // 此处用 VOLCSTACK env 变量让 EnvironmentVariableCredentialProvider 成功
-    process.env.VOLCSTACK_ACCESS_KEY_ID = "fallback-ak";
-    process.env.VOLCSTACK_SECRET_ACCESS_KEY = "fallback-sk";
+    // 此处用 BYTEPLUS env 变量让 EnvironmentVariableCredentialProvider 成功
+    process.env.BYTEPLUS_ACCESS_KEY_ID = "fallback-ak";
+    process.env.BYTEPLUS_SECRET_ACCESS_KEY = "fallback-sk";
 
     const provider = new DefaultCredentialProvider();
     const creds = await provider.resolveCredentials();
@@ -100,8 +100,8 @@ describe("DefaultCredentialProvider", () => {
   // ---------- reuseLastProviderEnabled 缓存 ----------
 
   it("should reuse last successful provider on second call (reuseLastProviderEnabled=true)", async () => {
-    process.env.VOLCENGINE_ACCESS_KEY = "reuse-ak";
-    process.env.VOLCENGINE_SECRET_KEY = "reuse-sk";
+    process.env.BYTEPLUS_ACCESS_KEY = "reuse-ak";
+    process.env.BYTEPLUS_SECRET_KEY = "reuse-sk";
 
     const provider = new DefaultCredentialProvider(true);
 
@@ -120,8 +120,8 @@ describe("DefaultCredentialProvider", () => {
 
   it("should fall back to full chain when cached provider fails", async () => {
     // 使用一个自定义 mock provider 来精确验证缓存回退逻辑
-    process.env.VOLCENGINE_ACCESS_KEY = "first-ak";
-    process.env.VOLCENGINE_SECRET_KEY = "first-sk";
+    process.env.BYTEPLUS_ACCESS_KEY = "first-ak";
+    process.env.BYTEPLUS_SECRET_KEY = "first-sk";
 
     const provider = new DefaultCredentialProvider(true);
 
@@ -138,8 +138,8 @@ describe("DefaultCredentialProvider", () => {
   });
 
   it("should not reuse provider when reuseLastProviderEnabled=false", async () => {
-    process.env.VOLCENGINE_ACCESS_KEY = "no-reuse-ak";
-    process.env.VOLCENGINE_SECRET_KEY = "no-reuse-sk";
+    process.env.BYTEPLUS_ACCESS_KEY = "no-reuse-ak";
+    process.env.BYTEPLUS_SECRET_KEY = "no-reuse-sk";
 
     const provider = new DefaultCredentialProvider(false);
 
@@ -156,19 +156,19 @@ describe("DefaultCredentialProvider", () => {
   it(
     "should not reuse provider and re-walk full chain each time when reuseLastProviderEnabled=false",
     async () => {
-      // 第一次用 VOLCENGINE_ACCESS_KEY 成功
-      process.env.VOLCENGINE_ACCESS_KEY = "v1-ak";
-      process.env.VOLCENGINE_SECRET_KEY = "v1-sk";
+      // 第一次用 BYTEPLUS_ACCESS_KEY 成功
+      process.env.BYTEPLUS_ACCESS_KEY = "v1-ak";
+      process.env.BYTEPLUS_SECRET_KEY = "v1-sk";
 
       const provider = new DefaultCredentialProvider(false);
       const creds1 = await provider.resolveCredentials();
       expect(creds1.accessKeyId).toBe("v1-ak");
 
       // 清除旧变量，换一组新变量
-      delete process.env.VOLCENGINE_ACCESS_KEY;
-      delete process.env.VOLCENGINE_SECRET_KEY;
-      process.env.VOLCSTACK_ACCESS_KEY_ID = "v2-ak";
-      process.env.VOLCSTACK_SECRET_ACCESS_KEY = "v2-sk";
+      delete process.env.BYTEPLUS_ACCESS_KEY;
+      delete process.env.BYTEPLUS_SECRET_KEY;
+      process.env.BYTEPLUS_ACCESS_KEY_ID = "v2-ak";
+      process.env.BYTEPLUS_SECRET_ACCESS_KEY = "v2-sk";
 
       // 因为 reuseLastProviderEnabled=false，每次都重新构造 provider，
       // 新的 EnvironmentVariableCredentialProvider 会读到新的 env

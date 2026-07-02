@@ -10,7 +10,7 @@ import { OidcCredentialProvider } from "./OidcCredentialProvider";
 import { StsAssumeRoleProvider } from "./StsAssumeRoleProvider";
 import { loadEnv } from "../utils/env";
 
-const DEFAULT_REGION = "cn-beijing";
+const DEFAULT_REGION = "ap-southeast-1";
 const MODE_AK = "ak";
 const MODE_RAM_ROLE_ARN = "ramrolearn";
 const MODE_IAM_ROLE = "iamrole";
@@ -22,9 +22,9 @@ const MODE_CONSOLE_LOGIN = "console-login";
 const MODE_STS_TOKEN = "ststoken";
 const SSO_CACHE_DIR = "sso/cache";
 const LOGIN_CACHE_DIR = "login/cache";
-const LOGIN_CACHE_DIRECTORY_ENV = "VOLCENGINE_LOGIN_CACHE_DIRECTORY";
+const LOGIN_CACHE_DIRECTORY_ENV = "BYTEPLUS_LOGIN_CACHE_DIRECTORY";
 const OAUTH_TOKEN_PATH = "/token";
-const DEFAULT_CONSOLE_LOGIN_ENDPOINT = "https://signin.volcengine.com";
+const DEFAULT_CONSOLE_LOGIN_ENDPOINT = "https://signin.byteplus.com";
 const CONSOLE_LOGIN_TOKEN_PATH = "/authorize/oauth/token";
 const PORTAL_ROLE_CREDENTIALS_PATH = "/federation/credentials";
 const PORTAL_TOKEN_HEADER = "x-bd-cloudidentity-bearer-token";
@@ -61,14 +61,14 @@ class ExpiringCredentialDelegate implements Provider {
 }
 
 /**
- * 从 CLI 配置文件 ~/.volcengine/config.json 读取凭证。
+ * 从 CLI 配置文件 ~/.byteplus/config.json 读取凭证。
  *
  * 配置文件路径优先级：
- *   1. 环境变量 VOLCENGINE_CLI_CONFIG_FILE（如果设置）
- *   2. ${HOME || USERPROFILE}/.volcengine/config.json
+ *   1. 环境变量 BYTEPLUS_CLI_CONFIG_FILE（如果设置）
+ *   2. ${HOME || USERPROFILE}/.byteplus/config.json
  *
  * Profile 选择：
- *   - VOLCENGINE_PROFILE / VOLCSTACK_PROFILE > configData.current > default
+ *   - BYTEPLUS_PROFILE / BYTEPLUS_CLI_PROFILE > configData.current > default
  *
  * 按 profile.mode（大小写不敏感）分发，空 mode 等价于 ak。
  */
@@ -966,7 +966,7 @@ export class CLIConfigCredentialProvider implements Provider {
 
   /**
    * 解析配置文件路径。
-   * 优先级：VOLCENGINE_CLI_CONFIG_FILE 环境变量 > 默认路径 (~/.volcengine/config.json)
+   * 优先级：BYTEPLUS_CLI_CONFIG_FILE 环境变量 > 默认路径 (~/.byteplus/config.json)
    */
   private resolveConfigPath(): string {
     // 兼容 Windows（USERPROFILE）和 Unix（HOME）
@@ -983,13 +983,13 @@ export class CLIConfigCredentialProvider implements Provider {
       return path.resolve(homeDir, configFilePath);
     }
 
-    return path.resolve(homeDir, ".volcengine/config.json");
+    return path.resolve(homeDir, ".byteplus/config.json");
   }
 
   private resolveProfileName(configData: any): string {
     return (
-      process.env.VOLCENGINE_PROFILE ||
-      process.env.VOLCSTACK_PROFILE ||
+      process.env.BYTEPLUS_PROFILE ||
+      process.env.BYTEPLUS_CLI_PROFILE ||
       configData?.current ||
       "default"
     );

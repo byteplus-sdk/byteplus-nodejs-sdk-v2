@@ -47,9 +47,9 @@ describe("CLIConfigCredentialProvider", () => {
 
   beforeEach(() => {
     process.env = { ...originalEnv };
-    delete process.env.VOLCENGINE_CLI_CONFIG_FILE;
-    delete process.env.VOLCENGINE_PROFILE;
-    delete process.env.VOLCSTACK_PROFILE;
+    delete process.env.BYTEPLUS_CLI_CONFIG_FILE;
+    delete process.env.BYTEPLUS_PROFILE;
+    delete process.env.BYTEPLUS_CLI_PROFILE;
     jest.clearAllMocks();
     mockStsResolveCredentials.mockResolvedValue({
       accessKeyId: "sts-ak",
@@ -79,7 +79,7 @@ describe("CLIConfigCredentialProvider", () => {
     process.env.HOME = "/mock/home";
 
     (path.resolve as jest.Mock).mockReturnValue(
-      "/mock/home/.volcengine/config.json",
+      "/mock/home/.byteplus/config.json",
     );
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.readFileSync as jest.Mock).mockReturnValue(
@@ -104,8 +104,8 @@ describe("CLIConfigCredentialProvider", () => {
     expect(creds.providerName).toBe("CLIConfigCredentialProvider");
   });
 
-  it("should use VOLCENGINE_CLI_CONFIG_FILE env var if set", async () => {
-    process.env.VOLCENGINE_CLI_CONFIG_FILE = "/custom/path/config.json";
+  it("should use BYTEPLUS_CLI_CONFIG_FILE env var if set", async () => {
+    process.env.BYTEPLUS_CLI_CONFIG_FILE = "/custom/path/config.json";
 
     (path.resolve as jest.Mock).mockReturnValue("/custom/path/config.json");
     (fs.existsSync as jest.Mock).mockReturnValue(true);
@@ -134,7 +134,7 @@ describe("CLIConfigCredentialProvider", () => {
     process.env.USERPROFILE = "C:\\Users\\test";
 
     (path.resolve as jest.Mock).mockReturnValue(
-      "C:\\Users\\test\\.volcengine\\config.json",
+      "C:\\Users\\test\\.byteplus\\config.json",
     );
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.readFileSync as jest.Mock).mockReturnValue(
@@ -170,7 +170,7 @@ describe("CLIConfigCredentialProvider", () => {
     process.env.HOME = "/mock/home";
 
     (path.resolve as jest.Mock).mockReturnValue(
-      "/mock/home/.volcengine/config.json",
+      "/mock/home/.byteplus/config.json",
     );
     (fs.existsSync as jest.Mock).mockReturnValue(false);
 
@@ -184,7 +184,7 @@ describe("CLIConfigCredentialProvider", () => {
     process.env.HOME = "/mock/home";
 
     (path.resolve as jest.Mock).mockReturnValue(
-      "/mock/home/.volcengine/config.json",
+      "/mock/home/.byteplus/config.json",
     );
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.readFileSync as jest.Mock).mockReturnValue("{ invalid json }");
@@ -199,7 +199,7 @@ describe("CLIConfigCredentialProvider", () => {
     process.env.HOME = "/mock/home";
 
     (path.resolve as jest.Mock).mockReturnValue(
-      "/mock/home/.volcengine/config.json",
+      "/mock/home/.byteplus/config.json",
     );
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.readFileSync as jest.Mock).mockReturnValue(
@@ -216,7 +216,7 @@ describe("CLIConfigCredentialProvider", () => {
     process.env.HOME = "/mock/home";
 
     (path.resolve as jest.Mock).mockReturnValue(
-      "/mock/home/.volcengine/config.json",
+      "/mock/home/.byteplus/config.json",
     );
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.readFileSync as jest.Mock).mockReturnValue(
@@ -232,12 +232,12 @@ describe("CLIConfigCredentialProvider", () => {
     );
   });
 
-  it("should select profile from VOLCENGINE_PROFILE", async () => {
+  it("should select profile from BYTEPLUS_PROFILE", async () => {
     process.env.HOME = "/mock/home";
-    process.env.VOLCENGINE_PROFILE = "prod";
+    process.env.BYTEPLUS_PROFILE = "prod";
 
     (path.resolve as jest.Mock).mockReturnValue(
-      "/mock/home/.volcengine/config.json",
+      "/mock/home/.byteplus/config.json",
     );
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.readFileSync as jest.Mock).mockReturnValue(
@@ -267,7 +267,7 @@ describe("CLIConfigCredentialProvider", () => {
     process.env.HOME = "/mock/home";
 
     (path.resolve as jest.Mock).mockReturnValue(
-      "/mock/home/.volcengine/config.json",
+      "/mock/home/.byteplus/config.json",
     );
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.readFileSync as jest.Mock).mockReturnValue(
@@ -306,7 +306,7 @@ describe("CLIConfigCredentialProvider", () => {
     process.env.HOME = "/mock/home";
 
     (path.resolve as jest.Mock).mockReturnValue(
-      "/mock/home/.volcengine/config.json",
+      "/mock/home/.byteplus/config.json",
     );
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.readFileSync as jest.Mock).mockReturnValue(
@@ -328,7 +328,7 @@ describe("CLIConfigCredentialProvider", () => {
     expect(mockOidcCredentialProvider).toHaveBeenCalledWith({
       roleTrn: "trn:iam::2000012345:role/oidc-role",
       oidcTokenFile: "/tmp/oidc-token",
-      region: "cn-beijing",
+      region: "ap-southeast-1",
       protocol: "https",
       durationSeconds: 3600,
     });
@@ -339,7 +339,7 @@ describe("CLIConfigCredentialProvider", () => {
     process.env.HOME = "/mock/home";
 
     (path.resolve as jest.Mock).mockReturnValue(
-      "/mock/home/.volcengine/config.json",
+      "/mock/home/.byteplus/config.json",
     );
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.readFileSync as jest.Mock).mockReturnValue(
@@ -367,7 +367,7 @@ describe("CLIConfigCredentialProvider", () => {
     process.env.HOME = "/mock/home";
 
     (path.resolve as jest.Mock).mockReturnValue(
-      "/mock/home/.volcengine/config.json",
+      "/mock/home/.byteplus/config.json",
     );
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.readFileSync as jest.Mock).mockReturnValue(
@@ -398,7 +398,7 @@ describe("CLIConfigCredentialProvider", () => {
 
   it("should resolve console-login credentials from login cache", async () => {
     process.env.HOME = "/mock/home";
-    process.env.VOLCENGINE_LOGIN_CACHE_DIRECTORY = "/mock/login/cache";
+    process.env.BYTEPLUS_LOGIN_CACHE_DIRECTORY = "/mock/login/cache";
     const loginSession = "console-session";
     const cachePath = `/mock/login/cache/${crypto
       .createHash("sha1")
@@ -406,14 +406,14 @@ describe("CLIConfigCredentialProvider", () => {
       .digest("hex")}.json`;
 
     (path.resolve as jest.Mock).mockReturnValue(
-      "/mock/home/.volcengine/config.json",
+      "/mock/home/.byteplus/config.json",
     );
     (path.join as jest.Mock).mockImplementation((...parts: unknown[]) =>
       parts.join("/"),
     );
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.readFileSync as jest.Mock).mockImplementation((filePath: unknown) => {
-      if (filePath === "/mock/home/.volcengine/config.json") {
+      if (filePath === "/mock/home/.byteplus/config.json") {
         return JSON.stringify({
           current: "console",
           profiles: {
@@ -453,7 +453,7 @@ describe("CLIConfigCredentialProvider", () => {
 
   it("should keep rotated console-login refresh token in memory", async () => {
     process.env.HOME = "/mock/home";
-    process.env.VOLCENGINE_LOGIN_CACHE_DIRECTORY = "/mock/login/cache";
+    process.env.BYTEPLUS_LOGIN_CACHE_DIRECTORY = "/mock/login/cache";
     const loginSession = "console-session";
     const cachePath = `/mock/login/cache/${crypto
       .createHash("sha1")
@@ -461,14 +461,14 @@ describe("CLIConfigCredentialProvider", () => {
       .digest("hex")}.json`;
 
     (path.resolve as jest.Mock).mockReturnValue(
-      "/mock/home/.volcengine/config.json",
+      "/mock/home/.byteplus/config.json",
     );
     (path.join as jest.Mock).mockImplementation((...parts: unknown[]) =>
       parts.join("/"),
     );
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.readFileSync as jest.Mock).mockImplementation((filePath: unknown) => {
-      if (filePath === "/mock/home/.volcengine/config.json") {
+      if (filePath === "/mock/home/.byteplus/config.json") {
         return JSON.stringify({
           current: "console",
           profiles: {
@@ -531,7 +531,7 @@ describe("CLIConfigCredentialProvider", () => {
     expect(second.accessKeyId).toBe("ak2");
     expect(requestFormUrlEncoded).toHaveBeenNthCalledWith(
       1,
-      "https://signin.volcengine.com/authorize/oauth/token",
+      "https://signin.byteplus.com/authorize/oauth/token",
       {
         grant_type: "refresh_token",
         client_id: "login-client-id",
@@ -540,7 +540,7 @@ describe("CLIConfigCredentialProvider", () => {
     );
     expect(requestFormUrlEncoded).toHaveBeenNthCalledWith(
       2,
-      "https://signin.volcengine.com/authorize/oauth/token",
+      "https://signin.byteplus.com/authorize/oauth/token",
       {
         grant_type: "refresh_token",
         client_id: "login-client-id",
@@ -548,9 +548,9 @@ describe("CLIConfigCredentialProvider", () => {
       },
     );
     expect((fs.readFileSync as jest.Mock).mock.calls).toEqual([
-      ["/mock/home/.volcengine/config.json", { encoding: "utf-8" }],
+      ["/mock/home/.byteplus/config.json", { encoding: "utf-8" }],
       [cachePath, { encoding: "utf-8" }],
-      ["/mock/home/.volcengine/config.json", { encoding: "utf-8" }],
+      ["/mock/home/.byteplus/config.json", { encoding: "utf-8" }],
     ]);
   });
 
@@ -558,7 +558,7 @@ describe("CLIConfigCredentialProvider", () => {
     process.env.HOME = "/mock/home";
 
     (path.resolve as jest.Mock).mockReturnValue(
-      "/mock/home/.volcengine/config.json",
+      "/mock/home/.byteplus/config.json",
     );
     (fs.existsSync as jest.Mock).mockReturnValue(true);
     (fs.readFileSync as jest.Mock).mockReturnValue(

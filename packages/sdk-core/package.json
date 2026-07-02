@@ -1,7 +1,7 @@
 {
-  "name": "@volcengine/sdk-core",
+  "name": "@byteplus/sdk-core",
   "version": "1.0.1",
-  "description": "VolcEngine SDK core package",
+  "description": "BytePlus SDK core package",
   "license": "Apache-2.0",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.mjs",
@@ -29,7 +29,6 @@
     "dev": "rslib build --watch"
   },
   "dependencies": {
-    "@volcengine/openapi": "^1.34.0",
     "axios": "^1.6.0",
     "uuid": "^13.0.0"
   },

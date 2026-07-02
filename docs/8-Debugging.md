@@ -13,11 +13,11 @@ The SDK provides built-in debug logging via the `debugOptions` field for trouble
 > - `debug` — `false`
 
 ```typescript
-import { ECSClient } from "@volcengine/ecs";
-import { LogLevel } from "@volcengine/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
+import { LogLevel } from "@byteplus/sdk-core";
 
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   debugOptions: {
     debug: true,
   },
@@ -30,7 +30,7 @@ Use the `logLevel` field with bitmask for fine-grained control:
 
 ```typescript
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   debugOptions: {
     debug: true,
     logLevel:
@@ -65,10 +65,10 @@ const client = new ECSClient({
 
 ```typescript
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   debugOptions: {
     debug: true,
-    loggerFile: "/var/log/volcengine-sdk-debug.log",
+    loggerFile: "/var/log/byteplus-sdk-debug.log",
     loggerFormat: "[%(timestamp)s] %(level)s - %(message)s",
   },
 });
@@ -77,7 +77,7 @@ const client = new ECSClient({
 #### Custom Logger
 
 ```typescript
-import type { DebugLogger } from "@volcengine/sdk-core";
+import type { DebugLogger } from "@byteplus/sdk-core";
 
 const customLogger: DebugLogger = {
   debug: (message: string) => {
@@ -86,7 +86,7 @@ const customLogger: DebugLogger = {
 };
 
 const client = new ECSClient({
-  region: "cn-beijing",
+  region: "ap-southeast-1",
   debugOptions: {
     debug: true,
     logger: customLogger,
@@ -101,9 +101,9 @@ const client = new ECSClient({
 For advanced debugging beyond `debugOptions`:
 
 ```typescript
-import { ECSClient } from "@volcengine/ecs";
+import { ECSClient } from "@byteplus/ecs";
 
-const client = new ECSClient({ region: "cn-beijing" });
+const client = new ECSClient({ region: "ap-southeast-1" });
 
 client.middlewareStack.add(
   (next, context) => async (args) => {
