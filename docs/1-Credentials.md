@@ -1,0 +1,311 @@
+[← Overview](0-Overview.md) | Credentials [(中文)](1-Credentials-zh.md) | [Endpoint Configuration →](2-Endpoint.md)
+
+---
+
+## Credentials
+
+To ensure secure resource access, the BytePlus Node.js SDK supports both explicit credentials and automatic resolution via `CredentialProvider`.
+
+### CredentialProvider Overview
+
+| Provider                                | Purpose                          | Auto-Refresh              | Typical Scenario                      |
+| --------------------------------------- | -------------------------------- | ------------------------- | ------------------------------------- |
+| `StaticCredentialProvider`              | Static AK/SK(/Token)             | No                        | Server-side long-term credentials     |
+| `StsAssumeRoleProvider`                 | STS AssumeRole                   | Yes                       | Role assumption temporary credentials |
+| `OidcCredentialProvider`                | STS AssumeRoleWithOIDC           | Yes                       | OIDC federated identity               |
+| `SamlCredentialProvider`                | STS AssumeRoleWithSAML           | Yes                       | SAML federated identity               |
+| `EnvironmentVariableCredentialProvider` | Read environment variables       | No                        | CI/CD, container injection            |
+| `CLIConfigCredentialProvider`           | Read `~/.byteplus/config.json` | No                        | Reuse CLI configuration               |
+| `EcsRoleCredentialProvider`             | Read ECS IMDS                    | Yes                       | ECS instance role                     |
+| `DefaultCredentialProvider`             | Default chain wrapper            | Depends on proxy Provider | No AK/SK in business code             |
+
+### AK/SK Configuration
+
+AK/SK is a pair of permanent access keys created by BytePlus users in the console. The SDK uses these keys to sign each request for authentication.
+
+> ⚠️ **Important**
+>
+> 1. Never embed or expose AK/SK in client-side code.
+> 2. Use configuration centers or environment variables to store keys.
+> 3. Configure least-privilege access policies.
+
+#### 1. Configure in Code (⚠️ Not Recommended)
+
+```typescript
+import { ECSClient } from "@byteplus/ecs";
+
+const client = new ECSClient({
+  accessKeyId: "YOUR_AK",
+  secretAccessKey: "YOUR_SK",
+  region: "ap-southeast-1",
+});
+```
+
+#### 2. Use Environment Variables (Recommended)
+
+The SDK automatically reads the following environment variables:
+
+- **Access Key ID**: `BYTEPLUS_ACCESS_KEY`
+- **Secret Access Key**: `BYTEPLUS_SECRET_KEY`
+
+```bash
+export BYTEPLUS_ACCESS_KEY="YOUR_AK"
+export BYTEPLUS_SECRET_KEY="YOUR_SK"
+```
+
+```typescript
+const client = new ECSClient({ region: "ap-southeast-1" });
+```
+
+### STS Token Configuration
+
+STS (Security Token Service) is a temporary credential mechanism provided by BytePlus. Developers call the STS API on the server side to obtain temporary credentials (temporary AK, SK, and Token) with a configurable expiry, suitable for scenarios with high security requirements.
+
+> ⚠️ **Important**
+>
+> 1. Least privilege: only grant the minimum permissions required, avoid granting full resource/action access with \* wildcards.
+> 2. Set a reasonable expiry: the shorter the safer, recommended no more than 1 hour.
+
+```typescript
+const client = new ECSClient({
+  accessKeyId: "YOUR_TEMP_AK",
+  secretAccessKey: "YOUR_TEMP_SK",
+  sessionToken: "YOUR_SESSION_TOKEN",
+  region: "ap-southeast-1",
+});
+
+// Or via environment variable:
+// export BYTEPLUS_SESSION_TOKEN="YOUR_SESSION_TOKEN"
+```
+
+### STS AssumeRole Example
+
+STS AssumeRole is a temporary credential mechanism provided by BytePlus. It uses an IAM sub-account role to perform the AssumeRole operation, then obtains temporary credentials to make API requests.
+
+Reference: https://www.byteplus.com/docs/6257/86374
+
+> ⚠️ **Important**
+>
+> 1. Least privilege: only grant the minimum permissions required.
+> 2. Set a reasonable expiry: the shorter the safer, recommended no more than 1 hour.
+
+```typescript
+import { StsAssumeRoleProvider } from "@byteplus/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
+
+const credentialProvider = new StsAssumeRoleProvider({
+  accessKeyId: "ASSUME_ROLE_CALLER_AK",
+  secretAccessKey: "ASSUME_ROLE_CALLER_SK",
+  roleTrn: "trn:iam::2110400000:role/role123",
+  region: "ap-southeast-1",
+  host: "sts.ap-southeast-1.byteplusapi.com",
+  protocol: "https",
+  durationSeconds: 3600,
+  policy:
+    '{"Statement":[{"Effect":"Allow","Action":["iam:ListUsers"],"Resource":["*"]}]}',
+  tags: [{ Key: "project", Value: "sdk-test" }],
+});
+
+const client = new ECSClient({
+  region: "ap-southeast-1",
+  credentialProvider,
+});
+```
+
+### STS AssumeRoleWithOIDC Example
+
+`OidcCredentialProvider` obtains temporary credentials via STS `AssumeRoleWithOIDC`. Suitable for scenarios where an OIDC identity provider is already integrated. It uses an OIDC Token to perform the AssumeRoleWithOIDC operation to obtain temporary credentials for API requests.
+
+Reference: https://www.byteplus.com/docs/6257/1494877
+
+> ⚠️ **Important**
+>
+> 1. Least privilege: only grant the minimum permissions required, avoid granting full resource/action access with \* wildcards.
+> 2. Set a reasonable expiry: the shorter the safer, recommended no more than 1 hour.
+
+Supported environment variables:
+
+| Variable                            | Description                  | Required |
+| ----------------------------------- | ---------------------------- | :------: |
+| `BYTEPLUS_OIDC_ROLE_TRN`          | Role TRN to assume           |    ✅    |
+| `BYTEPLUS_OIDC_TOKEN_FILE`        | OIDC token file path         |    ✅    |
+| `BYTEPLUS_OIDC_ROLE_SESSION_NAME` | Role session name            |    ❌    |
+| `BYTEPLUS_OIDC_ROLE_POLICY`       | Session policy (JSON string) |    ❌    |
+| `BYTEPLUS_OIDC_STS_ENDPOINT`      | Custom STS endpoint          |    ❌    |
+
+```typescript
+import { OidcCredentialProvider } from "@byteplus/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
+
+// Explicit parameters (all options)
+const credentialProvider = new OidcCredentialProvider({
+  roleTrn: "trn:iam::2110400000:role/oidc-role",
+  oidcTokenFile: "/path/to/oidc/token",
+  roleSessionName: "my-session",
+  host: "sts.ap-southeast-1.byteplusapi.com",
+  policy:
+    '{"Statement":[{"Effect":"Allow","Action":["ecs:Describe*"],"Resource":["*"]}]}',
+});
+
+// Or auto-read from environment variables (no-arg constructor)
+const credentialProvider2 = new OidcCredentialProvider();
+
+const client = new ECSClient({
+  region: "ap-southeast-1",
+  credentialProvider,
+});
+```
+
+### STS AssumeRoleWithSAML Example
+
+`SamlCredentialProvider` obtains temporary credentials via STS `AssumeRoleWithSAML`. Suitable for SAML federated identity scenarios. It uses a SAML assertion to perform the AssumeRoleWithSAML operation to obtain temporary credentials for API requests.
+
+Reference: https://www.byteplus.com/docs/6257/1631607
+
+> ⚠️ **Important**
+>
+> 1. Least privilege: only grant the minimum permissions required, avoid granting full resource/action access with \* wildcards.
+> 2. Set a reasonable expiry: the shorter the safer, recommended no more than 1 hour.
+
+Supported environment variables:
+
+| Variable                       | Description                     | Required |
+| ------------------------------ | ------------------------------- | :------: |
+| `BYTEPLUS_SAML_ROLE_TRN`     | Role TRN to assume              |    ✅    |
+| `BYTEPLUS_SAML_ACCOUNT_ID`   | BytePlus account ID           |    ✅    |
+| `BYTEPLUS_SAML_PROVIDER_TRN` | SAML identity provider TRN      |    ✅    |
+| `BYTEPLUS_SAML_ASSERTION`    | SAML assertion (Base64 encoded) |    ✅    |
+| `BYTEPLUS_SAML_ENDPOINT`     | Custom STS endpoint             |    ❌    |
+| `BYTEPLUS_SAML_POLICY`       | Session policy (JSON string)    |    ❌    |
+
+```typescript
+import { SamlCredentialProvider } from "@byteplus/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
+
+// Explicit parameters (all options)
+const credentialProvider = new SamlCredentialProvider({
+  roleTrn: "trn:iam::2110400000:role/saml-role",
+  accountId: "2110400000",
+  samlProviderTrn: "trn:iam::2110400000:saml-provider/my-provider",
+  samlAssertion: "BASE64_ENCODED_SAML_ASSERTION",
+  host: "sts.ap-southeast-1.byteplusapi.com",
+  policy:
+    '{"Statement":[{"Effect":"Allow","Action":["ecs:Describe*"],"Resource":["*"]}]}',
+});
+
+// Or auto-read from environment variables (no-arg constructor)
+const credentialProvider2 = new SamlCredentialProvider();
+
+const client = new ECSClient({
+  region: "ap-southeast-1",
+  credentialProvider,
+});
+```
+
+### Environment Variable Credential Provider
+
+`EnvironmentVariableCredentialProvider` reads the following environment variables:
+
+- `BYTEPLUS_ACCESS_KEY_ID` / `BYTEPLUS_ACCESS_KEY`
+- `BYTEPLUS_SECRET_ACCESS_KEY` / `BYTEPLUS_SECRET_KEY`
+- `BYTEPLUS_SESSION_TOKEN` (optional)
+
+```typescript
+import { ECSClient } from "@byteplus/ecs";
+import { EnvironmentVariableCredentialProvider } from "@byteplus/sdk-core";
+
+const credentialProvider = new EnvironmentVariableCredentialProvider();
+const client = new ECSClient({
+  region: "ap-southeast-1",
+  credentialProvider,
+});
+```
+
+### CLI Config Credential Provider
+
+`CLIConfigCredentialProvider` reads from `~/.byteplus/config.json` by default.
+
+- Config file priority: `BYTEPLUS_CLI_CONFIG_FILE` env var > default path `~/.byteplus/config.json`
+
+```typescript
+import { ECSClient } from "@byteplus/ecs";
+import { CLIConfigCredentialProvider } from "@byteplus/sdk-core";
+
+const credentialProvider = new CLIConfigCredentialProvider();
+const client = new ECSClient({
+  region: "ap-southeast-1",
+  credentialProvider,
+});
+```
+
+### ECS Role Credential Provider
+
+`EcsRoleCredentialProvider` obtains temporary credentials from the ECS Instance Metadata Service (IMDSv2):
+
+- `roleName` priority: constructor parameter > `BYTEPLUS_ECS_METADATA` > auto-detect from IMDS
+- Disable switch: `BYTEPLUS_ECS_METADATA_DISABLED=true`
+- IMDS endpoint: `http://100.96.0.96` (IMDSv2 token-based authentication)
+- Credentials are automatically refreshed before expiration (5-minute buffer by default)
+
+> ⚠️ **Notes**
+>
+> 1. Only works on ECS instances with an IAM role attached.
+> 2. Pass `roleName` explicitly or set `BYTEPLUS_ECS_METADATA` to avoid ambiguity; otherwise the SDK auto-detects the role name from IMDS.
+
+| Variable                           | Description                                                             |
+| ---------------------------------- | ----------------------------------------------------------------------- |
+| `BYTEPLUS_ECS_METADATA`          | Specify ECS instance role name; if unset, auto-detected from IMDS       |
+| `BYTEPLUS_ECS_METADATA_DISABLED` | Set to `true` to disable IMDS credential retrieval                      |
+
+```typescript
+import { EcsRoleCredentialProvider } from "@byteplus/sdk-core";
+import { ECSClient } from "@byteplus/ecs";
+
+// Explicit role name; omit roleName to read BYTEPLUS_ECS_METADATA or auto-detect from IMDS.
+const credentialProvider = new EcsRoleCredentialProvider({
+  roleName: "your-ecs-role-name",
+});
+
+// Custom timeout and retry
+const credentialProvider2 = new EcsRoleCredentialProvider({
+  roleName: "your-ecs-role-name",
+  connectTimeout: 2, // Connect timeout (seconds), default 1
+  readTimeout: 2, // Read timeout (seconds), default 1
+  maxRetries: 5, // Max retry attempts, default 3
+  retryInterval: 2, // Retry interval (seconds), default 1
+  expiredBufferSeconds: 600, // Early refresh window (seconds), default 300
+});
+
+const client = new ECSClient({
+  region: "ap-southeast-1",
+  credentialProvider,
+});
+```
+
+### DefaultCredentialProvider (Default Credential Chain)
+
+`DefaultCredentialProvider` attempts to obtain credentials in the following order, returning the first successful result:
+
+1. **EnvironmentVariableCredentialProvider** — read from environment variables
+2. **OidcCredentialProvider** — obtain temporary credentials via OIDC
+3. **CLIConfigCredentialProvider** — read from CLI config file
+4. **EcsRoleCredentialProvider** — obtain temporary credentials via ECS IMDS (skipped when `BYTEPLUS_ECS_METADATA_DISABLED=true`)
+
+```typescript
+import { ECSClient } from "@byteplus/ecs";
+import { DefaultCredentialProvider } from "@byteplus/sdk-core";
+
+// Basic usage
+const credentialProvider = new DefaultCredentialProvider();
+
+const client = new ECSClient({
+  region: "ap-southeast-1",
+  credentialProvider,
+});
+```
+
+With `DefaultCredentialProvider`, the SDK automatically traverses the credential chain without manually specifying AK/SK.
+
+---
+
+[← Overview](0-Overview.md) | Credentials [(中文)](1-Credentials-zh.md) | [Endpoint Configuration →](2-Endpoint.md)
