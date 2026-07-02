@@ -1,0 +1,64 @@
+# .github/workflows/main.yml
+name: Release Node.js SDK
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".changelog/v*.md"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry-run mode (simulate publish without actually pushing to npm)"
+        type: boolean
+        default: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      # 1. Checkout 代码（含完整历史，用于 tag 操作）
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 2. 安装 pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9.15.4
+
+      # 3. 设置 Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: "https://registry.npmjs.org"
+
+      # 4. 安装依赖
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 5. 编译项目（先 core 后 service，turbo 根据 dependsOn 自动处理顺序）
+      - name: Build
+        run: pnpm build
+
+      # 6. 运行测试
+      - name: Test
+        run: pnpm test:core
+
+      # 7. 发布包（core + service）
+      #    - 前置检测版本是否已存在，已存在则跳过
+      #    - 发布成功后自动打 tag（格式：包名@版本）
+      #    - 内置 npm 频率限制重试和包闶延迟
+      - name: Publish packages
+        run: |
+          chmod +x scripts/publish.js
+          node scripts/publish.js
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}

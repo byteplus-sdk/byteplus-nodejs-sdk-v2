@@ -1,0 +1,5 @@
+{
+  "description": "ARKCLAW: 新增 StopClawOmniAutoChannelJob, CreateClawInstance, CreateClawOmniAutoChannelJob, DeleteClawOmniChannel, GetClawInstance, ListClawSpaceSeats, ListUsers, UpdateSpaceUserConfigs, UpdateUsersQuota, DeleteClawInstance, GetClawOmniAutoChannelJob, InstallClawOmniInstanceSkill, ListClawInstances；修改 GetClawOmniInstance, ListClawOmniInstances, UpdateClawOmniInstance, CreatePrivateClawOmniSpaceTemplate, GetClawOmniSpaceTemplate, ListClawOmniSpaceTemplates, UpdatePrivateClawOmniSpaceTemplate",
+  "modules": "service/arkclaw",
+  "type": "breaking-change"
+}
