@@ -554,6 +554,111 @@ describe("CLIConfigCredentialProvider", () => {
     ]);
   });
 
+  it("should refresh SSO token and fetch role credentials from bytepluses.com endpoints", async () => {
+    process.env.HOME = "/mock/home";
+
+    const startUrl = "https://example.awsapps.com/start";
+    const sessionName = "my-sso-session";
+    const region = "ap-southeast-1";
+    const tokenCacheHash = crypto
+      .createHash("sha1")
+      .update(
+        JSON.stringify({ start_url: startUrl, session_name: sessionName }),
+      )
+      .digest("hex");
+    const tokenCachePath = `/mock/home/.byteplus/sso/cache/${tokenCacheHash}.json`;
+
+    (path.resolve as jest.Mock).mockReturnValue(
+      "/mock/home/.byteplus/config.json",
+    );
+    (path.dirname as jest.Mock).mockReturnValue("/mock/home/.byteplus");
+    (path.join as jest.Mock).mockImplementation((...parts: unknown[]) =>
+      parts.join("/"),
+    );
+    (fs.existsSync as jest.Mock).mockReturnValue(true);
+    (fs.readFileSync as jest.Mock).mockImplementation((filePath: unknown) => {
+      if (filePath === "/mock/home/.byteplus/config.json") {
+        return JSON.stringify({
+          current: "sso",
+          profiles: {
+            sso: {
+              mode: "SSO",
+              "sso-session-name": sessionName,
+              "account-id": "2000012345",
+              "role-name": "demo-role",
+              region,
+            },
+          },
+          "sso-session": {
+            [sessionName]: {
+              "start-url": startUrl,
+              region,
+            },
+          },
+        });
+      }
+      if (filePath === tokenCachePath) {
+        return JSON.stringify({
+          access_token: "old-access-token",
+          refresh_token: "the-refresh-token",
+          client_id: "the-client-id",
+          client_secret: "the-client-secret",
+          // 已过期，强制走 refresh 流程
+          expires_at: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+        });
+      }
+      throw new Error(`unexpected read: ${filePath}`);
+    });
+
+    const requestJson = jest
+      .fn<(...args: any[]) => Promise<any>>()
+      .mockResolvedValueOnce({
+        access_token: "new-access-token",
+        expires_in: 3600,
+        refresh_token: "rotated-refresh-token",
+      })
+      .mockResolvedValueOnce({
+        Result: {
+          RoleCredentials: {
+            AccessKeyId: "sso-ak",
+            SecretAccessKey: "sso-sk",
+            SessionToken: "sso-token",
+            Expiration: Math.floor((Date.now() + 60 * 60 * 1000) / 1000),
+          },
+        },
+      });
+
+    const provider = new CLIConfigCredentialProvider();
+    (provider as any).requestJson = requestJson;
+
+    const creds = await provider.resolveCredentials();
+
+    expect(creds.accessKeyId).toBe("sso-ak");
+    expect(creds.secretAccessKey).toBe("sso-sk");
+    expect(creds.sessionToken).toBe("sso-token");
+    expect(creds.providerName).toBe("CLIConfigCredentialProvider");
+
+    // 断言 OAuth refresh token 请求的完整 URL 使用 bytepluses.com
+    expect(requestJson).toHaveBeenNthCalledWith(
+      1,
+      "POST",
+      `https://cloudidentity-oauth.${region}.bytepluses.com/token`,
+      {
+        grant_type: "refresh_token",
+        client_id: "the-client-id",
+        client_secret: "the-client-secret",
+        refresh_token: "the-refresh-token",
+      },
+    );
+
+    // 断言 Portal 换取角色凭证请求的完整 URL 使用 bytepluses.com
+    const portalCall = requestJson.mock.calls[1];
+    expect(portalCall[0]).toBe("GET");
+    expect(portalCall[1]).toBe(
+      `https://cloudidentity-portal.${region}.bytepluses.com/federation/credentials?account_id=2000012345&role_name=demo-role`,
+    );
+  });
+
   it("should cache StsToken credentials and skip re-reading config file on subsequent calls", async () => {
     process.env.HOME = "/mock/home";
 

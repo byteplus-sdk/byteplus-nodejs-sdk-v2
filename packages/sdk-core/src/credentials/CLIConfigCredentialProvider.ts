@@ -26,6 +26,10 @@ const LOGIN_CACHE_DIRECTORY_ENV = "BYTEPLUS_LOGIN_CACHE_DIRECTORY";
 const OAUTH_TOKEN_PATH = "/token";
 const DEFAULT_CONSOLE_LOGIN_ENDPOINT = "https://signin.byteplus.com";
 const CONSOLE_LOGIN_TOKEN_PATH = "/authorize/oauth/token";
+const CLOUD_IDENTITY_OAUTH_HOST_TEMPLATE =
+  "https://cloudidentity-oauth.{region}.bytepluses.com";
+const CLOUD_IDENTITY_PORTAL_HOST_TEMPLATE =
+  "https://cloudidentity-portal.{region}.bytepluses.com";
 const PORTAL_ROLE_CREDENTIALS_PATH = "/federation/credentials";
 const PORTAL_TOKEN_HEADER = "x-bd-cloudidentity-bearer-token";
 const EXPIRE_BUFFER_MS = 60_000;
@@ -733,7 +737,10 @@ export class CLIConfigCredentialProvider implements Provider {
       );
     }
 
-    const tokenUrl = `https://cloudidentity-oauth.${region}.volces.com${OAUTH_TOKEN_PATH}`;
+    const tokenUrl = `${CLOUD_IDENTITY_OAUTH_HOST_TEMPLATE.replace(
+      "{region}",
+      region,
+    )}${OAUTH_TOKEN_PATH}`;
     const tokenResp = await this.requestJson("POST", tokenUrl, {
       grant_type: "refresh_token",
       client_id: clientId,
@@ -785,7 +792,10 @@ export class CLIConfigCredentialProvider implements Provider {
     }
 
     const endpoint = new URL(
-      `https://cloudidentity-portal.${region}.volces.com${PORTAL_ROLE_CREDENTIALS_PATH}`,
+      `${CLOUD_IDENTITY_PORTAL_HOST_TEMPLATE.replace(
+        "{region}",
+        region,
+      )}${PORTAL_ROLE_CREDENTIALS_PATH}`,
     );
     endpoint.searchParams.set("account_id", accountId);
     endpoint.searchParams.set("role_name", roleName);

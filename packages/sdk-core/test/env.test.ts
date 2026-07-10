@@ -26,6 +26,8 @@ describe("Env Utils", () => {
     delete process.env.BYTEPLUS_SESSION_TOKEN;
     delete process.env.BYTEPLUS_ACCESS_KEY_ID;
     delete process.env.BYTEPLUS_SECRET_ACCESS_KEY;
+    delete process.env.BYTEPLUS_ACCESSKEY;
+    delete process.env.BYTEPLUS_SECRETKEY;
     delete process.env.BYTEPLUS_ACCESS_KEY;
     delete process.env.BYTEPLUS_SECRET_KEY;
     delete process.env.BYTEPLUS_SESSION_TOKEN;
@@ -82,6 +84,40 @@ describe("Env Utils", () => {
       expect(config.credentials.accessKeyId).toBe("ak-primary");
       expect(config.credentials.secretAccessKey).toBe("sk-primary");
       expect(config.credentials.sessionToken).toBe("token-primary");
+    });
+
+    it("should load credentials from BYTEPLUS_ACCESSKEY / BYTEPLUS_SECRETKEY (no-underscore aliases, Python compatible)", () => {
+      process.env.BYTEPLUS_ACCESSKEY = "ak-nounderscore";
+      process.env.BYTEPLUS_SECRETKEY = "sk-nounderscore";
+
+      const config = loadEnvFromProcess();
+
+      expect(config.credentials.accessKeyId).toBe("ak-nounderscore");
+      expect(config.credentials.secretAccessKey).toBe("sk-nounderscore");
+    });
+
+    it("should prioritize BYTEPLUS_ACCESS_KEY over BYTEPLUS_ACCESSKEY", () => {
+      process.env.BYTEPLUS_ACCESS_KEY = "ak-underscore";
+      process.env.BYTEPLUS_SECRET_KEY = "sk-underscore";
+      process.env.BYTEPLUS_ACCESSKEY = "ak-nounderscore";
+      process.env.BYTEPLUS_SECRETKEY = "sk-nounderscore";
+
+      const config = loadEnvFromProcess();
+
+      expect(config.credentials.accessKeyId).toBe("ak-underscore");
+      expect(config.credentials.secretAccessKey).toBe("sk-underscore");
+    });
+
+    it("should prioritize BYTEPLUS_ACCESSKEY over BYTEPLUS_ACCESS_KEY_ID", () => {
+      process.env.BYTEPLUS_ACCESSKEY = "ak-nounderscore";
+      process.env.BYTEPLUS_SECRETKEY = "sk-nounderscore";
+      process.env.BYTEPLUS_ACCESS_KEY_ID = "ak-id";
+      process.env.BYTEPLUS_SECRET_ACCESS_KEY = "sk-access";
+
+      const config = loadEnvFromProcess();
+
+      expect(config.credentials.accessKeyId).toBe("ak-nounderscore");
+      expect(config.credentials.secretAccessKey).toBe("sk-nounderscore");
     });
 
     it("should fall back to BYTEPLUS_*_ID / BYTEPLUS_SECRET_ACCESS_KEY", () => {
@@ -191,7 +227,9 @@ describe("Env Utils", () => {
     it("should load credentials from ~/.byteplus/config", () => {
       process.env.HOME = "/mock/home";
 
-      (path.resolve as jest.Mock).mockReturnValue("/mock/home/.byteplus/config");
+      (path.resolve as jest.Mock).mockReturnValue(
+        "/mock/home/.byteplus/config",
+      );
       (fs.existsSync as jest.Mock).mockReturnValue(true);
       (fs.readFileSync as jest.Mock).mockReturnValue(
         JSON.stringify({
@@ -202,7 +240,10 @@ describe("Env Utils", () => {
 
       const config = loadNodeConfig();
 
-      expect(path.resolve).toHaveBeenCalledWith("/mock/home", ".byteplus/config");
+      expect(path.resolve).toHaveBeenCalledWith(
+        "/mock/home",
+        ".byteplus/config",
+      );
       expect(config.accessKeyId).toBe("ak-file");
       expect(config.secretAccessKey).toBe("sk-file");
     });
@@ -210,7 +251,9 @@ describe("Env Utils", () => {
     it("should return empty object if config file does not exist", () => {
       process.env.HOME = "/mock/home";
 
-      (path.resolve as jest.Mock).mockReturnValue("/mock/home/.byteplus/config");
+      (path.resolve as jest.Mock).mockReturnValue(
+        "/mock/home/.byteplus/config",
+      );
       (fs.existsSync as jest.Mock).mockReturnValue(false);
 
       const config = loadNodeConfig();

@@ -51,12 +51,12 @@ export type EnvConfig = {
 /**
  * 从当前 Node.js 进程的环境变量中读取BytePlus SDK 配置。
  *
- * 凭据优先级：BYTEPLUS_* > BYTEPLUS_*_ID
+ * 凭据优先级：BYTEPLUS_ACCESS_KEY > BYTEPLUS_ACCESSKEY > BYTEPLUS_ACCESS_KEY_ID
  *
  * 支持的环境变量：
  * - 凭据：
- *   - BYTEPLUS_ACCESS_KEY / BYTEPLUS_ACCESS_KEY_ID
- *   - BYTEPLUS_SECRET_KEY / BYTEPLUS_SECRET_ACCESS_KEY
+ *   - BYTEPLUS_ACCESS_KEY / BYTEPLUS_ACCESSKEY / BYTEPLUS_ACCESS_KEY_ID
+ *   - BYTEPLUS_SECRET_KEY / BYTEPLUS_SECRETKEY / BYTEPLUS_SECRET_ACCESS_KEY
  *   - BYTEPLUS_SESSION_TOKEN（可选）
  * - OIDC：
  *   - BYTEPLUS_OIDC_ROLE_TRN、BYTEPLUS_OIDC_TOKEN_FILE（必选）
@@ -77,13 +77,16 @@ export type EnvConfig = {
 export function loadEnvFromProcess(): EnvConfig {
   const env = process.env;
 
-  // ---- 凭据（优先级：BYTEPLUS > BYTEPLUS_ID）----
+  // ---- 凭据（优先级：BYTEPLUS_ACCESS_KEY > BYTEPLUS_ACCESSKEY > BYTEPLUS_ACCESS_KEY_ID）----
   const accessKeyId =
-    env.BYTEPLUS_ACCESS_KEY ?? env.BYTEPLUS_ACCESS_KEY_ID;
+    env.BYTEPLUS_ACCESS_KEY ??
+    env.BYTEPLUS_ACCESSKEY ??
+    env.BYTEPLUS_ACCESS_KEY_ID;
   const secretAccessKey =
-    env.BYTEPLUS_SECRET_KEY ?? env.BYTEPLUS_SECRET_ACCESS_KEY;
-  const sessionToken =
-    env.BYTEPLUS_SESSION_TOKEN;
+    env.BYTEPLUS_SECRET_KEY ??
+    env.BYTEPLUS_SECRETKEY ??
+    env.BYTEPLUS_SECRET_ACCESS_KEY;
+  const sessionToken = env.BYTEPLUS_SESSION_TOKEN;
 
   // ---- OIDC 角色扮演 ----
   const oidcRoleTrn = env.BYTEPLUS_OIDC_ROLE_TRN;
@@ -143,7 +146,9 @@ export function loadEnvFromProcess(): EnvConfig {
   const bootstrapRegionListConf = env.BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF;
 
   // ---- 代理配置 ----
-  const proxyProtocol = (env.BYTEPLUS_PROXY_PROTOCOL || "http") as "http" | "https";
+  const proxyProtocol = (env.BYTEPLUS_PROXY_PROTOCOL || "http") as
+    | "http"
+    | "https";
   const proxyHost = env.BYTEPLUS_PROXY_HOST;
   const proxyPort = env.BYTEPLUS_PROXY_PORT;
 
