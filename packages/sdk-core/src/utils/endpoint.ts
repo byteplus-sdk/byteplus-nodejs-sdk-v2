@@ -17,6 +17,8 @@ const separator = ".";
 const openPrefix = "open";
 const endpointSuffix = separator + "byteplusapi.com";
 const dualstackEndpointSuffix = separator + "byteplus-api.com";
+const cnSuffix = separator + "cn";
+const regionCodeCNHongKong = "cn-hongkong";
 
 const endpoint = openPrefix + separator + "ap-southeast-1" + endpointSuffix;
 
@@ -170,9 +172,16 @@ function standardizeDomainServiceCode(serviceCode: string): string {
   return serviceCode.toLowerCase().replace(/_/g, "-");
 }
 
+function isCnRegion(regionCode: string): boolean {
+  if (!regionCode.startsWith("cn-")) {
+    return false;
+  }
+  return regionCode !== regionCodeCNHongKong;
+}
+
 function inBootstrapRegionList(
   regionCode: string,
-  customBootstrapRegion?: Record<string, unknown>
+  customBootstrapRegion?: Record<string, unknown>,
 ): boolean {
   regionCode = regionCode.trim();
 
@@ -215,7 +224,7 @@ export function getDefaultEndpointByServiceInfo(
   service: string,
   regionCode: string,
   customBootstrapRegion?: Record<string, unknown>,
-  useDualStack?: boolean
+  useDualStack?: boolean,
 ): string | null {
   let resultEndpoint = endpoint;
 
@@ -258,7 +267,11 @@ export function getDefaultEndpointByServiceInfo(
   }
 
   resultEndpoint =
-    standardizeDomainServiceCode(service) + separator + regionCode + suffix;
+    standardizeDomainServiceCode(service) +
+    separator +
+    regionCode +
+    suffix +
+    (isCnRegion(regionCode) ? cnSuffix : "");
   return resultEndpoint;
 }
 
