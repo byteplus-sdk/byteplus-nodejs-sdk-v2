@@ -142,6 +142,63 @@ describe("getDefaultEndpointByServiceInfo", () => {
     );
   });
 
+  it("should append .cn suffix for cn mainland region", () => {
+    const service = "vpc";
+    const region = "cn-beijing";
+    const customBootstrapRegion = { "cn-beijing": {} };
+
+    const endpoint = getDefaultEndpointByServiceInfo(
+      service,
+      region,
+      customBootstrapRegion
+    );
+
+    expect(endpoint).toBe("vpc.cn-beijing.byteplusapi.com.cn");
+  });
+
+  it("should append .cn suffix for cn mainland region with dualstack", () => {
+    const service = "vpc";
+    const region = "cn-shanghai";
+    const customBootstrapRegion = { "cn-shanghai": {} };
+
+    const endpoint = getDefaultEndpointByServiceInfo(
+      service,
+      region,
+      customBootstrapRegion,
+      true
+    );
+
+    expect(endpoint).toBe("vpc.cn-shanghai.byteplus-api.com.cn");
+  });
+
+  it("should NOT append .cn suffix for cn-hongkong", () => {
+    const service = "vpc";
+    const region = "cn-hongkong";
+    const customBootstrapRegion = { "cn-hongkong": {} };
+
+    const endpoint = getDefaultEndpointByServiceInfo(
+      service,
+      region,
+      customBootstrapRegion
+    );
+
+    expect(endpoint).toBe("vpc.cn-hongkong.byteplusapi.com");
+  });
+
+  it("should NOT append .cn suffix for global service in cn region", () => {
+    const service = "iam"; // IsGlobal: true
+    const region = "cn-beijing";
+    const customBootstrapRegion = { "cn-beijing": {} };
+
+    const endpoint = getDefaultEndpointByServiceInfo(
+      service,
+      region,
+      customBootstrapRegion
+    );
+
+    expect(endpoint).toBe("iam.byteplusapi.com");
+  });
+
   it("should standardize service code (replace _ with -)", () => {
     const service = "cloud_detect"; // In map: cloud_detect
     const region = "ap-southeast-1";
