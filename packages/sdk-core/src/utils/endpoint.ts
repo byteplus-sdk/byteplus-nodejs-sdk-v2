@@ -33,7 +33,7 @@ const defaultEndpoint: Record<string, ServiceEndpointInfo> = {
   ecs: { Service: "ecs", IsGlobal: false },
   billing: { Service: "billing", IsGlobal: true },
   ark: { Service: "ark", IsGlobal: false },
-  iam: { Service: "iam", IsGlobal: false },
+  iam: { Service: "iam", IsGlobal: true },
   mcs: { Service: "mcs", IsGlobal: false },
   rocketmq: { Service: "rocketmq", IsGlobal: false },
   bytehouse: { Service: "bytehouse", IsGlobal: false },

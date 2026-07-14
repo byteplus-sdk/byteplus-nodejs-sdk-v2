@@ -63,7 +63,7 @@ describe("getDefaultEndpointByServiceInfo", () => {
       service,
       region,
       undefined,
-      useDualStack
+      useDualStack,
     );
 
     // dualstack suffix: .byteplus-api.com
@@ -100,7 +100,7 @@ describe("getDefaultEndpointByServiceInfo", () => {
       service,
       region,
       undefined,
-      false
+      false,
     );
 
     // Should NOT have dualstack suffix
@@ -115,7 +115,7 @@ describe("getDefaultEndpointByServiceInfo", () => {
     const endpoint = getDefaultEndpointByServiceInfo(
       service,
       region,
-      customBootstrapRegion
+      customBootstrapRegion,
     );
 
     expect(endpoint).toBe("vpc.custom-region.byteplusapi.com");
@@ -138,7 +138,7 @@ describe("getDefaultEndpointByServiceInfo", () => {
     expect(endpoint).toBe("vpc.file-region.byteplusapi.com");
     expect(mockReadFileSync).toHaveBeenCalledWith(
       expect.stringContaining("/path/to/conf"),
-      "utf8"
+      "utf8",
     );
   });
 
@@ -150,7 +150,7 @@ describe("getDefaultEndpointByServiceInfo", () => {
     const endpoint = getDefaultEndpointByServiceInfo(
       service,
       region,
-      customBootstrapRegion
+      customBootstrapRegion,
     );
 
     expect(endpoint).toBe("vpc.cn-beijing.byteplusapi.com.cn");
@@ -165,7 +165,7 @@ describe("getDefaultEndpointByServiceInfo", () => {
       service,
       region,
       customBootstrapRegion,
-      true
+      true,
     );
 
     expect(endpoint).toBe("vpc.cn-shanghai.byteplus-api.com.cn");
@@ -179,7 +179,7 @@ describe("getDefaultEndpointByServiceInfo", () => {
     const endpoint = getDefaultEndpointByServiceInfo(
       service,
       region,
-      customBootstrapRegion
+      customBootstrapRegion,
     );
 
     expect(endpoint).toBe("vpc.cn-hongkong.byteplusapi.com");
@@ -193,7 +193,7 @@ describe("getDefaultEndpointByServiceInfo", () => {
     const endpoint = getDefaultEndpointByServiceInfo(
       service,
       region,
-      customBootstrapRegion
+      customBootstrapRegion,
     );
 
     expect(endpoint).toBe("iam.byteplusapi.com");
@@ -206,9 +206,7 @@ describe("getDefaultEndpointByServiceInfo", () => {
     const endpoint = getDefaultEndpointByServiceInfo(service, region);
 
     // cloud_detect -> cloud-detect
-    expect(endpoint).toBe(
-      "cloud-detect.ap-southeast-1.byteplusapi.com"
-    );
+    expect(endpoint).toBe("cloud-detect.ap-southeast-1.byteplusapi.com");
   });
 
   it("should return default endpoint for unknown service in bootstrap region", () => {

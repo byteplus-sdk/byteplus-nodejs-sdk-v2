@@ -354,7 +354,7 @@ export class CLIConfigCredentialProvider implements Provider {
 
     if (!accessToken) {
       throw new Error(
-        `${this.providerName}: SSO token cache '${tokenCachePath}' does not contain access_token; please run 've sso login' to re-authenticate.`,
+        `${this.providerName}: SSO token cache '${tokenCachePath}' does not contain access_token; please run 'bp sso login' to re-authenticate.`,
       );
     }
 
@@ -419,7 +419,7 @@ export class CLIConfigCredentialProvider implements Provider {
     const loginSession = this.trimToUndefined(profile["login-session"]);
     if (!loginSession) {
       throw new Error(
-        `${this.providerName}: profile '${this.profileName}' mode is console-login but login-session is not set; run 've login' first.`,
+        `${this.providerName}: profile '${this.profileName}' mode is console-login but login-session is not set; run 'bp login' first.`,
       );
     }
 
@@ -456,7 +456,7 @@ export class CLIConfigCredentialProvider implements Provider {
       const diskCache = this.loadConsoleLoginCache(cachePath);
       if (diskCache.refresh_token === tokenCache.refresh_token) {
         throw new Error(
-          `${this.providerName}: console-login refresh token rejected by signin service (disk cache has the same RT); please run 've login' to re-authenticate. underlying error: ${err.message}`,
+          `${this.providerName}: console-login refresh token rejected by signin service (disk cache has the same RT); please run 'bp login' to re-authenticate. underlying error: ${err.message}`,
         );
       }
 
@@ -478,7 +478,7 @@ export class CLIConfigCredentialProvider implements Provider {
   private loadConsoleLoginCache(cachePath: string): any {
     if (!fs.existsSync(cachePath)) {
       throw new Error(
-        `${this.providerName}: console-login token cache file '${cachePath}' does not exist; please run 've login' to re-authenticate.`,
+        `${this.providerName}: console-login token cache file '${cachePath}' does not exist; please run 'bp login' to re-authenticate.`,
       );
     }
 
@@ -486,7 +486,7 @@ export class CLIConfigCredentialProvider implements Provider {
       return JSON.parse(fs.readFileSync(cachePath, { encoding: "utf-8" }));
     } catch (err: any) {
       throw new Error(
-        `${this.providerName}: failed to parse console-login token cache '${cachePath}': ${err.message}; please run 've login' to re-authenticate.`,
+        `${this.providerName}: failed to parse console-login token cache '${cachePath}': ${err.message}; please run 'bp login' to re-authenticate.`,
       );
     }
   }
@@ -529,12 +529,12 @@ export class CLIConfigCredentialProvider implements Provider {
 
     if (!refreshToken) {
       throw new Error(
-        `${this.providerName}: console-login cache lacks refresh_token; please run 've login' first.`,
+        `${this.providerName}: console-login cache lacks refresh_token; please run 'bp login' first.`,
       );
     }
     if (!clientId) {
       throw new Error(
-        `${this.providerName}: console-login cache lacks client_id; please run 've login' to regenerate.`,
+        `${this.providerName}: console-login cache lacks client_id; please run 'bp login' to regenerate.`,
       );
     }
 
@@ -672,7 +672,7 @@ export class CLIConfigCredentialProvider implements Provider {
   private loadSsoTokenCache(tokenCachePath: string): any {
     if (!fs.existsSync(tokenCachePath)) {
       throw new Error(
-        `${this.providerName}: SSO token cache file not found at '${tokenCachePath}'; please run 've sso login' to re-authenticate.`,
+        `${this.providerName}: SSO token cache file not found at '${tokenCachePath}'; please run 'bp sso login' to re-authenticate.`,
       );
     }
 
@@ -680,7 +680,7 @@ export class CLIConfigCredentialProvider implements Provider {
       return JSON.parse(fs.readFileSync(tokenCachePath, { encoding: "utf-8" }));
     } catch (err: any) {
       throw new Error(
-        `${this.providerName}: failed to parse SSO token cache '${tokenCachePath}': ${err.message}; please run 've sso login' to re-authenticate.`,
+        `${this.providerName}: failed to parse SSO token cache '${tokenCachePath}': ${err.message}; please run 'bp sso login' to re-authenticate.`,
       );
     }
   }
@@ -697,7 +697,7 @@ export class CLIConfigCredentialProvider implements Provider {
     const expiresAtMs = Date.parse(value);
     if (Number.isNaN(expiresAtMs)) {
       throw new Error(
-        `${this.providerName}: failed to parse expires_at in '${tokenCachePath}'; please run 've sso login' to re-authenticate.`,
+        `${this.providerName}: failed to parse expires_at in '${tokenCachePath}'; please run 'bp sso login' to re-authenticate.`,
       );
     }
     return Date.now() > expiresAtMs;
@@ -714,7 +714,7 @@ export class CLIConfigCredentialProvider implements Provider {
 
     if (!refreshToken) {
       throw new Error(
-        `${this.providerName}: SSO token cache '${tokenCachePath}' does not contain refresh_token; please run 've sso login' to re-authenticate.`,
+        `${this.providerName}: SSO token cache '${tokenCachePath}' does not contain refresh_token; please run 'bp sso login' to re-authenticate.`,
       );
     }
 
@@ -726,14 +726,14 @@ export class CLIConfigCredentialProvider implements Provider {
         Date.now() >= secretExpiresAt.getTime()
       ) {
         throw new Error(
-          `${this.providerName}: refresh token in '${tokenCachePath}' has expired; please run 've sso login' to re-authenticate.`,
+          `${this.providerName}: refresh token in '${tokenCachePath}' has expired; please run 'bp sso login' to re-authenticate.`,
         );
       }
     }
 
     if (!clientId || !clientSecret) {
       throw new Error(
-        `${this.providerName}: SSO token cache '${tokenCachePath}' does not contain client_id/client_secret; please run 've sso login' to re-authenticate.`,
+        `${this.providerName}: SSO token cache '${tokenCachePath}' does not contain client_id/client_secret; please run 'bp sso login' to re-authenticate.`,
       );
     }
 
@@ -751,17 +751,17 @@ export class CLIConfigCredentialProvider implements Provider {
     const accessToken = this.trimToUndefined(tokenResp.access_token);
     if (!accessToken) {
       throw new Error(
-        `${this.providerName}: OAuth token response did not contain access_token; please run 've sso login' to re-authenticate.`,
+        `${this.providerName}: OAuth token response did not contain access_token; please run 'bp sso login' to re-authenticate.`,
       );
     }
     if (!tokenResp.expires_in || Number(tokenResp.expires_in) <= 0) {
       throw new Error(
-        `${this.providerName}: OAuth token response did not contain valid expires_in; please run 've sso login' to re-authenticate.`,
+        `${this.providerName}: OAuth token response did not contain valid expires_in; please run 'bp sso login' to re-authenticate.`,
       );
     }
 
     // 与 Python SDK 对齐：只更新内存 cache（保留轮换后的 refresh_token 供后续刷新周期使用），
-    // 永不写回磁盘，避免与 ve cli 的并发写冲突——ve cli 是唯一写入方。
+    // 永不写回磁盘，避免与 bp cli 的并发写冲突——bp cli 是唯一写入方。
     tokenCache.access_token = accessToken;
     if (this.trimToUndefined(tokenResp.refresh_token)) {
       tokenCache.refresh_token = tokenResp.refresh_token;

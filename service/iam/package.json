@@ -28,7 +28,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@volcengine/sdk-core": "workspace:*"
+    "@byteplus/sdk-core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.8.0",
