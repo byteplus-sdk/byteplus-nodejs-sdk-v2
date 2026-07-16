@@ -4,6 +4,3 @@ packages:
 
   # 代码生成的服务客户端
   - "service/*"
-
-  # 示例
-  - "examples"
