@@ -24,8 +24,8 @@ const DEFAULT_EXPIRE_BUFFER_MS = 60_000;
 
 // 生成缓存键的函数
 function generateCacheKey(params: AssumeRoleWithOIDCParams): string {
-  const { roleTrn, oidcTokenFile, policy } = params || {};
-  return `${roleTrn}-${oidcTokenFile}-${policy ?? ""}`;
+  const { roleTrn, oidcTokenFile, policy, host } = params || {};
+  return `${roleTrn}-${oidcTokenFile}-${policy ?? ""}-${host ?? ""}`;
 }
 
 /**

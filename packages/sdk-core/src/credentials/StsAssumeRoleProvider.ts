@@ -19,8 +19,10 @@ const pendingRequests: { [key: string]: Promise<CredentialValue> | undefined } =
 
 // 生成缓存键的函数
 function generateCacheKey(params: StsAssumeRoleParams) {
-  const { accessKeyId, secretAccessKey, roleTrn, policy } = params || {};
-  return `${accessKeyId}-${secretAccessKey}-${roleTrn}-${policy ?? ""}`;
+  const { accessKeyId, secretAccessKey, roleTrn, policy, host } = params || {};
+  return `${accessKeyId}-${secretAccessKey}-${roleTrn}-${policy ?? ""}-${
+    host ?? ""
+  }`;
 }
 
 /**
