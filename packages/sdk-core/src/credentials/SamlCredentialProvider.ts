@@ -22,8 +22,8 @@ const DEFAULT_EXPIRE_BUFFER_MS = 60_000;
 
 // 生成缓存键的函数
 function generateCacheKey(params: AssumeRoleWithSAMLParams): string {
-  const { roleTrn, samlProviderTrn, policy } = params || {};
-  return `${roleTrn}-${samlProviderTrn}-${policy ?? ""}`;
+  const { roleTrn, samlProviderTrn, policy, host } = params || {};
+  return `${roleTrn}-${samlProviderTrn}-${policy ?? ""}-${host ?? ""}`;
 }
 
 /**
