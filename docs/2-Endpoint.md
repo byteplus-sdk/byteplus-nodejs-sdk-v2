@@ -81,18 +81,6 @@ The table lists every effective combination. `RegionType` is derived from the se
 
 When DualStack is enabled, replace every occurrence of `byteplusapi.com` in the table with `byteplus-api.com`.
 
-##### STS Credential Providers
-
-`StsAssumeRoleProvider`, `OidcCredentialProvider`, and `SamlCredentialProvider` share the same STS host derivation rules. When their `host` parameter is empty, the provider derives the STS host from `region` and resolves it against the same rules used by the main request pipeline — no explicit STS host configuration is required.
-
-Resolution priority (three-level fallback):
-
-- Explicit `host` argument > (OIDC only) `BYTEPLUS_OIDC_STS_ENDPOINT` env var > region-driven `defaultSTSHostFor(region)` > fallback to `sts.ap-southeast-1.byteplusapi.com` when region is also empty.
-- OIDC provider also accepts `BYTEPLUS_OIDC_STS_REGION` env var to supply the region for host derivation.
-- `cn-hongkong` is on the non-mainland whitelist and resolves to `sts.cn-hongkong.byteplusapi.com` (the international `.com` suffix), same as Go/Java.
-
-See [`packages/sdk-core/src/utils/stsHost.ts`](../packages/sdk-core/src/utils/stsHost.ts) for the shared `defaultSTSHostFor(region)` helper.
-
 ##### `customBootstrapRegion` / `BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF` (Deprecated)
 
 > **⚠️ Deprecated**: the `customBootstrapRegion` field on `ClientConfig` and the `BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF` environment variable are **deprecated** and **no longer participate** in the default addressing pipeline. The field is retained only for API-source compatibility and is treated as a no-op at runtime. **Do not use it in new code.** Existing callers should switch to `region` + `useDualStack` and let the SDK auto-resolve the endpoint, or override it explicitly via `host`.

@@ -54,8 +54,7 @@ setx BYTEPLUS_SESSION_TOKEN your-session-token /M
 | `BYTEPLUS_OIDC_ROLE_TRN`          | 要扮演的角色 TRN        |  ✅  |
 | `BYTEPLUS_OIDC_TOKEN_FILE`        | OIDC Token 文件路径     |  ✅  |
 | `BYTEPLUS_OIDC_ROLE_SESSION_NAME` | 角色会话名称            |  ❌  |
-| `BYTEPLUS_OIDC_STS_ENDPOINT`      | 自定义 STS Endpoint（优先级最高） |  ❌  |
-| `BYTEPLUS_OIDC_STS_REGION`        | 未显式配置 STS Endpoint 时，由该 region 派生 host |  ❌  |
+| `BYTEPLUS_OIDC_STS_ENDPOINT`      | 自定义 STS Endpoint     |  ❌  |
 | `BYTEPLUS_OIDC_ROLE_POLICY`       | 会话策略（JSON 字符串） |  ❌  |
 
 #### SAML（AssumeRoleWithSAML）
@@ -123,8 +122,8 @@ setx BYTEPLUS_SESSION_TOKEN your-session-token /M
 | 配置项            | 优先级（高 → 低）                                               |
 | ----------------- | --------------------------------------------------------------- |
 | AK/SK/Token       | `BYTEPLUS_*` > `BYTEPLUS_*_ID` > `BYTEPLUS_*`               |
-| OIDC STS Endpoint | 构造参数 `host` > `BYTEPLUS_OIDC_STS_ENDPOINT` > `defaultSTSHostFor(region)`（`region` / `BYTEPLUS_OIDC_STS_REGION` 派生） > `sts.ap-southeast-1.byteplusapi.com` |
-| SAML STS Endpoint | 构造参数 `host` > `BYTEPLUS_SAML_ENDPOINT` > `defaultSTSHostFor(region)` > `sts.ap-southeast-1.byteplusapi.com` |
+| OIDC STS Endpoint | 构造参数 `host` > `BYTEPLUS_OIDC_STS_ENDPOINT`                |
+| SAML STS Endpoint | 构造参数 `host` > `BYTEPLUS_SAML_ENDPOINT`                    |
 | CLI 配置文件路径  | `BYTEPLUS_CLI_CONFIG_FILE` > `~/.byteplus/config.json`      |
 | ECS Role 名称     | 构造参数 `roleName` > `BYTEPLUS_ECS_METADATA` > IMDS 自动探测 |
 | 双栈              | 构造参数 `useDualStack` > `BYTEPLUS_ENABLE_DUALSTACK`               |

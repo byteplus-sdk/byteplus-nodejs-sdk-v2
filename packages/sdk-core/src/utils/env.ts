@@ -12,8 +12,6 @@ type ByteplusCredentials = {
     roleSessionName?: string;
     oidcTokenFile: string;
     host?: string;
-    /** STS region for host derivation when `host` is empty (BYTEPLUS_OIDC_STS_REGION). */
-    region?: string;
     policy?: string;
   };
   /** SAML 角色扮演相关配置（从环境变量读取） */
@@ -63,8 +61,6 @@ export type EnvConfig = {
  * - OIDC：
  *   - BYTEPLUS_OIDC_ROLE_TRN、BYTEPLUS_OIDC_TOKEN_FILE（必选）
  *   - BYTEPLUS_OIDC_ROLE_SESSION_NAME、BYTEPLUS_OIDC_HOST、BYTEPLUS_OIDC_ROLE_POLICY（可选）
- *   - BYTEPLUS_OIDC_STS_ENDPOINT（可选，显式 STS host）
- *   - BYTEPLUS_OIDC_STS_REGION（可选，未指定 STS host 时由 region 派生 host）
  * - SAML：
  *   - BYTEPLUS_SAML_ROLE_TRN、BYTEPLUS_SAML_ACCOUNT_ID、BYTEPLUS_SAML_PROVIDER_TRN、BYTEPLUS_SAML_ASSERTION（必选）
  *   - BYTEPLUS_SAML_HOST、BYTEPLUS_SAML_POLICY（可选）
@@ -98,7 +94,6 @@ export function loadEnvFromProcess(): EnvConfig {
   const oidcTokenFile = env.BYTEPLUS_OIDC_TOKEN_FILE;
   const oidcPolicy = env.BYTEPLUS_OIDC_ROLE_POLICY;
   const oidcStsEndpoint = env.BYTEPLUS_OIDC_STS_ENDPOINT;
-  const oidcStsRegion = env.BYTEPLUS_OIDC_STS_REGION;
 
   const assumeRoleWithOIDC =
     oidcTokenFile && oidcRoleTrn
@@ -107,7 +102,6 @@ export function loadEnvFromProcess(): EnvConfig {
           roleSessionName: oidcRoleSessionName,
           oidcTokenFile: oidcTokenFile,
           host: oidcStsEndpoint,
-          region: oidcStsRegion,
           policy: oidcPolicy,
         }
       : undefined;

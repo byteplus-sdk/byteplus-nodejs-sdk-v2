@@ -54,8 +54,7 @@ setx BYTEPLUS_SESSION_TOKEN your-session-token /M
 | `BYTEPLUS_OIDC_ROLE_TRN`          | Role TRN to assume           |    ✅    |
 | `BYTEPLUS_OIDC_TOKEN_FILE`        | OIDC token file path         |    ✅    |
 | `BYTEPLUS_OIDC_ROLE_SESSION_NAME` | Role session name            |    ❌    |
-| `BYTEPLUS_OIDC_STS_ENDPOINT`      | Custom STS endpoint (highest priority) |    ❌    |
-| `BYTEPLUS_OIDC_STS_REGION`        | STS region for host derivation when endpoint is empty |    ❌    |
+| `BYTEPLUS_OIDC_STS_ENDPOINT`      | Custom STS endpoint          |    ❌    |
 | `BYTEPLUS_OIDC_ROLE_POLICY`       | Session policy (JSON string) |    ❌    |
 
 #### SAML (AssumeRoleWithSAML)
@@ -123,8 +122,8 @@ When no credentials are explicitly configured, `DefaultCredentialProvider` tries
 | Configuration Item   | Priority (high → low)                                                           |
 | -------------------- | ------------------------------------------------------------------------------- |
 | AK/SK/Token          | `BYTEPLUS_*` > `BYTEPLUS_*_ID` > `BYTEPLUS_*`                               |
-| OIDC STS Endpoint    | Constructor parameter `host` > `BYTEPLUS_OIDC_STS_ENDPOINT` > `defaultSTSHostFor(region)` (from `region` / `BYTEPLUS_OIDC_STS_REGION`) > `sts.ap-southeast-1.byteplusapi.com` |
-| SAML STS Endpoint    | Constructor parameter `host` > `BYTEPLUS_SAML_ENDPOINT` > `defaultSTSHostFor(region)` > `sts.ap-southeast-1.byteplusapi.com` |
+| OIDC STS Endpoint    | Constructor parameter `host` > `BYTEPLUS_OIDC_STS_ENDPOINT`                   |
+| SAML STS Endpoint    | Constructor parameter `host` > `BYTEPLUS_SAML_ENDPOINT`                       |
 | CLI config file path | `BYTEPLUS_CLI_CONFIG_FILE` > `~/.byteplus/config.json`                      |
 | ECS Role name        | Constructor parameter `roleName` > `BYTEPLUS_ECS_METADATA` > IMDS auto-detect |
 | DualStack            | Constructor parameter `useDualStack` > `BYTEPLUS_ENABLE_DUALSTACK`                  |

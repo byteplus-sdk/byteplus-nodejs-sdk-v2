@@ -83,18 +83,6 @@ BytePlus 提供了灵活的 Endpoint 自动寻址机制。SDK 会根据服务名
 
 启用 DualStack 时，将上表中的 `byteplusapi.com` 整体替换为 `byteplus-api.com`。
 
-##### STS 凭证 Provider
-
-`StsAssumeRoleProvider` / `OidcCredentialProvider` / `SamlCredentialProvider` 共享同一份 STS host 派生规则。当 `host` 参数留空时，Provider 会用 `region` 自动寻址，命中与主链路一致的规则 —— 无需再显式配置 STS 域名。
-
-Host 覆盖优先级（三级 fallback）：
-
-- 显式 `host` 参数 > （仅 OIDC）`BYTEPLUS_OIDC_STS_ENDPOINT` 环境变量 > 基于 region 的 `defaultSTSHostFor(region)` > 空 region 时兜底至 `sts.ap-southeast-1.byteplusapi.com`。
-- OIDC Provider 也可通过 `BYTEPLUS_OIDC_STS_REGION` 环境变量提供 region 以驱动 host 派生。
-- `cn-hongkong` 属于非大陆港澳台白名单，解析为 `sts.cn-hongkong.byteplusapi.com`（使用国际 `.com` 后缀），与 Go/Java 保持一致。
-
-共享的 `defaultSTSHostFor(region)` 工具函数：[`packages/sdk-core/src/utils/stsHost.ts`](../packages/sdk-core/src/utils/stsHost.ts)。
-
 ##### `customBootstrapRegion` / `BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF`（已废弃）
 
 > **⚠️ Deprecated**：`ClientConfig` 上的 `customBootstrapRegion` 字段以及 `BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF` 环境变量已被标记为**废弃**，**不再参与**默认寻址链路。参数仅为 API 源码兼容而保留，运行时视为 no-op。请**勿在新代码中使用**，已有代码建议改用 `region` + `useDualStack` 让 SDK 自动寻址，或用 `host` 显式覆盖。

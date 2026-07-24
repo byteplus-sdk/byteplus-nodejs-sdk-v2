@@ -7,11 +7,6 @@ import {
   inBootstrapRegionList,
   __test_defaultEndpoint as defaultEndpointMap,
 } from "../src/utils/endpoint";
-import {
-  DEFAULT_STS_ENDPOINT,
-  defaultSTSHostFor,
-  resolveStsEndpoint,
-} from "../src/utils/stsHost";
 import * as envUtils from "../src/utils/env";
 
 // Mirror Go/Java/PHP/Python decision table tests. Every branch of the
@@ -139,16 +134,16 @@ describe("resolveDefaultEndpoint - decision table", () => {
       const got = withTempService(info, () =>
         resolveDefaultEndpoint(c.service, c.region),
       );
-      const mark = got === c.want ? "PASS" : "FAIL";
-      results.push([mark, c.name]);
+      const verdict = got === c.want ? "ok" : "bad";
+      results.push([verdict, c.name]);
       console.log(
-        `[${mark}] ${c.name} | service='${c.service}' is_global=${c.isGlobal} go_china=${c.goChina} region='${c.region}' -> got='${got}' want='${c.want}'`,
+        `[${verdict}] ${c.name} | service='${c.service}' is_global=${c.isGlobal} go_china=${c.goChina} region='${c.region}' -> got='${got}' want='${c.want}'`,
       );
       expect(got).toBe(c.want);
     }
-    const passed = results.filter(([m]) => m === "PASS").length;
+    const passed = results.filter(([v]) => v === "ok").length;
     console.log(
-      `--- Decision table summary: ${passed} PASS, ${results.length - passed} FAIL, ${results.length} total ---`,
+      `--- Decision table summary: ${passed} ok, ${results.length - passed} bad, ${results.length} total ---`,
     );
   });
 });
@@ -336,53 +331,4 @@ describe("inBootstrapRegionList - deprecated no-op", () => {
   });
 });
 
-describe("defaultSTSHostFor", () => {
-  const CASES: Array<[string, string | undefined | null, string]> = [
-    ["empty region falls back to ap-southeast-1", "", "sts.ap-southeast-1.byteplusapi.com"],
-    ["undefined region falls back to ap-southeast-1", undefined, "sts.ap-southeast-1.byteplusapi.com"],
-    ["null region falls back to ap-southeast-1", null, "sts.ap-southeast-1.byteplusapi.com"],
-    ["mainland cn region uses .com.cn suffix", "cn-beijing", "sts.cn-beijing.byteplusapi.com.cn"],
-    ["cn-hongkong keeps international suffix", "cn-hongkong", "sts.cn-hongkong.byteplusapi.com"],
-    ["non-cn region uses .com suffix", "ap-southeast-2", "sts.ap-southeast-2.byteplusapi.com"],
-    ["region is normalized trim+lowercase", "  CN-Beijing  ", "sts.cn-beijing.byteplusapi.com.cn"],
-  ];
 
-  for (const [name, region, want] of CASES) {
-    it(name, () => {
-      expect(defaultSTSHostFor(region as any)).toBe(want);
-    });
-  }
-});
-
-describe("resolveStsEndpoint - three-level fallback", () => {
-  it("Level 1: explicit host wins even when region is set", () => {
-    expect(
-      resolveStsEndpoint("sts.custom.example.com", "cn-beijing"),
-    ).toBe("sts.custom.example.com");
-  });
-
-  it("Level 2: derives host from region when host is empty", () => {
-    expect(resolveStsEndpoint("", "cn-beijing")).toBe(
-      "sts.cn-beijing.byteplusapi.com.cn",
-    );
-    expect(resolveStsEndpoint(undefined, "ap-southeast-2")).toBe(
-      "sts.ap-southeast-2.byteplusapi.com",
-    );
-    expect(resolveStsEndpoint(null, "cn-hongkong")).toBe(
-      "sts.cn-hongkong.byteplusapi.com",
-    );
-  });
-
-  it("Level 3: falls back to DEFAULT_STS_ENDPOINT when both empty", () => {
-    expect(resolveStsEndpoint("", "")).toBe(DEFAULT_STS_ENDPOINT);
-    expect(resolveStsEndpoint(undefined, undefined)).toBe(DEFAULT_STS_ENDPOINT);
-    expect(resolveStsEndpoint(null, null)).toBe(DEFAULT_STS_ENDPOINT);
-    expect(DEFAULT_STS_ENDPOINT).toBe("sts.ap-southeast-1.byteplusapi.com");
-  });
-
-  it("whitespace-only host does not count as explicit", () => {
-    expect(resolveStsEndpoint("   ", "cn-beijing")).toBe(
-      "sts.cn-beijing.byteplusapi.com.cn",
-    );
-  });
-});

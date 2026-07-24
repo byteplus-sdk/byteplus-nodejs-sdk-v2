@@ -29,9 +29,3 @@ export {
   getDefaultEndpointByServiceInfo,
 } from "./utils/endpoint";
 export type { ServiceEndpointInfo } from "./utils/endpoint";
-export {
-  DEFAULT_STS_ENDPOINT,
-  DEFAULT_STS_REGION,
-  defaultSTSHostFor,
-  resolveStsEndpoint,
-} from "./utils/stsHost";

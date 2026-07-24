@@ -1,7 +1,6 @@
 import type { CredentialValue, Provider } from "./types";
 import type { AssumeRoleWithSAMLParams } from "../types/types";
 import { loadEnv } from "../utils/env";
-import { resolveStsEndpoint } from "../utils/stsHost";
 
 // 缓存类型定义
 interface CredentialsCache {
@@ -130,7 +129,7 @@ export class SamlCredentialProvider implements Provider {
 
         const client = new STSClient({
           region: this.params.region || "ap-southeast-1",
-          host: resolveStsEndpoint(this.params.host, this.params.region),
+          host: this.params.host || "sts.ap-southeast-1.byteplusapi.com",
           protocol: this.params.protocol || "https",
           _jumpCredential: true,
         });
