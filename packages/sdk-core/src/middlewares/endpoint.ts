@@ -10,7 +10,7 @@ export const endpointMiddleware: {
     const { request } = args;
     const { clientConfig } = _context;
 
-    const { useDualStack, customBootstrapRegion } = clientConfig || {};
+    const { useDualStack } = clientConfig || {};
     // If host is already set, skip endpoint resolution
     if (request.host) {
       return next(args);
@@ -19,7 +19,7 @@ export const endpointMiddleware: {
     const defaultEndpoint = getDefaultEndpointByServiceInfo(
       request.serviceName || "",
       request.region || "",
-      customBootstrapRegion,
+      undefined,
       useDualStack,
     );
 

@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import type { CredentialValue, Provider } from "./types";
 import type { StsAssumeRoleParams } from "../types/types";
+import { resolveStsEndpoint } from "../utils/stsHost";
 
 // 缓存类型定义
 interface CredentialsCache {
@@ -80,7 +81,7 @@ export class StsAssumeRoleProvider implements Provider {
           region: this.params.region || "ap-southeast-1",
           accessKeyId: this.params.accessKeyId,
           secretAccessKey: this.params.secretAccessKey,
-          host: this.params.host || "sts.ap-southeast-1.byteplusapi.com",
+          host: resolveStsEndpoint(this.params.host, this.params.region),
           protocol: this.params.protocol || "https",
         });
 

@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { ClientConfig, AssumeRoleParams } from "../types/types";
+import { resolveStsEndpoint } from "./stsHost";
 
 // 缓存类型定义
 interface CredentialsCache {
@@ -55,7 +56,7 @@ export async function getAssumeRole(assumeRoleParams: AssumeRoleParams) {
         region: assumeRoleParams?.region || "ap-southeast-1",
         accessKeyId: assumeRoleParams.accessKeyId,
         secretAccessKey: assumeRoleParams.secretAccessKey,
-        host: assumeRoleParams?.host || "sts.ap-southeast-1.byteplusapi.com",
+        host: resolveStsEndpoint(assumeRoleParams?.host, assumeRoleParams?.region),
         protocol: assumeRoleParams?.protocol || "https",
       });
 

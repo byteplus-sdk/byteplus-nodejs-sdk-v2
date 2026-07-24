@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import type { CredentialValue, Provider } from "./types";
 import type { AssumeRoleWithOIDCParams } from "../types/types";
 import { loadEnv } from "../utils/env";
+import { resolveStsEndpoint } from "../utils/stsHost";
 
 // 缓存类型定义
 interface CredentialsCache {
@@ -85,6 +86,7 @@ export class OidcCredentialProvider implements Provider {
       roleTrn: oidcEnv.roleTrn,
       oidcTokenFile: oidcEnv.oidcTokenFile,
       host: oidcEnv?.host,
+      region: oidcEnv?.region,
       policy: oidcEnv?.policy,
       roleSessionName: oidcEnv.roleSessionName,
     };
@@ -118,7 +120,7 @@ export class OidcCredentialProvider implements Provider {
 
         const client = new STSClient({
           region: this.params.region || "ap-southeast-1",
-          host: this.params.host || "sts.ap-southeast-1.byteplusapi.com",
+          host: resolveStsEndpoint(this.params.host, this.params.region),
           protocol: this.params.protocol || "https",
           _jumpCredential: true,
         });
