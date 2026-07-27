@@ -4,7 +4,6 @@ import {
   ServiceEndpointInfoMissingError,
   getDefaultEndpointByServiceInfo,
   resolveDefaultEndpoint,
-  inBootstrapRegionList,
   __test_defaultEndpoint as defaultEndpointMap,
 } from "../src/utils/endpoint";
 import * as envUtils from "../src/utils/env";
@@ -302,15 +301,6 @@ describe("getDefaultEndpointByServiceInfo - backwards-compatible wrapper", () =>
     expect(got).toBe("open.ap-southeast-1.byteplusapi.com");
   });
 
-  it("ignores the deprecated customBootstrapRegion argument", () => {
-    const got = getDefaultEndpointByServiceInfo(
-      "vpc",
-      "ap-southeast-1",
-      { "some-region": {} },
-    );
-    expect(got).toBe("vpc.ap-southeast-1.byteplusapi.com");
-  });
-
   it("resolves built-in vpc even for arbitrary regions (no bootstrap gate)", () => {
     // Old code returned "open.ap-southeast-1.byteplusapi.com" when the region
     // was not in the bootstrap list. The new pipeline unconditionally builds
@@ -320,14 +310,6 @@ describe("getDefaultEndpointByServiceInfo - backwards-compatible wrapper", () =>
       "some-arbitrary-region",
     );
     expect(got).toBe("vpc.some-arbitrary-region.byteplusapi.com");
-  });
-});
-
-describe("inBootstrapRegionList - deprecated no-op", () => {
-  it("always returns false regardless of arguments", () => {
-    expect(inBootstrapRegionList("ap-southeast-1")).toBe(false);
-    expect(inBootstrapRegionList("cn-beijing", { "cn-beijing": {} })).toBe(false);
-    expect(inBootstrapRegionList("")).toBe(false);
   });
 });
 

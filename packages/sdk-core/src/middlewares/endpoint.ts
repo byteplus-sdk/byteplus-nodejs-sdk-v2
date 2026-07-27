@@ -19,7 +19,6 @@ export const endpointMiddleware: {
     const defaultEndpoint = getDefaultEndpointByServiceInfo(
       request.serviceName || "",
       request.region || "",
-      undefined,
       useDualStack,
     );
 

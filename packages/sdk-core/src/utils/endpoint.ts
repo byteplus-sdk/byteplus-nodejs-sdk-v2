@@ -192,20 +192,6 @@ function hasEnableDualStack(useDualStack?: boolean): boolean {
 }
 
 /**
- * inBootstrapRegionList is retained for API compatibility with older callers.
- * The default addressing pipeline no longer consults it. Always returns false.
- *
- * @deprecated Bootstrap-region-based routing has been removed from the default
- * addressing pipeline. Prefer explicit `host` or the default resolver.
- */
-export function inBootstrapRegionList(
-  _regionCode: string,
-  _customBootstrapRegion?: Record<string, unknown>,
-): boolean {
-  return false;
-}
-
-/**
  * resolveDefaultEndpoint is the SDK-internal entry point mirroring Go's
  * ResolveDefaultEndpoint. It consults the defaultEndpoint map and combines
  * IsGlobal + GoChinaEnabled + normalized region to produce a deterministic
@@ -243,25 +229,26 @@ export function resolveDefaultEndpoint(
 /**
  * getDefaultEndpointByServiceInfo is the backwards-compatible entry point that
  * preserves the original signature. Delegates to resolveDefaultEndpoint; if the
- * service is not registered, returns null so existing call sites do not crash
- * (the caller is expected to fall back to explicit host configuration).
- *
- * @deprecated `customBootstrapRegion` is retained for API compatibility only
- * and is ignored at runtime. New call sites should prefer resolveDefaultEndpoint.
+ * service is not registered, falls back to the default open endpoint so existing
+ * call sites do not crash.
  */
 export function getDefaultEndpointByServiceInfo(
   service: string,
   regionCode: string,
-  _customBootstrapRegion?: Record<string, unknown>,
   useDualStack?: boolean,
-): string | null {
+): string {
+  // Unregistered service: fall back to the default open endpoint (historical
+  // behavior) instead of letting resolveDefaultEndpoint fail-fast.
+  if (!defaultEndpoint[service]) {
+    return endpoint;
+  }
   try {
     return resolveDefaultEndpoint(service, regionCode, useDualStack);
   } catch (err) {
-    if (err instanceof ServiceEndpointInfoMissingError) {
-      return endpoint;
-    }
-    throw err;
+    const reason = err instanceof Error ? err.message : String(err);
+    throw new Error(
+      `byteplus-sdk: failed to resolve endpoint for service '${service}' in region '${regionCode}': ${reason}`,
+    );
   }
 }
 

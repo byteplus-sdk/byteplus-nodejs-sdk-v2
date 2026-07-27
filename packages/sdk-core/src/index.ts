@@ -21,11 +21,3 @@ export { EcsRoleCredentialProvider } from "./credentials/EcsRoleCredentialProvid
 export { DefaultCredentialProvider } from "./credentials/DefaultCredentialProvider";
 export { presignUrl } from "./utils/signer";
 export { buildAuthToken } from "./feature/rds/connect";
-
-// Endpoint resolution
-export {
-  ServiceEndpointInfoMissingError,
-  resolveDefaultEndpoint,
-  getDefaultEndpointByServiceInfo,
-} from "./utils/endpoint";
-export type { ServiceEndpointInfo } from "./utils/endpoint";
