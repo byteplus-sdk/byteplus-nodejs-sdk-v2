@@ -45,7 +45,7 @@ BytePlus 提供了灵活的 Endpoint 自动寻址机制。SDK 会根据服务名
 
    每个服务在内置映射中都会登记 `IsGlobal` 和 `GoChinaEnabled` 两个 bool 字段，SDK 按下方"标准寻址规则"构造 Endpoint。
 
-   - 服务未在映射中登记：`resolveDefaultEndpoint` 会抛出 `ServiceEndpointInfoMissingError`（从 `@byteplus/sdk-core` 导出），错误消息形如 `byteplus-sdk: service endpoint info missing: service '<xxx>' not registered`。参见 [错误处理](#错误处理)。
+   - 服务未在映射中登记：默认寻址链路**不会抛错**，而是**回退到默认 open endpoint** `open.ap-southeast-1.byteplusapi.com`，以保证请求不崩溃。参见 [未知服务](#未知服务)。
 
    内置服务映射：[`packages/sdk-core/src/utils/endpoint.ts`](../packages/sdk-core/src/utils/endpoint.ts) 中的 `defaultEndpoint`。
 
@@ -83,53 +83,28 @@ BytePlus 提供了灵活的 Endpoint 自动寻址机制。SDK 会根据服务名
 
 启用 DualStack 时，将上表中的 `byteplusapi.com` 整体替换为 `byteplus-api.com`。
 
-##### `customBootstrapRegion` / `BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF`（已废弃）
-
-> **⚠️ Deprecated**：`ClientConfig` 上的 `customBootstrapRegion` 字段以及 `BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF` 环境变量已被标记为**废弃**，**不再参与**默认寻址链路。参数仅为 API 源码兼容而保留，运行时视为 no-op。请**勿在新代码中使用**，已有代码建议改用 `region` + `useDualStack` 让 SDK 自动寻址，或用 `host` 显式覆盖。
-
 ##### 代码示例
 
 ```typescript
 import { ECSClient } from "@byteplus/ecs";
 
-// SDK 会自动推导 Endpoint 为: ecs.ap-southeast-1.byteplusapi.com
+// SDK 会自动推导 Endpoint 为: ecs.ap-southeast-1.byteplus-api.com（DualStack 后缀）
 const client = new ECSClient({
   region: "ap-southeast-1",
   useDualStack: true, // 启用双栈；也可通过环境变量 BYTEPLUS_ENABLE_DUALSTACK=true 启用
 });
 ```
 
-##### 错误处理
+##### 未知服务
 
-如果请求的服务名不在内置 `defaultEndpoint` 映射中，SDK 在第一次触发默认寻址时就会抛出 `ServiceEndpointInfoMissingError`，错误消息形如 `byteplus-sdk: service endpoint info missing: service '<xxx>' not registered`。可用如下方式识别：
+如果请求的服务名不在内置 `defaultEndpoint` 映射中，默认寻址链路**不会抛错**。为兼容旧调用方，它会**回退到默认 open endpoint** `open.ap-southeast-1.byteplusapi.com`（该回退会忽略 `region` / `useDualStack`）。
 
-```typescript
-import { ServiceEndpointInfoMissingError } from "@byteplus/sdk-core";
+这意味着未登记的服务不会快速失败，而是静默地指向 open endpoint —— 这通常并非预期结果。如果某个请求意外发往 `open.ap-southeast-1.byteplusapi.com`，多半是当前安装的 SDK 尚未内置该服务。此时可以：
 
-try {
-  await client.send(command);
-} catch (err) {
-  if (err instanceof ServiceEndpointInfoMissingError) {
-    // err.service 携带缺失的服务名
-    // SDK 版本可能不识别该服务，请升级依赖或显式指定 Endpoint。
-    throw err;
-  }
-  throw err;
-}
-```
+- 升级 SDK 依赖，使该服务被登记；或
+- 通过 `host` 显式指定 Endpoint。
 
-遇到该错误时，建议先升级 SDK 版本；若确认 SDK 尚未内置该服务的寻址元数据，可通过 `host` 显式指定 Endpoint。
-
-### Endpoint 标准寻址
-
-| Global 服务 | 双栈 | 格式 |
-|---|---|---|
-| 是 | 是 | `{Service}.byteplus-api.com` |
-| 是 | 否 | `{Service}.byteplusapi.com` |
-| 否 | 是 | `{Service}.{region}.byteplus-api.com` |
-| 否 | 否 | `{Service}.{region}.byteplusapi.com` |
-
-标准寻址不会追加 Go China 的 `.cn` 后缀，如需 `.cn` 请使用默认寻址（或显式指定 Endpoint）。
+> SDK 内部的 `resolveDefaultEndpoint` 辅助函数在服务未登记时确实会抛出 `ServiceEndpointInfoMissingError`，但它不在默认 Client 请求链路上，且**未从包根导出**。请勿依赖从 `@byteplus/sdk-core` 捕获该错误。
 
 ---
 

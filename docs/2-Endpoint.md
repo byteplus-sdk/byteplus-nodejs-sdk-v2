@@ -43,7 +43,7 @@ BytePlus provides a flexible endpoint resolution mechanism. The SDK builds the e
 
    Every service in the built-in map carries an `IsGlobal` and a `GoChinaEnabled` bool. The SDK builds the endpoint following the rules below.
 
-   - Service missing from the map: `resolveDefaultEndpoint` throws `ServiceEndpointInfoMissingError` (re-exported from `@byteplus/sdk-core`) with a message like `byteplus-sdk: service endpoint info missing: service '<xxx>' not registered`. See [Error handling](#error-handling).
+   - Service missing from the map: the default addressing pipeline **falls back to the default open endpoint** `open.ap-southeast-1.byteplusapi.com` so the request does not crash. See [Unknown services](#unknown-services).
 
    Built-in service map: [`packages/sdk-core/src/utils/endpoint.ts`](../packages/sdk-core/src/utils/endpoint.ts) `defaultEndpoint`.
 
@@ -81,54 +81,28 @@ The table lists every effective combination. `RegionType` is derived from the se
 
 When DualStack is enabled, replace every occurrence of `byteplusapi.com` in the table with `byteplus-api.com`.
 
-##### `customBootstrapRegion` / `BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF` (Deprecated)
-
-> **⚠️ Deprecated**: the `customBootstrapRegion` field on `ClientConfig` and the `BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF` environment variable are **deprecated** and **no longer participate** in the default addressing pipeline. The field is retained only for API-source compatibility and is treated as a no-op at runtime. **Do not use it in new code.** Existing callers should switch to `region` + `useDualStack` and let the SDK auto-resolve the endpoint, or override it explicitly via `host`.
-
 ##### Code Example
 
 ```typescript
 import { ECSClient } from "@byteplus/ecs";
 
-// Resolves to: ecs.ap-southeast-1.byteplusapi.com
+// Resolves to: ecs.ap-southeast-1.byteplus-api.com (DualStack suffix)
 const client = new ECSClient({
   region: "ap-southeast-1",
   useDualStack: true, // also honors env BYTEPLUS_ENABLE_DUALSTACK=true
 });
 ```
 
-##### Error handling
+##### Unknown services
 
-If the requested service is not registered in `defaultEndpoint`, the SDK throws `ServiceEndpointInfoMissingError` on the first default endpoint resolution, with a message like `byteplus-sdk: service endpoint info missing: service '<xxx>' not registered`. Detect it with:
+If the requested service is not registered in `defaultEndpoint`, the default addressing pipeline does **not** throw. To keep older callers working, it falls back to the default open endpoint `open.ap-southeast-1.byteplusapi.com` (this fallback ignores `region` / `useDualStack`).
 
-```typescript
-import { ServiceEndpointInfoMissingError } from "@byteplus/sdk-core";
+This means an unregistered service will not fail fast — it will silently target the open endpoint, which is usually not what you want. If a request unexpectedly goes to `open.ap-southeast-1.byteplusapi.com`, the service is likely not carried by the installed SDK. In that case:
 
-try {
-  await client.send(command);
-} catch (err) {
-  if (err instanceof ServiceEndpointInfoMissingError) {
-    // err.service carries the offending service name
-    // The installed SDK likely does not know this service.
-    // Upgrade the dependency or set the endpoint explicitly.
-    throw err;
-  }
-  throw err;
-}
-```
+- Upgrade the SDK dependency so the service is registered, or
+- Set the endpoint explicitly via `host`.
 
-When you hit this error, first try upgrading the SDK. If the service is genuinely not carried by the SDK yet, set the endpoint explicitly via `host`.
-
-### Standard Endpoint Addressing
-
-| Global Service | DualStack | Format |
-|---|---|---|
-| Yes | Yes | `{Service}.byteplus-api.com` |
-| Yes | No | `{Service}.byteplusapi.com` |
-| No | Yes | `{Service}.{region}.byteplus-api.com` |
-| No | No | `{Service}.{region}.byteplusapi.com` |
-
-Standard resolution never appends the Go China `.cn` suffix. If you need `.cn`, use the default resolver (or set the endpoint explicitly).
+> The internal `resolveDefaultEndpoint` helper does throw `ServiceEndpointInfoMissingError` for unregistered services, but it is not on the default Client request path and is **not** exported from the package root. Do not rely on catching it from `@byteplus/sdk-core`.
 
 ---
 

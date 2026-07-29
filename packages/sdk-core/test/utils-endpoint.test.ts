@@ -22,7 +22,6 @@ function useEnv(overrides: Partial<envUtils.EnvConfig> = {}) {
   mockLoadEnv.mockReturnValue({
     credentials: {},
     enableDualstack: false,
-    bootstrapRegionListConf: undefined,
     ...overrides,
   } as envUtils.EnvConfig);
 }
