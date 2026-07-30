@@ -32,7 +32,6 @@ describe("Env Utils", () => {
     delete process.env.BYTEPLUS_SECRET_KEY;
     delete process.env.BYTEPLUS_SESSION_TOKEN;
     delete process.env.BYTEPLUS_ENABLE_DUALSTACK;
-    delete process.env.BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF;
     delete process.env.BYTEPLUS_OIDC_ROLE_TRN;
     delete process.env.BYTEPLUS_OIDC_ROLE_SESSION_NAME;
     delete process.env.BYTEPLUS_OIDC_TOKEN_FILE;
@@ -193,12 +192,6 @@ describe("Env Utils", () => {
       delete process.env.BYTEPLUS_ENABLE_DUALSTACK;
       const configUndefined = loadEnvFromProcess();
       expect(configUndefined.enableDualstack).toBe(false);
-    });
-
-    it("should load bootstrap region list config", () => {
-      process.env.BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF = "/path/to/conf";
-      const config = loadEnvFromProcess();
-      expect(config.bootstrapRegionListConf).toBe("/path/to/conf");
     });
   });
 

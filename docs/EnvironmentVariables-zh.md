@@ -88,7 +88,6 @@ setx BYTEPLUS_SESSION_TOKEN your-session-token /M
 | 变量                              | 说明                                          | 默认值  |
 | --------------------------------- | --------------------------------------------- | ------- |
 | `BYTEPLUS_ENABLE_DUALSTACK`           | 启用双栈（IPv4+IPv6），设为 `true` 启用       | `false` |
-| `BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF` | 自定义引导区域列表文件路径（每行一个 region） | -       |
 
 ---
 
