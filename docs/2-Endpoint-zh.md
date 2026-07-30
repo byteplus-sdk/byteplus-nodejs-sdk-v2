@@ -115,8 +115,6 @@ try {
 
 遇到该情况时，建议先升级 SDK 版本；若确认 SDK 尚未内置该服务，可通过 `host` 显式指定 Endpoint。
 
-> 注意：`resolveDefaultEndpoint` 本身是内部函数，**未**从包根导出，包根只导出 `ServiceEndpointInfoMissingError`。由于默认 Client 请求链路走的是上述兜底包装，实际上 `client.send()` 对未知服务**不会**抛出该错误——而是静默指向 open endpoint。
-
 ---
 
 [← 访问凭据](1-Credentials-zh.md) | Endpoint 配置 [(English)](2-Endpoint.md) | [Transport →](3-Transport-zh.md)

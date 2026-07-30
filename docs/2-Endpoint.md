@@ -113,7 +113,6 @@ try {
 
 When you hit this, first try upgrading the SDK. If the service is genuinely not carried yet, set the endpoint explicitly via `host`.
 
-> Note: `resolveDefaultEndpoint` itself is internal and **not** exported from the package root; only `ServiceEndpointInfoMissingError` is. Because the default Client request path uses the fallback wrapper above, in practice `client.send()` will not throw this error for an unknown service — it silently targets the open endpoint instead.
 
 ---
 
