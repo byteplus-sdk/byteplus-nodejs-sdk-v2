@@ -164,11 +164,7 @@ export function getDefaultEndpointByServiceInfo(
   regionCode: string,
   useDualStack?: boolean,
 ): string {
-  // Unregistered service: fall back to the default open endpoint (historical
-  // behavior) instead of letting resolveDefaultEndpoint fail-fast.
-  if (!defaultEndpoint[service]) {
-    return endpoint;
-  }
+
   try {
     return resolveDefaultEndpoint(service, regionCode, useDualStack);
   } catch (err) {
