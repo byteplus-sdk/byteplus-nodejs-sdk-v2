@@ -45,7 +45,7 @@ BytePlus 提供了灵活的 Endpoint 自动寻址机制。SDK 会根据服务名
 
    每个服务在内置映射中都会登记 `IsGlobal` 和 `GoChinaEnabled` 两个 bool 字段，SDK 按下方"标准寻址规则"构造 Endpoint。
 
-   - 服务未在映射中登记：默认寻址链路**不会抛错**，而是**回退到默认 open endpoint** `open.ap-southeast-1.byteplusapi.com`，以保证请求不崩溃。参见 [未知服务](#未知服务)。
+   - 服务未在映射中登记：Client 使用的默认寻址链路会**回退到默认 open endpoint** `open.ap-southeast-1.byteplusapi.com`，以保证请求不崩溃；而内部的 `resolveDefaultEndpoint` 解析器则会抛出 `ServiceEndpointInfoMissingError`（从 `@byteplus/sdk-core` 导出），错误消息形如 `byteplus-sdk: service endpoint info missing: service '<xxx>' not registered`。参见 [未知服务](#未知服务)。
 
    内置服务映射：[`packages/sdk-core/src/utils/endpoint.ts`](../packages/sdk-core/src/utils/endpoint.ts) 中的 `defaultEndpoint`。
 
@@ -97,14 +97,29 @@ const client = new ECSClient({
 
 ##### 未知服务
 
-如果请求的服务名不在内置 `defaultEndpoint` 映射中，默认寻址链路**不会抛错**。为兼容旧调用方，它会**回退到默认 open endpoint** `open.ap-southeast-1.byteplusapi.com`（该回退会忽略 `region` / `useDualStack`）。
+对于未登记的服务，两条代码路径的行为不同（与实现保持一致）：
 
-这意味着未登记的服务不会快速失败，而是静默地指向 open endpoint —— 这通常并非预期结果。如果某个请求意外发往 `open.ap-southeast-1.byteplusapi.com`，多半是当前安装的 SDK 尚未内置该服务。此时可以：
+- **默认 Client 链路**（`getDefaultEndpointByServiceInfo`，由 endpoint 中间件使用）：**不会抛错**。为兼容旧调用方，它会回退到默认 open endpoint `open.ap-southeast-1.byteplusapi.com`（该回退会忽略 `region` / `useDualStack`）。如果某个请求意外发往 `open.ap-southeast-1.byteplusapi.com`，通常意味着当前安装的 SDK 尚未内置该服务。
+- **内部解析器**（`resolveDefaultEndpoint`）：对未登记服务会抛出 `ServiceEndpointInfoMissingError`。包根只导出了该错误类，因此按类型匹配即可：
 
-- 升级 SDK 依赖，使该服务被登记；或
-- 通过 `host` 显式指定 Endpoint。
+```typescript
+import { ServiceEndpointInfoMissingError } from "@byteplus/sdk-core";
 
-> SDK 内部的 `resolveDefaultEndpoint` 辅助函数在服务未登记时确实会抛出 `ServiceEndpointInfoMissingError`，但它不在默认 Client 请求链路上，且**未从包根导出**。请勿依赖从 `@byteplus/sdk-core` 捕获该错误。
+try {
+  await client.send(command);
+} catch (err) {
+  if (err instanceof ServiceEndpointInfoMissingError) {
+    // err.service 携带缺失的服务名。
+    // 请升级 SDK 依赖，或通过 `host` 显式指定 Endpoint。
+    throw err;
+  }
+  throw err;
+}
+```
+
+遇到该情况时，建议先升级 SDK 版本；若确认 SDK 尚未内置该服务，可通过 `host` 显式指定 Endpoint。
+
+> 注意：`resolveDefaultEndpoint` 本身是内部函数，**未**从包根导出，包根只导出 `ServiceEndpointInfoMissingError`。由于默认 Client 请求链路走的是上述兜底包装，实际上 `client.send()` 对未知服务**不会**抛出该错误——而是静默指向 open endpoint。
 
 ---
 

@@ -279,8 +279,8 @@ describe("resolveDefaultEndpoint - service missing fail-fast", () => {
 
   it("service code with underscore is normalized to hyphen", () => {
     expect(
-      resolveDefaultEndpoint("cloud_detect", "ap-southeast-1"),
-    ).toBe("cloud-detect.ap-southeast-1.byteplusapi.com");
+      resolveDefaultEndpoint("rds_mysql", "ap-southeast-1"),
+    ).toBe("rds-mysql.ap-southeast-1.byteplusapi.com");
   });
 });
 

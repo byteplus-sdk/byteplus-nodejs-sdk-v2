@@ -43,7 +43,7 @@ BytePlus provides a flexible endpoint resolution mechanism. The SDK builds the e
 
    Every service in the built-in map carries an `IsGlobal` and a `GoChinaEnabled` bool. The SDK builds the endpoint following the rules below.
 
-   - Service missing from the map: the default addressing pipeline **falls back to the default open endpoint** `open.ap-southeast-1.byteplusapi.com` so the request does not crash. See [Unknown services](#unknown-services).
+   - Service missing from the map: the default addressing pipeline used by the Client **falls back to the default open endpoint** `open.ap-southeast-1.byteplusapi.com`, so requests do not crash. The internal `resolveDefaultEndpoint` resolver instead throws `ServiceEndpointInfoMissingError` (exported from `@byteplus/sdk-core`) with a message like `byteplus-sdk: service endpoint info missing: service '<xxx>' not registered`. See [Unknown services](#unknown-services).
 
    Built-in service map: [`packages/sdk-core/src/utils/endpoint.ts`](../packages/sdk-core/src/utils/endpoint.ts) `defaultEndpoint`.
 
@@ -95,14 +95,29 @@ const client = new ECSClient({
 
 ##### Unknown services
 
-If the requested service is not registered in `defaultEndpoint`, the default addressing pipeline does **not** throw. To keep older callers working, it falls back to the default open endpoint `open.ap-southeast-1.byteplusapi.com` (this fallback ignores `region` / `useDualStack`).
+Two code paths behave differently for an unregistered service, matching the implementation:
 
-This means an unregistered service will not fail fast — it will silently target the open endpoint, which is usually not what you want. If a request unexpectedly goes to `open.ap-southeast-1.byteplusapi.com`, the service is likely not carried by the installed SDK. In that case:
+- **Default Client path** (`getDefaultEndpointByServiceInfo`, used by the endpoint middleware): does **not** throw. To keep older callers working, it falls back to the default open endpoint `open.ap-southeast-1.byteplusapi.com` (this fallback ignores `region` / `useDualStack`). A request unexpectedly targeting `open.ap-southeast-1.byteplusapi.com` usually means the installed SDK does not carry that service.
+- **Internal resolver** (`resolveDefaultEndpoint`): throws `ServiceEndpointInfoMissingError` for an unregistered service. Only the error class is exported from `@byteplus/sdk-core`, so you match it by type:
 
-- Upgrade the SDK dependency so the service is registered, or
-- Set the endpoint explicitly via `host`.
+```typescript
+import { ServiceEndpointInfoMissingError } from "@byteplus/sdk-core";
 
-> The internal `resolveDefaultEndpoint` helper does throw `ServiceEndpointInfoMissingError` for unregistered services, but it is not on the default Client request path and is **not** exported from the package root. Do not rely on catching it from `@byteplus/sdk-core`.
+try {
+  await client.send(command);
+} catch (err) {
+  if (err instanceof ServiceEndpointInfoMissingError) {
+    // err.service carries the offending service name.
+    // Upgrade the SDK dependency, or set the endpoint explicitly via `host`.
+    throw err;
+  }
+  throw err;
+}
+```
+
+When you hit this, first try upgrading the SDK. If the service is genuinely not carried yet, set the endpoint explicitly via `host`.
+
+> Note: `resolveDefaultEndpoint` itself is internal and **not** exported from the package root; only `ServiceEndpointInfoMissingError` is. Because the default Client request path uses the fallback wrapper above, in practice `client.send()` will not throw this error for an unknown service — it silently targets the open endpoint instead.
 
 ---
 
