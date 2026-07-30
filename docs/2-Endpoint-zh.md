@@ -45,7 +45,7 @@ BytePlus 提供了灵活的 Endpoint 自动寻址机制。SDK 会根据服务名
 
    每个服务在内置映射中都会登记 `IsGlobal` 和 `GoChinaEnabled` 两个 bool 字段，SDK 按下方"标准寻址规则"构造 Endpoint。
 
-   - 服务未在映射中登记：Client 使用的默认寻址链路会**回退到默认 open endpoint** `open.ap-southeast-1.byteplusapi.com`，以保证请求不崩溃；而内部的 `resolveDefaultEndpoint` 解析器则会抛出 `ServiceEndpointInfoMissingError`（从 `@byteplus/sdk-core` 导出），错误消息形如 `byteplus-sdk: service endpoint info missing: service '<xxx>' not registered`。参见 [未知服务](#未知服务)。
+   - 服务未在映射中登记：`resolveDefaultEndpoint` 会抛出 `ServiceEndpointInfoMissingError`（从 `@byteplus/sdk-core` 导出），错误消息形如 `byteplus-sdk: service endpoint info missing: service '<xxx>' not registered`。参见 [错误处理](#错误处理)。
 
    内置服务映射：[`packages/sdk-core/src/utils/endpoint.ts`](../packages/sdk-core/src/utils/endpoint.ts) 中的 `defaultEndpoint`。
 
@@ -95,12 +95,8 @@ const client = new ECSClient({
 });
 ```
 
-##### 未知服务
-
-对于未登记的服务，两条代码路径的行为不同（与实现保持一致）：
-
-- **默认 Client 链路**（`getDefaultEndpointByServiceInfo`，由 endpoint 中间件使用）：**不会抛错**。为兼容旧调用方，它会回退到默认 open endpoint `open.ap-southeast-1.byteplusapi.com`（该回退会忽略 `region` / `useDualStack`）。如果某个请求意外发往 `open.ap-southeast-1.byteplusapi.com`，通常意味着当前安装的 SDK 尚未内置该服务。
-- **内部解析器**（`resolveDefaultEndpoint`）：对未登记服务会抛出 `ServiceEndpointInfoMissingError`。包根只导出了该错误类，因此按类型匹配即可：
+##### 错误处理
+如果请求的服务名不在内置 `defaultEndpoint` 映射中，SDK 在第一次触发默认寻址时就会抛出 `ServiceEndpointInfoMissingError`，错误消息形如 `byteplus-sdk: service endpoint info missing: service '<xxx>' not registered`。可用如下方式识别：
 
 ```typescript
 import { ServiceEndpointInfoMissingError } from "@byteplus/sdk-core";

@@ -43,7 +43,7 @@ BytePlus provides a flexible endpoint resolution mechanism. The SDK builds the e
 
    Every service in the built-in map carries an `IsGlobal` and a `GoChinaEnabled` bool. The SDK builds the endpoint following the rules below.
 
-   - Service missing from the map: the default addressing pipeline used by the Client **falls back to the default open endpoint** `open.ap-southeast-1.byteplusapi.com`, so requests do not crash. The internal `resolveDefaultEndpoint` resolver instead throws `ServiceEndpointInfoMissingError` (exported from `@byteplus/sdk-core`) with a message like `byteplus-sdk: service endpoint info missing: service '<xxx>' not registered`. See [Unknown services](#unknown-services).
+   - Service missing from the map: `resolveDefaultEndpoint` throws `ServiceEndpointInfoMissingError` (re-exported from `@byteplus/sdk-core`) with a message like `byteplus-sdk: service endpoint info missing: service '<xxx>' not registered`. See [Error handling](#error-handling).
 
    Built-in service map: [`packages/sdk-core/src/utils/endpoint.ts`](../packages/sdk-core/src/utils/endpoint.ts) `defaultEndpoint`.
 
@@ -93,12 +93,8 @@ const client = new ECSClient({
 });
 ```
 
-##### Unknown services
-
-Two code paths behave differently for an unregistered service, matching the implementation:
-
-- **Default Client path** (`getDefaultEndpointByServiceInfo`, used by the endpoint middleware): does **not** throw. To keep older callers working, it falls back to the default open endpoint `open.ap-southeast-1.byteplusapi.com` (this fallback ignores `region` / `useDualStack`). A request unexpectedly targeting `open.ap-southeast-1.byteplusapi.com` usually means the installed SDK does not carry that service.
-- **Internal resolver** (`resolveDefaultEndpoint`): throws `ServiceEndpointInfoMissingError` for an unregistered service. Only the error class is exported from `@byteplus/sdk-core`, so you match it by type:
+##### Error handling
+If the requested service is not registered in `defaultEndpoint`, the SDK throws `ServiceEndpointInfoMissingError` on the first default endpoint resolution, with a message like `byteplus-sdk: service endpoint info missing: service '<xxx>' not registered`. Detect it with:
 
 ```typescript
 import { ServiceEndpointInfoMissingError } from "@byteplus/sdk-core";
