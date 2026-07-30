@@ -6,11 +6,11 @@
 
 > **Default**
 >
-> When no Endpoint is specified, [Automatic Endpoint Addressing](#automatic-endpoint-addressing) is used.
+> When no `host` is specified, the SDK uses [Automatic Endpoint Addressing](#automatic-endpoint-addressing).
 
 ### Custom Endpoint
 
-By directly specifying `host` in the client configuration, you can force the SDK to send all requests to that address. This is the highest priority configuration.
+Directly specify `host` in the client configuration to force the SDK to send all requests to that address. This has the highest priority and skips every subsequent resolution step.
 
 ```typescript
 const client = new ECSClient({
@@ -31,89 +31,88 @@ const client = new ECSClient({
 
 > **Default**
 >
-> Automatic addressing is supported by default, no need to manually specify Endpoint.
+> Automatic addressing is enabled by default. There is no need to specify an endpoint manually.
 
-The SDK automatically constructs a reasonable access address based on service name, region, and other information, and supports DualStack.
+BytePlus provides a flexible endpoint resolution mechanism. The SDK builds the endpoint from the service name, region and the service's Go China flag, and also supports DualStack.
 
 #### Default Endpoint Addressing
 
-##### Addressing Logic
+##### Resolution Logic
 
-1. **Whether to auto-address Region**
-   The SDK only performs auto-addressing for regions in the built-in bootstrap region list; other regions return `open.ap-southeast-1.byteplusapi.com` by default.
+1. **Service registration check**
 
-   Built-in bootstrap region list (source: [packages/sdk-core/src/utils/endpoint.ts](../packages/sdk-core/src/utils/endpoint.ts#L154-L160)):
+   Every service in the built-in map carries an `IsGlobal` and a `GoChinaEnabled` bool. The SDK builds the endpoint following the rules below.
 
-   - `ap-southeast-1`
-   - `ap-southeast-2`
-   - `ap-southeast-3`
-   - `ap-southeast-2`
-   - `ap-southeast-3`
+   - Service missing from the map: `resolveDefaultEndpoint` throws `ServiceEndpointInfoMissingError` (re-exported from `@byteplus/sdk-core`) with a message like `byteplus-sdk: service endpoint info missing: service '<xxx>' not registered`. See [Error handling](#error-handling).
 
-   Extend via `BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF` env var (file path) or `customBootstrapRegion` (Record<string, any>) in code.
+   Built-in service map: [`packages/sdk-core/src/utils/endpoint.ts`](../packages/sdk-core/src/utils/endpoint.ts) `defaultEndpoint`.
 
-2. **DualStack Support (IPv6)**
-   Enable via `useDualStack: true` or `BYTEPLUS_ENABLE_DUALSTACK` env var. Priority: `useDualStack` > `BYTEPLUS_ENABLE_DUALSTACK`.
-   When enabled, the domain suffix switches from `byteplusapi.com` to `byteplus-api.com`.
+2. **DualStack support (IPv6)**
 
-3. **Auto-construct Endpoint address**
+   Enable via the `useDualStack: true` argument or env var `BYTEPLUS_ENABLE_DUALSTACK=true`. Priority: `useDualStack` > `BYTEPLUS_ENABLE_DUALSTACK`.
 
-   - **Global Services (e.g., CDN, IAM)**: `<ServiceName>.byteplusapi.com`
-   - **Regional Services (e.g., ECS, RDS)**: `<ServiceName>.<RegionName>.byteplusapi.com`
-   - **Unregistered Services**: If the service is not in the SDK's built-in service list, `open.ap-southeast-1.byteplusapi.com` is returned even if the region is in the bootstrap list
+   When enabled, the domain suffix changes from `byteplusapi.com` to `byteplus-api.com`.
 
-   > Service names are standardized when constructing the domain: uppercase → lowercase, underscore `_` → hyphen `-`. For example, `rds_mysql` → `rds-mysql.ap-southeast-1.byteplusapi.com`
+3. **Go China suffix**
+
+   When a service entry has `GoChinaEnabled=true` and the request region is in the Chinese mainland (a `cn-*` prefix but not one of the non-mainland regions such as `cn-hongkong`), the resolver appends the `.cn` suffix.
+
+   Whether Go China applies is decided by the service itself and cannot be overridden. Regions are normalized with `trim().toLowerCase()` before matching, so `CN-Beijing`, `  cn-beijing  ` and `cn-beijing` are treated identically.
+
+4. **Endpoint construction**
+
+   - **Global services (e.g., `IAM`, `Billing`)**: `<service>.byteplusapi.com` (or `byteplus-api.com` when DualStack is enabled; `.cn` is appended when Go China applies).
+   - **Regional services (e.g., `ECS`, `RDS`)**: `<service>.<region>.byteplusapi.com` (DualStack / Go China rules identical to global services).
+
+   > Service codes are normalized when building the domain: uppercase → lowercase, underscore `_` → hyphen `-`. For example, `rds_mysql` → `rds-mysql.ap-southeast-1.byteplusapi.com`.
+
+##### Decision Table
+
+The table lists every effective combination. `RegionType` is derived from the service's `IsGlobal` flag; "Region is Go China" refers to the request region.
+
+| RegionType | GoChinaEnabled | Region is Go China | Endpoint | Region embedded |
+|---|---|---|---|---|
+| Global | true | yes | `{service}.byteplusapi.com.cn` | no |
+| Global | true | no | `{service}.byteplusapi.com` | no |
+| Global | false | any | `{service}.byteplusapi.com` | no |
+| Regional | true | yes | `{service}.{region}.byteplusapi.com.cn` | yes |
+| Regional | true | no | `{service}.{region}.byteplusapi.com` | yes |
+| Regional | false | any | `{service}.{region}.byteplusapi.com` | yes |
+
+When DualStack is enabled, replace every occurrence of `byteplusapi.com` in the table with `byteplus-api.com`.
 
 ##### Code Example
 
 ```typescript
 import { ECSClient } from "@byteplus/ecs";
 
-// SDK auto-resolves Endpoint for bootstrap regions to: ecs.ap-southeast-1.byteplusapi.com
+// Resolves to: ecs.ap-southeast-1.byteplus-api.com (DualStack suffix)
 const client = new ECSClient({
   region: "ap-southeast-1",
+  useDualStack: true, // also honors env BYTEPLUS_ENABLE_DUALSTACK=true
 });
 ```
 
-#### DualStack Support
+##### Error handling
+If the requested service is not registered in `defaultEndpoint`, the SDK throws `ServiceEndpointInfoMissingError` on the first default endpoint resolution, with a message like `byteplus-sdk: service endpoint info missing: service '<xxx>' not registered`. Detect it with:
 
 ```typescript
-const client = new ECSClient({
-  region: "ap-southeast-1",
-  useDualStack: true,
-});
-// Generated Endpoint: ecs.ap-southeast-1.byteplus-api.com
+import { ServiceEndpointInfoMissingError } from "@byteplus/sdk-core";
+
+try {
+  await client.send(command);
+} catch (err) {
+  if (err instanceof ServiceEndpointInfoMissingError) {
+    // err.service carries the offending service name.
+    // Upgrade the SDK dependency, or set the endpoint explicitly via `host`.
+    throw err;
+  }
+  throw err;
+}
 ```
 
-#### Non-Bootstrap Regions
+When you hit this, first try upgrading the SDK. If the service is genuinely not carried yet, set the endpoint explicitly via `host`.
 
-If the `region` is not in the SDK's bootstrap region list, the SDK defaults to `open.ap-southeast-1.byteplusapi.com`.
-For example, with the default configuration, `ap-southeast-1` is not in the built-in bootstrap region list, so ECS auto endpoint resolution falls back to `open.ap-southeast-1.byteplusapi.com`. To generate `ecs.ap-southeast-1.byteplusapi.com`, add `ap-southeast-1` to the bootstrap region list via `customBootstrapRegion` or `BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF`.
-
-### Custom Bootstrap Region List
-
-Extend via `BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF` env var pointing to a file (one region per line), or via `customBootstrapRegion` parameter:
-
-```typescript
-import { ECSClient } from "@byteplus/ecs";
-
-const client = new ECSClient({
-  region: "my-private-region",
-  customBootstrapRegion: {
-    "my-private-region": {},
-  },
-});
-// Generated Endpoint: ecs.my-private-region.byteplusapi.com
-```
-
-### Standard Endpoint Addressing
-
-| Global Service | DualStack | Format                                  |
-| -------------- | --------- | --------------------------------------- |
-| Yes            | Yes       | `{Service}.byteplus-api.com`          |
-| Yes            | No        | `{Service}.byteplusapi.com`           |
-| No             | Yes       | `{Service}.{region}.byteplus-api.com` |
-| No             | No        | `{Service}.{region}.byteplusapi.com`  |
 
 ---
 

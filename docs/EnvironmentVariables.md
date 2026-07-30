@@ -88,7 +88,6 @@ setx BYTEPLUS_SESSION_TOKEN your-session-token /M
 | Variable                          | Description                                                  | Default |
 | --------------------------------- | ------------------------------------------------------------ | ------- |
 | `BYTEPLUS_ENABLE_DUALSTACK`           | Enable dual-stack (IPv4+IPv6), set to `true` to enable       | `false` |
-| `BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF` | Custom bootstrap region list file path (one region per line) | -       |
 
 ---
 

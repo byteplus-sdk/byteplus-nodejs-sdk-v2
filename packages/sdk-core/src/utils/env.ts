@@ -38,8 +38,6 @@ export type EnvConfig = {
   credentials: ByteplusCredentials;
   /** 是否启用双栈（IPv4/IPv6）支持 */
   enableDualstack?: boolean;
-  /** 自定义引导区域列表配置文件路径 */
-  bootstrapRegionListConf?: string;
   /** 代理配置 */
   proxy?: {
     protocol: "http" | "https";
@@ -71,7 +69,6 @@ export type EnvConfig = {
  *   - BYTEPLUS_CLI_CONFIG_FILE
  * - 网络：
  *   - BYTEPLUS_ENABLE_DUALSTACK（布尔值，是否启用双栈）
- *   - BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF（自定义引导区域列表路径）
  *   - BYTEPLUS_PROXY_HOST、BYTEPLUS_PROXY_PORT、BYTEPLUS_PROXY_PROTOCOL（代理配置）
  */
 export function loadEnvFromProcess(): EnvConfig {
@@ -142,9 +139,6 @@ export function loadEnvFromProcess(): EnvConfig {
   // ---- 双栈支持 ----
   const enableDualstack = env.BYTEPLUS_ENABLE_DUALSTACK === "true";
 
-  // ---- 引导区域列表 ----
-  const bootstrapRegionListConf = env.BYTEPLUS_BOOTSTRAP_REGION_LIST_CONF;
-
   // ---- 代理配置 ----
   const proxyProtocol = (env.BYTEPLUS_PROXY_PROTOCOL || "http") as
     | "http"
@@ -172,7 +166,6 @@ export function loadEnvFromProcess(): EnvConfig {
       configFilePath,
     },
     enableDualstack,
-    bootstrapRegionListConf,
     proxy,
   };
 }

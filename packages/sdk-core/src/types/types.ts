@@ -269,12 +269,6 @@ export interface ClientConfig {
   useDualStack?: boolean;
 
   /**
-   * 自定义引导区域，用于初始化 SDK 时指定区域
-   * 若未提供，将使用默认引导区域列表
-   */
-  customBootstrapRegion?: Record<string, any>;
-
-  /**
    * HTTP 配置（优先级低于 requestHandler）
    * 如果提供了 requestHandler，则此配置无效
    */

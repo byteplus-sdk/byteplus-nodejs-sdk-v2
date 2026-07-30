@@ -1,250 +1,315 @@
-import { describe, it, expect, jest, beforeEach } from "@jest/globals";
-import { getDefaultEndpointByServiceInfo } from "../src/utils/endpoint";
+import { describe, it, expect, jest, beforeEach, afterEach } from "@jest/globals";
+import {
+  ServiceEndpointInfo,
+  ServiceEndpointInfoMissingError,
+  getDefaultEndpointByServiceInfo,
+  resolveDefaultEndpoint,
+  __test_defaultEndpoint as defaultEndpointMap,
+} from "../src/utils/endpoint";
 import * as envUtils from "../src/utils/env";
-import * as fs from "fs";
 
-// Mock the dependencies
+// Mirror Go/Java/PHP/Python decision table tests. Every branch of the
+// (is_global x go_china_enabled x region) matrix is covered so a regression
+// in the addressing logic is caught here.
+
 jest.mock("../src/utils/env");
-jest.mock("fs");
 
-describe("getDefaultEndpointByServiceInfo", () => {
-  const mockLoadEnv = envUtils.loadEnv as jest.MockedFunction<
-    typeof envUtils.loadEnv
-  >;
-  const mockReadFileSync = fs.readFileSync as jest.MockedFunction<
-    typeof fs.readFileSync
-  >;
+const mockLoadEnv = envUtils.loadEnv as jest.MockedFunction<
+  typeof envUtils.loadEnv
+>;
 
+function useEnv(overrides: Partial<envUtils.EnvConfig> = {}) {
+  mockLoadEnv.mockReturnValue({
+    credentials: {},
+    enableDualstack: false,
+    ...overrides,
+  } as envUtils.EnvConfig);
+}
+
+function withTempService<T>(info: ServiceEndpointInfo, fn: () => T): T {
+  if (defaultEndpointMap[info.Service]) {
+    throw new Error(
+      `test service name '${info.Service}' collides with existing entry`,
+    );
+  }
+  defaultEndpointMap[info.Service] = info;
+  try {
+    return fn();
+  } finally {
+    delete defaultEndpointMap[info.Service];
+  }
+}
+
+describe("resolveDefaultEndpoint - decision table", () => {
   beforeEach(() => {
     jest.resetAllMocks();
-    // Default mock implementation for loadEnv
-    mockLoadEnv.mockReturnValue({
-      credentials: {},
-      enableDualstack: false,
-      bootstrapRegionListConf: undefined,
-    });
+    useEnv();
   });
 
-  it("should return default endpoint for non-bootstrap region", () => {
-    const service = "vpc";
-    const region = "custom-non-bootstrap-region"; // Not in bootstrap list
-    const endpoint = getDefaultEndpointByServiceInfo(service, region);
+  const CASES: Array<{
+    name: string;
+    service: string;
+    isGlobal: boolean;
+    goChina: boolean;
+    region: string;
+    want: string;
+  }> = [
+    {
+      name: "global gochina cn region uses cn suffix",
+      service: "svc-global-gcn-cn",
+      isGlobal: true,
+      goChina: true,
+      region: "cn-beijing",
+      want: "svc-global-gcn-cn.byteplusapi.com.cn",
+    },
+    {
+      name: "global gochina non-cn region drops cn suffix",
+      service: "svc-global-gcn-non-cn",
+      isGlobal: true,
+      goChina: true,
+      region: "ap-southeast-1",
+      want: "svc-global-gcn-non-cn.byteplusapi.com",
+    },
+    {
+      name: "global gochina disabled cn region stays international",
+      service: "svc-global-nogcn-cn",
+      isGlobal: true,
+      goChina: false,
+      region: "cn-beijing",
+      want: "svc-global-nogcn-cn.byteplusapi.com",
+    },
+    {
+      name: "global gochina disabled non-cn region stays international",
+      service: "svc-global-nogcn-non-cn",
+      isGlobal: true,
+      goChina: false,
+      region: "ap-southeast-1",
+      want: "svc-global-nogcn-non-cn.byteplusapi.com",
+    },
+    {
+      name: "regional gochina cn region uses cn suffix with region",
+      service: "svc-regional-gcn-cn",
+      isGlobal: false,
+      goChina: true,
+      region: "cn-beijing",
+      want: "svc-regional-gcn-cn.cn-beijing.byteplusapi.com.cn",
+    },
+    {
+      name: "regional gochina non-cn region keeps region without cn suffix",
+      service: "svc-regional-gcn-non-cn",
+      isGlobal: false,
+      goChina: true,
+      region: "ap-southeast-1",
+      want: "svc-regional-gcn-non-cn.ap-southeast-1.byteplusapi.com",
+    },
+    {
+      name: "regional gochina disabled cn region drops cn suffix",
+      service: "svc-regional-nogcn-cn",
+      isGlobal: false,
+      goChina: false,
+      region: "cn-beijing",
+      want: "svc-regional-nogcn-cn.cn-beijing.byteplusapi.com",
+    },
+    {
+      name: "regional gochina disabled non-cn region",
+      service: "svc-regional-nogcn-non-cn",
+      isGlobal: false,
+      goChina: false,
+      region: "ap-southeast-1",
+      want: "svc-regional-nogcn-non-cn.ap-southeast-1.byteplusapi.com",
+    },
+  ];
 
-    // endpoint.ts: const endpoint = "open.ap-southeast-1.byteplusapi.com";
-    expect(endpoint).toBe("open.ap-southeast-1.byteplusapi.com");
-  });
-
-  it("should return correct endpoint for global service in bootstrap region", () => {
-    const service = "iam"; // IsGlobal: true
-    const region = "ap-southeast-1"; // In bootstrap list
-
-    const endpoint = getDefaultEndpointByServiceInfo(service, region);
-
-    // iam is global, so expected: iam.byteplusapi.com
-    expect(endpoint).toBe("iam.byteplusapi.com");
-  });
-
-  it("should return correct endpoint for regional service in bootstrap region", () => {
-    const service = "vpc"; // IsGlobal: false
-    const region = "ap-southeast-1";
-
-    const endpoint = getDefaultEndpointByServiceInfo(service, region);
-
-    // vpc is regional, expected: vpc.ap-southeast-1.byteplusapi.com
-    expect(endpoint).toBe("vpc.ap-southeast-1.byteplusapi.com");
-  });
-
-  it("should handle dualstack enabled via argument", () => {
-    const service = "iam";
-    const region = "ap-southeast-1";
-    const useDualStack = true;
-
-    const endpoint = getDefaultEndpointByServiceInfo(
-      service,
-      region,
-      undefined,
-      useDualStack,
+  it("walks every branch of the decision table", () => {
+    console.log(`=== TestResolveDefaultEndpoint_DecisionTable: ${CASES.length} cases ===`);
+    const results: Array<[string, string]> = [];
+    for (const c of CASES) {
+      const info: ServiceEndpointInfo = {
+        Service: c.service,
+        IsGlobal: c.isGlobal,
+        GoChinaEnabled: c.goChina,
+      };
+      const got = withTempService(info, () =>
+        resolveDefaultEndpoint(c.service, c.region),
+      );
+      const verdict = got === c.want ? "ok" : "bad";
+      results.push([verdict, c.name]);
+      console.log(
+        `[${verdict}] ${c.name} | service='${c.service}' is_global=${c.isGlobal} go_china=${c.goChina} region='${c.region}' -> got='${got}' want='${c.want}'`,
+      );
+      expect(got).toBe(c.want);
+    }
+    const passed = results.filter(([v]) => v === "ok").length;
+    console.log(
+      `--- Decision table summary: ${passed} ok, ${results.length - passed} bad, ${results.length} total ---`,
     );
-
-    // dualstack suffix: .byteplus-api.com
-    expect(endpoint).toBe("iam.byteplus-api.com");
-  });
-
-  it("should handle dualstack enabled via env", () => {
-    mockLoadEnv.mockReturnValue({
-      credentials: {},
-      enableDualstack: true,
-      bootstrapRegionListConf: undefined,
-    });
-
-    const service = "vpc";
-    const region = "ap-southeast-1";
-
-    const endpoint = getDefaultEndpointByServiceInfo(service, region);
-
-    expect(endpoint).toBe("vpc.ap-southeast-1.byteplus-api.com");
-  });
-
-  it("should prioritize useDualStack argument over env variable", () => {
-    mockLoadEnv.mockReturnValue({
-      credentials: {},
-      enableDualstack: true, // Env says true
-      bootstrapRegionListConf: undefined,
-    });
-
-    const service = "vpc";
-    const region = "ap-southeast-1";
-
-    // Argument says false
-    const endpoint = getDefaultEndpointByServiceInfo(
-      service,
-      region,
-      undefined,
-      false,
-    );
-
-    // Should NOT have dualstack suffix
-    expect(endpoint).toBe("vpc.ap-southeast-1.byteplusapi.com");
-  });
-
-  it("should respect custom bootstrap region", () => {
-    const service = "vpc";
-    const region = "custom-region";
-    const customBootstrapRegion = { "custom-region": {} };
-
-    const endpoint = getDefaultEndpointByServiceInfo(
-      service,
-      region,
-      customBootstrapRegion,
-    );
-
-    expect(endpoint).toBe("vpc.custom-region.byteplusapi.com");
-  });
-
-  it("should read bootstrap region from file if configured", () => {
-    const region = "file-region";
-    const service = "vpc";
-
-    mockLoadEnv.mockReturnValue({
-      credentials: {},
-      enableDualstack: false,
-      bootstrapRegionListConf: "/path/to/conf",
-    });
-
-    mockReadFileSync.mockReturnValue("file-region\nanother-region");
-
-    const endpoint = getDefaultEndpointByServiceInfo(service, region);
-
-    expect(endpoint).toBe("vpc.file-region.byteplusapi.com");
-    expect(mockReadFileSync).toHaveBeenCalledWith(
-      expect.stringContaining("/path/to/conf"),
-      "utf8",
-    );
-  });
-
-  it("should append .cn suffix for cn mainland region", () => {
-    const service = "vpc";
-    const region = "cn-beijing";
-    const customBootstrapRegion = { "cn-beijing": {} };
-
-    const endpoint = getDefaultEndpointByServiceInfo(
-      service,
-      region,
-      customBootstrapRegion,
-    );
-
-    expect(endpoint).toBe("vpc.cn-beijing.byteplusapi.com.cn");
-  });
-
-  it("should append .cn suffix for cn mainland region with dualstack", () => {
-    const service = "vpc";
-    const region = "cn-shanghai";
-    const customBootstrapRegion = { "cn-shanghai": {} };
-
-    const endpoint = getDefaultEndpointByServiceInfo(
-      service,
-      region,
-      customBootstrapRegion,
-      true,
-    );
-
-    expect(endpoint).toBe("vpc.cn-shanghai.byteplus-api.com.cn");
-  });
-
-  it("should NOT append .cn suffix for cn-hongkong", () => {
-    const service = "vpc";
-    const region = "cn-hongkong";
-    const customBootstrapRegion = { "cn-hongkong": {} };
-
-    const endpoint = getDefaultEndpointByServiceInfo(
-      service,
-      region,
-      customBootstrapRegion,
-    );
-
-    expect(endpoint).toBe("vpc.cn-hongkong.byteplusapi.com");
-  });
-
-  it("should NOT append .cn suffix for global service in cn region", () => {
-    const service = "iam"; // IsGlobal: true
-    const region = "cn-beijing";
-    const customBootstrapRegion = { "cn-beijing": {} };
-
-    const endpoint = getDefaultEndpointByServiceInfo(
-      service,
-      region,
-      customBootstrapRegion,
-    );
-
-    expect(endpoint).toBe("iam.byteplusapi.com");
-  });
-
-  it("should standardize service code (replace _ with -)", () => {
-    const service = "cloud_detect"; // In map: cloud_detect
-    const region = "ap-southeast-1";
-
-    const endpoint = getDefaultEndpointByServiceInfo(service, region);
-
-    // cloud_detect -> cloud-detect
-    expect(endpoint).toBe("cloud-detect.ap-southeast-1.byteplusapi.com");
-  });
-
-  it("should return default endpoint for unknown service in bootstrap region", () => {
-    const service = "unknown_service";
-    const region = "ap-southeast-1";
-
-    const endpoint = getDefaultEndpointByServiceInfo(service, region);
-
-    // unknown_service is not in the defaultEndpoint map, so it returns the default endpoint
-    expect(endpoint).toBe("open.ap-southeast-1.byteplusapi.com");
-  });
-
-  it("should return global endpoint if RegionEndpointMap does not contain the region", () => {
-    const service = "vpc";
-    const region = "ap-southeast-1";
-
-    const endpoint = getDefaultEndpointByServiceInfo(service, region);
-    expect(endpoint).toBe("vpc.ap-southeast-1.byteplusapi.com");
-  });
-
-  it("should handle error when reading bootstrap region file", () => {
-    const region = "file-region";
-    const service = "vpc";
-
-    mockLoadEnv.mockReturnValue({
-      credentials: {},
-      enableDualstack: false,
-      bootstrapRegionListConf: "/path/to/conf",
-    });
-
-    mockReadFileSync.mockImplementation(() => {
-      throw new Error("File not found");
-    });
-
-    const endpoint = getDefaultEndpointByServiceInfo(service, region);
-
-    // Should fallback to checking other bootstrap sources, eventually failing to match 'file-region'
-    // So it returns the default endpoint (open.ap-southeast-1.byteplusapi.com)
-    expect(endpoint).toBe("open.ap-southeast-1.byteplusapi.com");
   });
 });
+
+describe("resolveDefaultEndpoint - region normalization", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+    useEnv();
+  });
+
+  it("normalizes region via trim().toLowerCase() before matching cn", () => {
+    const info: ServiceEndpointInfo = {
+      Service: "svc-region-norm",
+      IsGlobal: false,
+      GoChinaEnabled: true,
+    };
+    for (const region of ["CN-Beijing", "  cn-beijing  ", "cn-beijing"]) {
+      const got = withTempService(info, () =>
+        resolveDefaultEndpoint("svc-region-norm", region),
+      );
+      expect(got).toBe("svc-region-norm.cn-beijing.byteplusapi.com.cn");
+    }
+  });
+});
+
+describe("resolveDefaultEndpoint - cn-hongkong whitelist", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+    useEnv();
+  });
+
+  it("cn-hongkong stays on international .com suffix even when gochina enabled", () => {
+    const info: ServiceEndpointInfo = {
+      Service: "svc-hk",
+      IsGlobal: false,
+      GoChinaEnabled: true,
+    };
+    const got = withTempService(info, () =>
+      resolveDefaultEndpoint("svc-hk", "cn-hongkong"),
+    );
+    expect(got).toBe("svc-hk.cn-hongkong.byteplusapi.com");
+  });
+});
+
+describe("resolveDefaultEndpoint - DualStack", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+    useEnv();
+  });
+
+  it("swaps byteplusapi.com for byteplus-api.com when useDualStack=true", () => {
+    const info: ServiceEndpointInfo = {
+      Service: "svc-dual",
+      IsGlobal: false,
+      GoChinaEnabled: false,
+    };
+    const got = withTempService(info, () =>
+      resolveDefaultEndpoint("svc-dual", "ap-southeast-1", true),
+    );
+    expect(got).toBe("svc-dual.ap-southeast-1.byteplus-api.com");
+  });
+
+  it("keeps .cn suffix on DualStack for mainland cn regions", () => {
+    const info: ServiceEndpointInfo = {
+      Service: "svc-dual-cn",
+      IsGlobal: false,
+      GoChinaEnabled: true,
+    };
+    const got = withTempService(info, () =>
+      resolveDefaultEndpoint("svc-dual-cn", "cn-beijing", true),
+    );
+    expect(got).toBe("svc-dual-cn.cn-beijing.byteplus-api.com.cn");
+  });
+
+  it("reads BYTEPLUS_ENABLE_DUALSTACK env var when useDualStack undefined", () => {
+    useEnv({ enableDualstack: true });
+    const info: ServiceEndpointInfo = {
+      Service: "svc-dual-env",
+      IsGlobal: false,
+      GoChinaEnabled: false,
+    };
+    const got = withTempService(info, () =>
+      resolveDefaultEndpoint("svc-dual-env", "ap-southeast-1"),
+    );
+    expect(got).toBe("svc-dual-env.ap-southeast-1.byteplus-api.com");
+  });
+
+  it("useDualStack=false argument overrides env=true", () => {
+    useEnv({ enableDualstack: true });
+    const info: ServiceEndpointInfo = {
+      Service: "svc-dual-override",
+      IsGlobal: false,
+      GoChinaEnabled: false,
+    };
+    const got = withTempService(info, () =>
+      resolveDefaultEndpoint("svc-dual-override", "ap-southeast-1", false),
+    );
+    expect(got).toBe("svc-dual-override.ap-southeast-1.byteplusapi.com");
+  });
+});
+
+describe("resolveDefaultEndpoint - service missing fail-fast", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+    useEnv();
+  });
+
+  it("throws ServiceEndpointInfoMissingError for unregistered service", () => {
+    expect(() =>
+      resolveDefaultEndpoint("definitely-not-a-real-service", "ap-southeast-1"),
+    ).toThrow(ServiceEndpointInfoMissingError);
+    try {
+      resolveDefaultEndpoint("definitely-not-a-real-service", "ap-southeast-1");
+    } catch (err) {
+      if (err instanceof ServiceEndpointInfoMissingError) {
+        expect(err.service).toBe("definitely-not-a-real-service");
+        expect(err.message).toContain(
+          "service 'definitely-not-a-real-service' not registered",
+        );
+      } else {
+        throw err;
+      }
+    }
+  });
+
+  it("built-in services still resolve without registration", () => {
+    // vpc is already in the built-in map; sanity check the compat wrapper.
+    expect(
+      resolveDefaultEndpoint("vpc", "ap-southeast-1"),
+    ).toBe("vpc.ap-southeast-1.byteplusapi.com");
+    expect(
+      resolveDefaultEndpoint("iam", "ap-southeast-1"),
+    ).toBe("iam.byteplusapi.com");
+  });
+
+  it("service code with underscore is normalized to hyphen", () => {
+    expect(
+      resolveDefaultEndpoint("rds_mysql", "ap-southeast-1"),
+    ).toBe("rds-mysql.ap-southeast-1.byteplusapi.com");
+  });
+});
+
+describe("getDefaultEndpointByServiceInfo - backwards-compatible wrapper", () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+    useEnv();
+  });
+
+  it("returns default open endpoint for unregistered service instead of throwing", () => {
+    // Preserves the historic public API: fallback to the open endpoint on
+    // unregistered service so existing callers do not crash.
+    const got = getDefaultEndpointByServiceInfo(
+      "definitely-not-a-real-service",
+      "ap-southeast-1",
+    );
+    expect(got).toBe("open.ap-southeast-1.byteplusapi.com");
+  });
+
+  it("resolves built-in vpc even for arbitrary regions (no bootstrap gate)", () => {
+    // Old code returned "open.ap-southeast-1.byteplusapi.com" when the region
+    // was not in the bootstrap list. The new pipeline unconditionally builds
+    // {service}.{region}.byteplusapi.com from the service registration.
+    const got = getDefaultEndpointByServiceInfo(
+      "vpc",
+      "some-arbitrary-region",
+    );
+    expect(got).toBe("vpc.some-arbitrary-region.byteplusapi.com");
+  });
+});
+
+
