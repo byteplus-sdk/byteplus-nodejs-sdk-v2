@@ -21,7 +21,7 @@ describe("presign middleware", () => {
     });
     command.requestConfig = {
       method: "GET",
-      serviceName: "iam",
+      serviceName: "billing",
       pathname: "/",
     };
 
@@ -39,14 +39,14 @@ describe("presign middleware", () => {
         Version: "2018-01-01",
       },
       region: "ap-southeast-1",
-      serviceName: "iam",
+      serviceName: "billing",
       accessKeyId: "AKTEST123",
       secretAccessKey: "SKTEST456",
-      host: "iam.byteplusapi.com",
+      host: "billing.byteplusapi.com",
     });
 
     expect(url).toBe(expected);
-    expect(url.startsWith("https://iam.byteplusapi.com/")).toBe(true);
+    expect(url.startsWith("https://billing.byteplusapi.com/")).toBe(true);
 
     jest.useRealTimers();
   });
