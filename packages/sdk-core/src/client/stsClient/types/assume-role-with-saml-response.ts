@@ -13,7 +13,6 @@ import { SAMLAssertionInfoForAssumeRoleWithSAMLOutput } from "./saml-assertion-i
 /**
  * AssumeRoleWithSAML 响应结果。
  *
- * @see https://www.volcengine.com/docs/6257/1631607
  * @export
  * @interface AssumeRoleWithSAMLResponse
  */
