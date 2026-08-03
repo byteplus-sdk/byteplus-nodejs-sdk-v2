@@ -23,14 +23,17 @@ export function createHttpRequestMiddleware(requestHandler: RequestHandler): {
         const response = await requestHandler.request({
           url,
           timeout:
-            request.timeout ?? clientConfig.httpOptions?.readTimeout ?? clientConfig.httpOptions?.timeout ?? 30 * 1000,
+            request.timeout ??
+            clientConfig.httpOptions?.readTimeout ??
+            clientConfig.httpOptions?.timeout ??
+            30 * 1000,
           method: request.method,
           headers: request.headers || {},
           data: request.body,
           signal: request.signal,
         });
 
-        // Handle Volcengine specific error response
+        // Handle sts specific error response
         if (response.data?.ResponseMetadata?.Error) {
           const { Code, Message } = response.data.ResponseMetadata.Error;
           const { RequestId } = response.data.ResponseMetadata;
@@ -39,7 +42,7 @@ export function createHttpRequestMiddleware(requestHandler: RequestHandler): {
             `[${Code}] ${Message} (RequestId: ${RequestId})`,
             response.status,
             response.data,
-            response
+            response,
           );
         }
 
@@ -60,7 +63,7 @@ export function createHttpRequestMiddleware(requestHandler: RequestHandler): {
             `HTTP ${status}: ${(error as any).response?.statusText || "Error"}`,
             status,
             data,
-            (error as any).response
+            (error as any).response,
           );
         }
 
@@ -86,7 +89,7 @@ export function createHttpRequestMiddleware(requestHandler: RequestHandler): {
             `Network error: ${errorMessage}`,
             undefined,
             undefined,
-            error
+            error,
           );
         }
 
@@ -105,7 +108,7 @@ export function createHttpRequestMiddleware(requestHandler: RequestHandler): {
             `SSL Error: ${errorMessage}`,
             0,
             undefined,
-            error
+            error,
           );
         }
 
@@ -114,7 +117,7 @@ export function createHttpRequestMiddleware(requestHandler: RequestHandler): {
           `HTTP request failed: ${errorMessage || "Unknown error"}`,
           status,
           data,
-          error
+          error,
         );
       }
     };

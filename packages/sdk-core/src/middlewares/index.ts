@@ -1,5 +1,4 @@
 /**
- * VolcEngine SDK Core
  * Core classes and interfaces for all SDK clients
  */
 

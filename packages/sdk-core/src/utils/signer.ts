@@ -1,5 +1,5 @@
 /**
- * HMAC-SHA256 Signer for VolcEngine API requests
+ * HMAC-SHA256 Signer for byteplus API requests
  * Optimized implementation with functional approach
  */
 
@@ -37,7 +37,7 @@ export const calculateSHA256 = (data: string | Buffer): string => {
 // 辅助函数：HMAC-SHA256
 export const calculateHMAC = (
   key: string | Buffer,
-  data: string | Buffer
+  data: string | Buffer,
 ): Buffer => {
   return crypto
     .createHmac("sha256", key as any)
@@ -129,7 +129,7 @@ export const canonicalHeaders = (headers: Record<string, any>): string => {
 
   // 按请求头名称排序（不区分大小写）
   headerEntries.sort((a, b) =>
-    a[0].toLowerCase().localeCompare(b[0].toLowerCase())
+    a[0].toLowerCase().localeCompare(b[0].toLowerCase()),
   );
 
   const parts: string[] = [];
@@ -159,7 +159,7 @@ export const signedHeaders = (headers: Record<string, any>): string => {
 // 计算请求体的哈希值
 export const hexEncodedBodyHash = (
   headers: Record<string, any>,
-  body?: any
+  body?: any,
 ): string => {
   // 如果 headers 中已经有 content sha256，直接使用
   if (headers[constant.contentSha256Header]) {
@@ -181,7 +181,7 @@ export const createCanonicalRequest = (
   uri: string,
   query: Record<string, any>,
   headers: Record<string, any>,
-  payload: string
+  payload: string,
 ): string => {
   return [
     method.toUpperCase(),
@@ -201,7 +201,7 @@ export const createCanonicalRequest = (
 export const createScope = (
   date: string,
   region: string,
-  serviceName: string
+  serviceName: string,
 ): string => {
   return [
     date.substring(0, 8),
@@ -216,7 +216,7 @@ export const createStringToSign = (
   timestamp: string,
   region: string,
   serviceName: string,
-  canonicalRequest: string
+  canonicalRequest: string,
 ): string => {
   const date = timestamp.slice(0, 8);
   const credentialScope = createScope(date, region, serviceName);
@@ -234,11 +234,11 @@ export const deriveSigningKey = (
   secretAccessKey: string,
   date: string,
   region: string,
-  service: string
+  service: string,
 ): Buffer => {
   const kDate = calculateHMAC(
     `${constant.kDatePrefix}${secretAccessKey}`,
-    date
+    date,
   );
   const kRegion = calculateHMAC(kDate, region);
   const kService = calculateHMAC(kRegion, service);
@@ -248,7 +248,7 @@ export const deriveSigningKey = (
 // 计算签名
 export const calculateSignature = (
   signingKey: Buffer,
-  stringToSign: string
+  stringToSign: string,
 ): string => {
   return calculateHMAC(signingKey, stringToSign).toString("hex");
 };
@@ -258,7 +258,7 @@ export const createAuthorization = (
   accessKeyId: string,
   credentialScope: string,
   signedHeadersStr: string,
-  signature: string
+  signature: string,
 ): string => {
   return [
     `${constant.algorithm} Credential=${accessKeyId}/${credentialScope}`,
@@ -273,7 +273,7 @@ export const addRequiredHeaders = (
   timestamp: string,
   host: string,
   sessionToken?: string,
-  body?: any
+  body?: any,
 ): Record<string, any> => {
   const updated = { ...headers };
 
@@ -353,7 +353,7 @@ export const signRequest = (params: {
     datetime,
     host,
     sessionToken,
-    body
+    body,
   );
 
   // 获取 payload hash（已经计算过，直接复用）
@@ -367,7 +367,7 @@ export const signRequest = (params: {
     uri,
     query,
     allHeaders,
-    payload
+    payload,
   );
 
   // 构建待签名字符串
@@ -375,7 +375,7 @@ export const signRequest = (params: {
     datetime,
     region,
     serviceName,
-    canonicalRequest
+    canonicalRequest,
   );
 
   // 派生签名密钥
@@ -383,7 +383,7 @@ export const signRequest = (params: {
     secretAccessKey,
     date,
     region,
-    serviceName
+    serviceName,
   );
 
   // 计算签名
@@ -396,7 +396,7 @@ export const signRequest = (params: {
     accessKeyId,
     credentialScope,
     signedHeadersStr,
-    signature
+    signature,
   );
 
   return {
@@ -408,7 +408,7 @@ export const signRequest = (params: {
 
 // 辅助函数：对参数进行排序
 export const sortParams = (
-  params: Record<string, any>
+  params: Record<string, any>,
 ): Record<string, any> => {
   if (!params || Object.keys(params).length === 0) {
     return {};
@@ -439,7 +439,7 @@ export const deriveSigningKeyNoPrefix = (
   secretAccessKey: string,
   date: string,
   region: string,
-  service: string
+  service: string,
 ): Buffer => {
   const kDate = calculateHMAC(secretAccessKey, date);
   const kRegion = calculateHMAC(kDate, region);
@@ -466,7 +466,7 @@ export const buildPresignQueryString = (
   query: Record<string, any>,
   keys: string[],
   excludeSignature: boolean = false,
-  signedQueriesKeys?: string[]
+  signedQueriesKeys?: string[],
 ): string => {
   const parts: string[] = [];
 
@@ -487,9 +487,7 @@ export const buildPresignQueryString = (
   // 如果不排除签名，添加 X-SignedQueries 和 X-Signature
   if (!excludeSignature) {
     const sqKeys = signedQueriesKeys || keys;
-    parts.push(
-      `X-SignedQueries=${encodeURIComponent(sqKeys.join(";"))}`
-    );
+    parts.push(`X-SignedQueries=${encodeURIComponent(sqKeys.join(";"))}`);
     if (query["X-Signature"]) {
       parts.push(`X-Signature=${encodeURIComponent(query["X-Signature"])}`);
     }
@@ -552,7 +550,11 @@ export const presignUrl = (params: {
   }
 
   // 构建用于签名的规范化查询字符串（只包含 signedQueries 中的参数，X-Security-Token 不参与签名）
-  const canonicalQuery = buildPresignQueryString(presignQuery, signedQueries, true);
+  const canonicalQuery = buildPresignQueryString(
+    presignQuery,
+    signedQueries,
+    true,
+  );
 
   // 最终 URL 需要输出所有参数（包括 X-Security-Token）
   const allKeys = Object.keys(presignQuery).sort();
@@ -601,7 +603,7 @@ export const presignUrl = (params: {
     secretAccessKey,
     date,
     region,
-    serviceName
+    serviceName,
   );
 
   // 计算签名
@@ -611,7 +613,12 @@ export const presignUrl = (params: {
   presignQuery["X-Signature"] = signature;
 
   // 构建最终查询字符串（allKeys 包含 X-Security-Token，signedQueries 不包含）
-  const queryString = buildPresignQueryString(presignQuery, allKeys, false, signedQueries);
+  const queryString = buildPresignQueryString(
+    presignQuery,
+    allKeys,
+    false,
+    signedQueries,
+  );
 
   // 有 host 返回完整 URL，没有 host 返回 path?query
   if (host) {

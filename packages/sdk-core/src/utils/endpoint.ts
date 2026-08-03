@@ -16,7 +16,8 @@ const dualstackEndpointSuffix = separator + "byteplus-api.com";
 const cnSuffix = separator + "cn";
 const regionCodeCNHongKong = "cn-hongkong";
 
-const endpoint = openPrefix + separator + "ap-southeast-1" + byteplusEndpointSuffix;
+const endpoint =
+  openPrefix + separator + "ap-southeast-1" + byteplusEndpointSuffix;
 
 // cnNonMainlandRegionSet lists cn-prefixed regions that keep the international
 // .com suffix rather than the mainland .com.cn suffix.
@@ -27,13 +28,33 @@ const cnNonMainlandRegionSet: Record<string, true> = {
 const defaultEndpoint: Record<string, ServiceEndpointInfo> = {
   vpc: { Service: "vpc", IsGlobal: false, GoChinaEnabled: true },
   vke: { Service: "vke", IsGlobal: false, GoChinaEnabled: true },
-  auto_scaling: { Service: "auto_scaling", IsGlobal: false, GoChinaEnabled: true },
-  storage_ebs: { Service: "storage_ebs", IsGlobal: false, GoChinaEnabled: true },
+  auto_scaling: {
+    Service: "auto_scaling",
+    IsGlobal: false,
+    GoChinaEnabled: true,
+  },
+  storage_ebs: {
+    Service: "storage_ebs",
+    IsGlobal: false,
+    GoChinaEnabled: true,
+  },
   vedbm: { Service: "vedbm", IsGlobal: false, GoChinaEnabled: true },
-  privatelink: { Service: "privatelink", IsGlobal: false, GoChinaEnabled: true },
+  privatelink: {
+    Service: "privatelink",
+    IsGlobal: false,
+    GoChinaEnabled: true,
+  },
   clb: { Service: "clb", IsGlobal: false, GoChinaEnabled: true },
-  transitrouter: { Service: "transitrouter", IsGlobal: false, GoChinaEnabled: true },
-  directconnect: { Service: "directconnect", IsGlobal: false, GoChinaEnabled: true },
+  transitrouter: {
+    Service: "transitrouter",
+    IsGlobal: false,
+    GoChinaEnabled: true,
+  },
+  directconnect: {
+    Service: "directconnect",
+    IsGlobal: false,
+    GoChinaEnabled: true,
+  },
   vpn: { Service: "vpn", IsGlobal: false, GoChinaEnabled: true },
   natgateway: { Service: "natgateway", IsGlobal: false, GoChinaEnabled: true },
   rds_mysql: { Service: "rds_mysql", IsGlobal: false, GoChinaEnabled: true },
@@ -43,9 +64,21 @@ const defaultEndpoint: Record<string, ServiceEndpointInfo> = {
   kms: { Service: "kms", IsGlobal: false, GoChinaEnabled: true },
   ecs: { Service: "ecs", IsGlobal: false, GoChinaEnabled: true },
   mongodb: { Service: "mongodb", IsGlobal: false, GoChinaEnabled: true },
-  private_zone: { Service: "private_zone", IsGlobal: true, GoChinaEnabled: true },
-  rds_postgresql: { Service: "rds_postgresql", IsGlobal: false, GoChinaEnabled: true },
-  resource_share: { Service: "resource_share", IsGlobal: true, GoChinaEnabled: false },
+  private_zone: {
+    Service: "private_zone",
+    IsGlobal: true,
+    GoChinaEnabled: true,
+  },
+  rds_postgresql: {
+    Service: "rds_postgresql",
+    IsGlobal: false,
+    GoChinaEnabled: true,
+  },
+  resource_share: {
+    Service: "resource_share",
+    IsGlobal: true,
+    GoChinaEnabled: false,
+  },
   vmp: { Service: "vmp", IsGlobal: false, GoChinaEnabled: true },
   tag: { Service: "tag", IsGlobal: true, GoChinaEnabled: false },
   cr: { Service: "cr", IsGlobal: false, GoChinaEnabled: true },
@@ -53,7 +86,11 @@ const defaultEndpoint: Record<string, ServiceEndpointInfo> = {
   sts: { Service: "sts", IsGlobal: false, GoChinaEnabled: true },
   hbase: { Service: "hbase", IsGlobal: false, GoChinaEnabled: true },
   rds_mssql: { Service: "rds_mssql", IsGlobal: false, GoChinaEnabled: true },
-  ml_platform: { Service: "ml_platform", IsGlobal: false, GoChinaEnabled: false },
+  ml_platform: {
+    Service: "ml_platform",
+    IsGlobal: false,
+    GoChinaEnabled: false,
+  },
   apig: { Service: "apig", IsGlobal: false, GoChinaEnabled: false },
   ark: { Service: "ark", IsGlobal: false, GoChinaEnabled: false },
   waf: { Service: "waf", IsGlobal: true, GoChinaEnabled: false },
@@ -62,14 +99,26 @@ const defaultEndpoint: Record<string, ServiceEndpointInfo> = {
   vefaas: { Service: "vefaas", IsGlobal: false, GoChinaEnabled: false },
   cen: { Service: "cen", IsGlobal: true, GoChinaEnabled: false },
   cp: { Service: "cp", IsGlobal: false, GoChinaEnabled: false },
-  cloudmonitor: { Service: "cloudmonitor", IsGlobal: false, GoChinaEnabled: true },
-  eco_partner: { Service: "eco_partner", IsGlobal: true, GoChinaEnabled: false },
+  cloudmonitor: {
+    Service: "cloudmonitor",
+    IsGlobal: false,
+    GoChinaEnabled: true,
+  },
+  eco_partner: {
+    Service: "eco_partner",
+    IsGlobal: true,
+    GoChinaEnabled: false,
+  },
   milvus: { Service: "milvus", IsGlobal: false, GoChinaEnabled: false },
   llmshield: { Service: "llmshield", IsGlobal: false, GoChinaEnabled: false },
   billing: { Service: "billing", IsGlobal: true, GoChinaEnabled: true },
   id: { Service: "id", IsGlobal: false, GoChinaEnabled: false },
   clawsentry: { Service: "clawsentry", IsGlobal: false, GoChinaEnabled: false },
-  resourcecenter: { Service: "resourcecenter", IsGlobal: true, GoChinaEnabled: false },
+  resourcecenter: {
+    Service: "resourcecenter",
+    IsGlobal: true,
+    GoChinaEnabled: false,
+  },
   escloud: { Service: "escloud", IsGlobal: false, GoChinaEnabled: false },
   cpaas: { Service: "cpaas", IsGlobal: true, GoChinaEnabled: false },
   filenas: { Service: "filenas", IsGlobal: false, GoChinaEnabled: true },

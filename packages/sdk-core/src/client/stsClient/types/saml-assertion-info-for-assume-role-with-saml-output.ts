@@ -9,7 +9,6 @@
 /**
  * SAML 断言中的部分信息。
  *
- * @see https://www.volcengine.com/docs/6257/1631607
  * @export
  * @interface SAMLAssertionInfoForAssumeRoleWithSAMLOutput
  */

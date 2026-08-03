@@ -9,7 +9,6 @@
 /**
  * AssumeRoleWithOIDC 请求参数。
  *
- * @see https://www.volcengine.com/docs/6257/1494877
  * @export
  * @interface AssumeRoleWithOIDCRequest
  */
