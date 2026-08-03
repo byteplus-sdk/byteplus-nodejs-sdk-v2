@@ -24,7 +24,7 @@ export interface ModifySystemEventDefaultActionRequest {
      * @type {string}
      * @memberof ModifySystemEventDefaultActionRequest
      */
-    DefaultAction: string;
+    DefaultAction: ModifySystemEventDefaultActionRequestDefaultActionEnum;
 
     /**
      * @type {string}
@@ -44,3 +44,13 @@ export interface ModifySystemEventDefaultActionRequest {
      */
     OperatedStartAt?: string;
 }
+
+/**
+ * @export
+ * @enum {string}
+ */
+export enum ModifySystemEventDefaultActionRequestDefaultActionEnum {
+    ColdMigrate = 'ColdMigrate',
+    ReplaceDisk = 'ReplaceDisk'
+}
+

@@ -21,6 +21,12 @@
 export interface VolumeForAllocateInstancesInput {
 
     /**
+     * @type {string}
+     * @memberof VolumeForAllocateInstancesInput
+     */
+    DeleteWithInstance?: string;
+
+    /**
      * @type {number}
      * @memberof VolumeForAllocateInstancesInput
      */
