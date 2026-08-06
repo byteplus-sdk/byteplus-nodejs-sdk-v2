@@ -110,7 +110,7 @@ export class CRClient extends Client {
   constructor(config: ClientConfig = {}) {
     super({
       protocol: 'https',
-      region: 'cn-beijing',
+      region: 'ap-southeast-1',
       ...config,
     });
   }

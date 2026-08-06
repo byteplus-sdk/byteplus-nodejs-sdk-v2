@@ -242,7 +242,7 @@ export class CLOUDMONITORClient extends Client {
   constructor(config: ClientConfig = {}) {
     super({
       protocol: 'https',
-      region: 'cn-beijing',
+      region: 'ap-southeast-1',
       ...config,
     });
   }
