@@ -24,6 +24,8 @@ import { CancelScheduleEventsRequest } from './types/index';
 import { CancelScheduleEventsResponse } from './types/index';
 import { ChangeMasterRequest } from './types/index';
 import { ChangeMasterResponse } from './types/index';
+import { CopyParameterTemplateRequest } from './types/index';
+import { CopyParameterTemplateResponse } from './types/index';
 import { CreateAllowListRequest } from './types/index';
 import { CreateAllowListResponse } from './types/index';
 import { CreateBackupRequest } from './types/index';
@@ -116,6 +118,8 @@ import { ModifyAllowListRequest } from './types/index';
 import { ModifyAllowListResponse } from './types/index';
 import { ModifyBackupPolicyRequest } from './types/index';
 import { ModifyBackupPolicyResponse } from './types/index';
+import { ModifyConnectionPersistenceRequest } from './types/index';
+import { ModifyConnectionPersistenceResponse } from './types/index';
 import { ModifyCrossRegionBackupPolicyRequest } from './types/index';
 import { ModifyCrossRegionBackupPolicyResponse } from './types/index';
 import { ModifyDBAccountDescriptionRequest } from './types/index';
@@ -138,10 +142,14 @@ import { ModifyDBInstanceParametersRequest } from './types/index';
 import { ModifyDBInstanceParametersResponse } from './types/index';
 import { ModifyDBInstanceSpecRequest } from './types/index';
 import { ModifyDBInstanceSpecResponse } from './types/index';
+import { ModifyDBInstanceStorageTypeRequest } from './types/index';
+import { ModifyDBInstanceStorageTypeResponse } from './types/index';
 import { ModifyDBNodeConfigRequest } from './types/index';
 import { ModifyDBNodeConfigResponse } from './types/index';
 import { ModifyDatabaseDescriptionRequest } from './types/index';
 import { ModifyDatabaseDescriptionResponse } from './types/index';
+import { ModifyParameterTemplateRequest } from './types/index';
+import { ModifyParameterTemplateResponse } from './types/index';
 import { ModifyScheduleEventsRequest } from './types/index';
 import { ModifyScheduleEventsResponse } from './types/index';
 import { RemoveTagsFromResourceRequest } from './types/index';
@@ -169,6 +177,7 @@ export type ApplyParameterTemplateCommandOutput = CommandOutput<ApplyParameterTe
 export type AssociateAllowListCommandOutput = CommandOutput<AssociateAllowListResponse>;
 export type CancelScheduleEventsCommandOutput = CommandOutput<CancelScheduleEventsResponse>;
 export type ChangeMasterCommandOutput = CommandOutput<ChangeMasterResponse>;
+export type CopyParameterTemplateCommandOutput = CommandOutput<CopyParameterTemplateResponse>;
 export type CreateAllowListCommandOutput = CommandOutput<CreateAllowListResponse>;
 export type CreateBackupCommandOutput = CommandOutput<CreateBackupResponse>;
 export type CreateDBAccountCommandOutput = CommandOutput<CreateDBAccountResponse>;
@@ -215,6 +224,7 @@ export type DisassociateAllowListCommandOutput = CommandOutput<DisassociateAllow
 export type GrantDBAccountPrivilegeCommandOutput = CommandOutput<GrantDBAccountPrivilegeResponse>;
 export type ModifyAllowListCommandOutput = CommandOutput<ModifyAllowListResponse>;
 export type ModifyBackupPolicyCommandOutput = CommandOutput<ModifyBackupPolicyResponse>;
+export type ModifyConnectionPersistenceCommandOutput = CommandOutput<ModifyConnectionPersistenceResponse>;
 export type ModifyCrossRegionBackupPolicyCommandOutput = CommandOutput<ModifyCrossRegionBackupPolicyResponse>;
 export type ModifyDBAccountDescriptionCommandOutput = CommandOutput<ModifyDBAccountDescriptionResponse>;
 export type ModifyDBEndpointCommandOutput = CommandOutput<ModifyDBEndpointResponse>;
@@ -226,8 +236,10 @@ export type ModifyDBInstanceMaintenanceWindowCommandOutput = CommandOutput<Modif
 export type ModifyDBInstanceNameCommandOutput = CommandOutput<ModifyDBInstanceNameResponse>;
 export type ModifyDBInstanceParametersCommandOutput = CommandOutput<ModifyDBInstanceParametersResponse>;
 export type ModifyDBInstanceSpecCommandOutput = CommandOutput<ModifyDBInstanceSpecResponse>;
+export type ModifyDBInstanceStorageTypeCommandOutput = CommandOutput<ModifyDBInstanceStorageTypeResponse>;
 export type ModifyDBNodeConfigCommandOutput = CommandOutput<ModifyDBNodeConfigResponse>;
 export type ModifyDatabaseDescriptionCommandOutput = CommandOutput<ModifyDatabaseDescriptionResponse>;
+export type ModifyParameterTemplateCommandOutput = CommandOutput<ModifyParameterTemplateResponse>;
 export type ModifyScheduleEventsCommandOutput = CommandOutput<ModifyScheduleEventsResponse>;
 export type RemoveTagsFromResourceCommandOutput = CommandOutput<RemoveTagsFromResourceResponse>;
 export type ResetAccountCommandOutput = CommandOutput<ResetAccountResponse>;
@@ -324,6 +336,21 @@ export class ChangeMasterCommand extends Command<
   constructor(input: ChangeMasterRequest) {
     super(input);
     this.requestConfig = buildRequestConfigFromMetaPath(ChangeMasterCommand.metaPath);
+  }
+}
+/**
+ * Command to CopyParameterTemplate
+ */
+export class CopyParameterTemplateCommand extends Command<
+  CopyParameterTemplateRequest,
+  CopyParameterTemplateCommandOutput,
+  'CopyParameterTemplateCommand'
+> {
+  static readonly metaPath = '/CopyParameterTemplate/2022-01-01/vedbm/post/application_json/';
+
+  constructor(input: CopyParameterTemplateRequest) {
+    super(input);
+    this.requestConfig = buildRequestConfigFromMetaPath(CopyParameterTemplateCommand.metaPath);
   }
 }
 /**
@@ -1017,6 +1044,21 @@ export class ModifyBackupPolicyCommand extends Command<
   }
 }
 /**
+ * Command to ModifyConnectionPersistence
+ */
+export class ModifyConnectionPersistenceCommand extends Command<
+  ModifyConnectionPersistenceRequest,
+  ModifyConnectionPersistenceCommandOutput,
+  'ModifyConnectionPersistenceCommand'
+> {
+  static readonly metaPath = '/ModifyConnectionPersistence/2022-01-01/vedbm/post/application_json/';
+
+  constructor(input: ModifyConnectionPersistenceRequest) {
+    super(input);
+    this.requestConfig = buildRequestConfigFromMetaPath(ModifyConnectionPersistenceCommand.metaPath);
+  }
+}
+/**
  * Command to ModifyCrossRegionBackupPolicy
  */
 export class ModifyCrossRegionBackupPolicyCommand extends Command<
@@ -1182,6 +1224,21 @@ export class ModifyDBInstanceSpecCommand extends Command<
   }
 }
 /**
+ * Command to ModifyDBInstanceStorageType
+ */
+export class ModifyDBInstanceStorageTypeCommand extends Command<
+  ModifyDBInstanceStorageTypeRequest,
+  ModifyDBInstanceStorageTypeCommandOutput,
+  'ModifyDBInstanceStorageTypeCommand'
+> {
+  static readonly metaPath = '/ModifyDBInstanceStorageType/2022-01-01/vedbm/post/application_json/';
+
+  constructor(input: ModifyDBInstanceStorageTypeRequest) {
+    super(input);
+    this.requestConfig = buildRequestConfigFromMetaPath(ModifyDBInstanceStorageTypeCommand.metaPath);
+  }
+}
+/**
  * Command to ModifyDBNodeConfig
  */
 export class ModifyDBNodeConfigCommand extends Command<
@@ -1209,6 +1266,21 @@ export class ModifyDatabaseDescriptionCommand extends Command<
   constructor(input: ModifyDatabaseDescriptionRequest) {
     super(input);
     this.requestConfig = buildRequestConfigFromMetaPath(ModifyDatabaseDescriptionCommand.metaPath);
+  }
+}
+/**
+ * Command to ModifyParameterTemplate
+ */
+export class ModifyParameterTemplateCommand extends Command<
+  ModifyParameterTemplateRequest,
+  ModifyParameterTemplateCommandOutput,
+  'ModifyParameterTemplateCommand'
+> {
+  static readonly metaPath = '/ModifyParameterTemplate/2022-01-01/vedbm/post/application_json/';
+
+  constructor(input: ModifyParameterTemplateRequest) {
+    super(input);
+    this.requestConfig = buildRequestConfigFromMetaPath(ModifyParameterTemplateCommand.metaPath);
   }
 }
 /**
@@ -1354,6 +1426,7 @@ export default {
   AssociateAllowListCommand,
   CancelScheduleEventsCommand,
   ChangeMasterCommand,
+  CopyParameterTemplateCommand,
   CreateAllowListCommand,
   CreateBackupCommand,
   CreateDBAccountCommand,
@@ -1400,6 +1473,7 @@ export default {
   GrantDBAccountPrivilegeCommand,
   ModifyAllowListCommand,
   ModifyBackupPolicyCommand,
+  ModifyConnectionPersistenceCommand,
   ModifyCrossRegionBackupPolicyCommand,
   ModifyDBAccountDescriptionCommand,
   ModifyDBEndpointCommand,
@@ -1411,8 +1485,10 @@ export default {
   ModifyDBInstanceNameCommand,
   ModifyDBInstanceParametersCommand,
   ModifyDBInstanceSpecCommand,
+  ModifyDBInstanceStorageTypeCommand,
   ModifyDBNodeConfigCommand,
   ModifyDatabaseDescriptionCommand,
+  ModifyParameterTemplateCommand,
   ModifyScheduleEventsCommand,
   RemoveTagsFromResourceCommand,
   ResetAccountCommand,
