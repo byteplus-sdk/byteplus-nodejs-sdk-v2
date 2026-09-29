@@ -1,0 +1,24 @@
+{
+  "actions": [
+    "ModifySecurityGroupEgressBatch",
+    "ModifySecurityGroupIngressBatch",
+    "RevokeSecurityGroupIngressBatch",
+    "ModifyIpam",
+    "DescribeNetworkInterfaceAttributes",
+    "AuthorizeSecurityGroupEgressBatch",
+    "CreateFlowLog",
+    "DescribeNetworkInterfaces",
+    "CreateIpam",
+    "CreateNetworkInterface",
+    "ModifyNetworkInterfaceAttributes",
+    "ModifyFlowLogAttribute",
+    "AuthorizeSecurityGroupIngressBatch",
+    "RevokeSecurityGroupEgressBatch",
+    "DescribeSecurityGroupAttributes",
+    "ModifyIpamResourceDiscovery",
+    "DescribeIpamResourceCidrs"
+  ],
+  "description": "VPC: added AuthorizeSecurityGroupIngressBatch, ModifySecurityGroupEgressBatch, ModifySecurityGroupIngressBatch, RevokeSecurityGroupEgressBatch, RevokeSecurityGroupIngressBatch, AuthorizeSecurityGroupEgressBatch；modified DescribeNetworkInterfaces, DescribeSecurityGroupAttributes, ModifyIpamResourceDiscovery, CreateIpam, CreateNetworkInterface, DescribeIpamResourceCidrs, ModifyIpam, ModifyNetworkInterfaceAttributes, CreateFlowLog, DescribeNetworkInterfaceAttributes, ModifyFlowLogAttribute",
+  "modules": "service/vpc",
+  "type": "feature"
+}
