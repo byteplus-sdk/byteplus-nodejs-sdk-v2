@@ -105,11 +105,7 @@ const defaultEndpoint: Record<string, ServiceEndpointInfo> = {
     IsGlobal: false,
     GoChinaEnabled: true,
   },
-  eco_partner: {
-    Service: "eco_partner",
-    IsGlobal: true,
-    GoChinaEnabled: false,
-  },
+  eco_partner: { Service: "eco_partner", IsGlobal: true, GoChinaEnabled: false },
   milvus: { Service: "milvus", IsGlobal: false, GoChinaEnabled: false },
   llmshield: { Service: "llmshield", IsGlobal: false, GoChinaEnabled: false },
   billing: { Service: "billing", IsGlobal: true, GoChinaEnabled: true },
