@@ -52,6 +52,12 @@ export interface CreateFlowLogRequest {
     FlowLogName: string;
 
     /**
+     * @type {number}
+     * @memberof CreateFlowLogRequest
+     */
+    FlowLogVersion?: number;
+
+    /**
      * @type {string}
      * @memberof CreateFlowLogRequest
      */
@@ -88,10 +94,10 @@ export interface CreateFlowLogRequest {
     Tags?: Array<TagForCreateFlowLogInput>;
 
     /**
-     * @type {Array<number>}
+     * @type {Array<string>}
      * @memberof CreateFlowLogRequest
      */
-    TrafficPath?: Array<number>;
+    TrafficPath?: Array<string>;
 
     /**
      * @type {string}
