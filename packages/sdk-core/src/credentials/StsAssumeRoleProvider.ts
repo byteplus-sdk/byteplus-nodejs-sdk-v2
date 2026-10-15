@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import type { CredentialValue, Provider } from "./types";
 import type { StsAssumeRoleParams } from "../types/types";
+import { assertCaFileReadable, buildStsHttpOptions } from "../utils/proxy";
 
 // 缓存类型定义
 interface CredentialsCache {
@@ -19,10 +20,17 @@ const pendingRequests: { [key: string]: Promise<CredentialValue> | undefined } =
 
 // 生成缓存键的函数
 function generateCacheKey(params: StsAssumeRoleParams) {
-  const { accessKeyId, secretAccessKey, roleTrn, policy, host } = params || {};
-  return `${accessKeyId}-${secretAccessKey}-${roleTrn}-${policy ?? ""}-${
-    host ?? ""
-  }`;
+  const {
+    accessKeyId,
+    secretAccessKey,
+    roleTrn,
+    policy,
+    host,
+    proxyUrl,
+    caFile,
+  } = params || {};
+  const insecureSkipVerify = params?.insecureSkipVerify ? "1" : "0";
+  return `${accessKeyId}-${secretAccessKey}-${roleTrn}-${policy ?? ""}-${host ?? ""}-${proxyUrl ?? ""}-${caFile ?? ""}-${insecureSkipVerify}`;
 }
 
 /**
@@ -50,6 +58,8 @@ export class StsAssumeRoleProvider implements Provider {
   }
 
   async resolveCredentials(): Promise<CredentialValue> {
+    assertCaFileReadable(this.params.caFile, this.providerName);
+
     // 生成缓存键
     const cacheKey = generateCacheKey(this.params);
     const now = Date.now();
@@ -82,6 +92,11 @@ export class StsAssumeRoleProvider implements Provider {
           secretAccessKey: this.params.secretAccessKey,
           host: this.params.host || "sts.ap-southeast-1.byteplusapi.com",
           protocol: this.params.protocol || "https",
+          httpOptions: buildStsHttpOptions({
+            proxyUrl: this.params.proxyUrl,
+            caFile: this.params.caFile,
+            insecureSkipVerify: this.params.insecureSkipVerify,
+          }),
         });
 
         // 调用 AssumeRole 接口

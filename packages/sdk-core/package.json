@@ -1,6 +1,6 @@
 {
   "name": "@byteplus/sdk-core",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "BytePlus SDK core package",
   "license": "Apache-2.0",
   "main": "./dist/cjs/index.js",
@@ -29,7 +29,7 @@
     "dev": "rslib build --watch"
   },
   "dependencies": {
-    "axios": "^1.6.0",
+    "axios": "^1.17.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
