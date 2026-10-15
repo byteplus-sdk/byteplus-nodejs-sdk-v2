@@ -1,6 +1,6 @@
 {
   "name": "@byteplus/vpc",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "swagger client for @byteplus/vpc",
   "license": "Apache-2.0",
   "main": "./dist/cjs/index.js",

@@ -9,12 +9,38 @@ import {
   HttpRequestConfig,
   HttpResponse,
 } from "../types/request-handler";
+import fs from "fs";
 import http from "http";
 import https from "https";
 import type { Socket } from "net";
+import tls from "tls";
 import { HttpOptions } from "../types/types";
+import { parseProxyUrl } from "../utils/proxy";
 
 export type AxiosRequestHandlerOptions = HttpOptions;
+
+// 保持兜底超时错误与 axios timeout 错误形态一致，
+// 确保现有 middleware 和重试逻辑仍能将其识别为网络超时。
+function createTimeoutError(timeout: number): Error {
+  const error = new Error(`timeout of ${timeout}ms exceeded`);
+  (error as any).code = "ECONNABORTED";
+  (error as any).timeout = timeout;
+  return error;
+}
+
+// 将调用方传入的 signal 接入内部超时 controller，
+// 既保留用户主动取消能力，也允许 handler 执行自己的总耗时兜底。
+function addAbortListener(
+  signal: AbortSignal | undefined,
+  listener: () => void,
+): () => void {
+  if (!signal) {
+    return () => {};
+  }
+
+  signal.addEventListener("abort", listener, { once: true });
+  return () => signal.removeEventListener("abort", listener);
+}
 
 /**
  * 创建带有连接超时的 Agent
@@ -81,6 +107,8 @@ function createAgentWithConnectTimeout<T extends http.Agent>(
  */
 export class AxiosRequestHandler implements RequestHandler {
   private client: AxiosInstance;
+  private readonly resolvedProxy?: AxiosRequestConfig["proxy"];
+  private readonly requestTimeout?: number;
 
   /**
    * 构造函数
@@ -94,6 +122,21 @@ export class AxiosRequestHandler implements RequestHandler {
     // 超时配置：connectTimeout 控制 TCP 连接阶段，readTimeout 控制整体请求响应阶段
     const connectTimeout = options.connectTimeout;
     const readTimeout = options.readTimeout ?? options.timeout;
+    this.requestTimeout = readTimeout;
+
+    if (options.proxyUrl !== undefined && options.proxyUrl !== "") {
+      const parsedProxy = parseProxyUrl(options.proxyUrl);
+      if (!parsedProxy) {
+        throw new Error("Invalid proxyUrl");
+      }
+
+      this.resolvedProxy = {
+        protocol: parsedProxy.protocol,
+        host: parsedProxy.host,
+        port: parsedProxy.port,
+        ...(parsedProxy.auth ? { auth: parsedProxy.auth } : {}),
+      };
+    }
 
     let httpsAgent = options.httpsAgent;
     let httpAgent: http.Agent | undefined;
@@ -105,6 +148,16 @@ export class AxiosRequestHandler implements RequestHandler {
 
       if (options.ignoreSSL) {
         agentOptions.rejectUnauthorized = false;
+        needsAgent = true;
+      }
+
+      if (options.caFile) {
+        // Keep Node's default public roots and append the custom CA so
+        // HTTPS proxy trust does not break subsequent origin TLS validation.
+        agentOptions.ca = [
+          ...tls.rootCertificates,
+          fs.readFileSync(options.caFile, "utf8"),
+        ];
         needsAgent = true;
       }
 
@@ -150,7 +203,8 @@ export class AxiosRequestHandler implements RequestHandler {
 
     this.client = clientFactory({
       timeout: readTimeout,
-      proxy: options.proxy,
+      proxy:
+        this.resolvedProxy !== undefined ? this.resolvedProxy : options.proxy,
       httpsAgent: httpsAgent,
       httpAgent: httpAgent,
     });
@@ -160,6 +214,26 @@ export class AxiosRequestHandler implements RequestHandler {
    * 发送 HTTP 请求
    */
   async request<T>(config: HttpRequestConfig): Promise<HttpResponse<T>> {
+    // axios 为 HTTPS 代理请求安装 CONNECT 隧道 Agent 后，原生 timeout
+    // 可能无法覆盖所有 socket 建立前阶段。这里仍然把 timeout 传给
+    // axios，同时增加一层总耗时兜底，确保底层 adapter 卡在代理连接时
+    // SDK 的超时契约仍然生效。
+    const effectiveTimeout = config.timeout ?? this.requestTimeout;
+    const hasTotalTimeout =
+      effectiveTimeout !== undefined && effectiveTimeout > 0;
+    const abortController = hasTotalTimeout
+      ? new AbortController()
+      : undefined;
+    const removeAbortListener = abortController
+      ? addAbortListener(config.signal, () => {
+          abortController.abort((config.signal as any)?.reason);
+        })
+      : () => {};
+
+    if (abortController && config.signal?.aborted) {
+      abortController.abort((config.signal as any).reason);
+    }
+
     const axiosConfig: AxiosRequestConfig = {
       url: config.url,
       method: config.method as any,
@@ -168,9 +242,28 @@ export class AxiosRequestHandler implements RequestHandler {
       timeout: config.timeout,
       proxy: config.proxy,
       httpsAgent: config.httpsAgent,
-      signal: config.signal,
+      signal: abortController?.signal ?? config.signal,
     };
-    const response: AxiosResponse<T> = await this.client.request(axiosConfig);
+
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const requestPromise = this.client.request(axiosConfig);
+    const response: AxiosResponse<T> = await (hasTotalTimeout
+      ? Promise.race([
+          requestPromise,
+          new Promise<never>((_, reject) => {
+            timeoutId = setTimeout(() => {
+              const timeoutError = createTimeoutError(effectiveTimeout);
+              reject(timeoutError);
+              abortController?.abort(timeoutError);
+            }, effectiveTimeout);
+          }),
+        ])
+      : requestPromise).finally(() => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      removeAbortListener();
+    });
 
     // 转换为标准 HttpResponse 格式
     return {
