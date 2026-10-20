@@ -114,11 +114,7 @@ const defaultEndpoint: Record<string, ServiceEndpointInfo> = {
   billing: { Service: "billing", IsGlobal: true, GoChinaEnabled: true },
   id: { Service: "id", IsGlobal: false, GoChinaEnabled: false },
   clawsentry: { Service: "clawsentry", IsGlobal: false, GoChinaEnabled: false },
-  resourcecenter: {
-    Service: "resourcecenter",
-    IsGlobal: true,
-    GoChinaEnabled: false,
-  },
+  resourcecenter: { Service: "resourcecenter", IsGlobal: true, GoChinaEnabled: false },
   escloud: { Service: "escloud", IsGlobal: false, GoChinaEnabled: false },
   cpaas: { Service: "cpaas", IsGlobal: true, GoChinaEnabled: false },
   filenas: { Service: "filenas", IsGlobal: false, GoChinaEnabled: true },
