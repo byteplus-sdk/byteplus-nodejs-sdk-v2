@@ -1,0 +1,19 @@
+{
+  "actions": [
+    "DescribeParameterGroupDetail",
+    "DescribeTasks",
+    "DescribePlannedEventImpactDetail",
+    "DescribeBlueGreenDeployments",
+    "DescribeCrossRegionBackups",
+    "SyncAllowList",
+    "DescribeBackups",
+    "DescribeDBInstances",
+    "DescribePlannedEvents",
+    "DescribeAllowListDetail",
+    "DescribeAllowLists",
+    "DescribeParameterGroups"
+  ],
+  "description": "REDIS: added DescribePlannedEventImpactDetail；removed CreateEnterpriseDBInstance；modified DescribeAllowListDetail, DescribeAllowLists, DescribeBlueGreenDeployments, DescribeParameterGroups, SyncAllowList, DescribeBackups, DescribeCrossRegionBackups, DescribeDBInstances, DescribeParameterGroupDetail, DescribePlannedEvents, DescribeTasks",
+  "modules": "service/Redis",
+  "type": "breaking-change"
+}

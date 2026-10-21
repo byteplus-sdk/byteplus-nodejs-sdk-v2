@@ -16,13 +16,19 @@
  * 
  *
  * @export
- * @interface ConfigureNodeForCreateEnterpriseDBInstanceInput
+ * @interface FilterForDescribeClientSessionSnapshotInput
  */
-export interface ConfigureNodeForCreateEnterpriseDBInstanceInput {
+export interface FilterForDescribeClientSessionSnapshotInput {
 
     /**
      * @type {string}
-     * @memberof ConfigureNodeForCreateEnterpriseDBInstanceInput
+     * @memberof FilterForDescribeClientSessionSnapshotInput
      */
-    AZ?: string;
+    FilterKey?: string;
+
+    /**
+     * @type {string}
+     * @memberof FilterForDescribeClientSessionSnapshotInput
+     */
+    FilterValue?: string;
 }
