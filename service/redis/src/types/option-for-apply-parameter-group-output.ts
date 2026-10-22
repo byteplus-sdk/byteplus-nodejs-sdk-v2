@@ -16,19 +16,7 @@
  * 
  *
  * @export
- * @interface CreateEnterpriseDBInstanceResponse
+ * @interface OptionForApplyParameterGroupOutput
  */
-export interface CreateEnterpriseDBInstanceResponse {
-
-    /**
-     * @type {string}
-     * @memberof CreateEnterpriseDBInstanceResponse
-     */
-    InstanceId?: string;
-
-    /**
-     * @type {string}
-     * @memberof CreateEnterpriseDBInstanceResponse
-     */
-    OrderNO?: string;
+export interface OptionForApplyParameterGroupOutput {
 }
