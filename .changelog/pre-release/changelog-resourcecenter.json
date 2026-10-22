@@ -1,0 +1,19 @@
+{
+  "actions": [
+    "GetMultiAccountResourceCenterStatus",
+    "ListResourceTypes",
+    "CreateQuery",
+    "GetMultiAccountResourceDescription",
+    "GetResourceDescription",
+    "ListMultiAccountResourceRelationships",
+    "ExecuteSQLQuery",
+    "SearchMultiAccountResources",
+    "ExecuteMultiAccountSQLQuery",
+    "ListResourceRelationships",
+    "SearchResources",
+    "UpdateQuery"
+  ],
+  "description": "RESOURCECENTER: added ExecuteMultiAccountSQLQuery, GetMultiAccountResourceDescription, GetResourceDescription, ListMultiAccountResourceRelationships, ListResourceRelationships；modified ExecuteSQLQuery, GetMultiAccountResourceCenterStatus, SearchResources, UpdateQuery, ListResourceTypes, SearchMultiAccountResources, CreateQuery",
+  "modules": "service/resourcecenter",
+  "type": "breaking-change"
+}
