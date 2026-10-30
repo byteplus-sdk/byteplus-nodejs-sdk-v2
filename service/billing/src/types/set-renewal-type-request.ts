@@ -30,7 +30,13 @@ export interface SetRenewalTypeRequest {
      * @type {string}
      * @memberof SetRenewalTypeRequest
      */
-    InstanceID: string;
+    InstanceID?: string;
+
+    /**
+     * @type {Array<string>}
+     * @memberof SetRenewalTypeRequest
+     */
+    InstanceIDs?: Array<string>;
 
     /**
      * @type {string}

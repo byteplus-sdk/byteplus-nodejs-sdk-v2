@@ -60,6 +60,8 @@ import { ListBudgetAmountByBudgetIDRequest } from './types/index';
 import { ListBudgetAmountByBudgetIDResponse } from './types/index';
 import { ListBudgetFilterBillingModeRequest } from './types/index';
 import { ListBudgetFilterBillingModeResponse } from './types/index';
+import { ListBudgetFilterConfigurationInfoRequest } from './types/index';
+import { ListBudgetFilterConfigurationInfoResponse } from './types/index';
 import { ListBudgetFilterOwnerIDRequest } from './types/index';
 import { ListBudgetFilterOwnerIDResponse } from './types/index';
 import { ListBudgetFilterPayerIDRequest } from './types/index';
@@ -86,6 +88,8 @@ import { ListCouponUsageRecordsRequest } from './types/index';
 import { ListCouponUsageRecordsResponse } from './types/index';
 import { ListCouponsRequest } from './types/index';
 import { ListCouponsResponse } from './types/index';
+import { ListElementRequest } from './types/index';
+import { ListElementResponse } from './types/index';
 import { ListFinancialRelationRequest } from './types/index';
 import { ListFinancialRelationResponse } from './types/index';
 import { ListInvitationRequest } from './types/index';
@@ -96,6 +100,10 @@ import { ListOrdersRequest } from './types/index';
 import { ListOrdersResponse } from './types/index';
 import { ListPackageUsageDetailsRequest } from './types/index';
 import { ListPackageUsageDetailsResponse } from './types/index';
+import { ListProductRequest } from './types/index';
+import { ListProductResponse } from './types/index';
+import { ListProductStructureRequest } from './types/index';
+import { ListProductStructureResponse } from './types/index';
 import { ListRecipientInformationRequest } from './types/index';
 import { ListRecipientInformationResponse } from './types/index';
 import { ListResourcePackagesRequest } from './types/index';
@@ -110,6 +118,10 @@ import { QueryBalanceAcctRequest } from './types/index';
 import { QueryBalanceAcctResponse } from './types/index';
 import { QueryBudgetDetailRequest } from './types/index';
 import { QueryBudgetDetailResponse } from './types/index';
+import { QueryBudgetSplitItemIDRequest } from './types/index';
+import { QueryBudgetSplitItemIDResponse } from './types/index';
+import { QueryBudgetSplitItemNameRequest } from './types/index';
+import { QueryBudgetSplitItemNameResponse } from './types/index';
 import { QueryPriceForPayAsYouGoRequest } from './types/index';
 import { QueryPriceForPayAsYouGoResponse } from './types/index';
 import { QueryPriceForRenewRequest } from './types/index';
@@ -156,6 +168,7 @@ export type ListBillOverviewByProdCommandOutput = CommandOutput<ListBillOverview
 export type ListBudgetCommandOutput = CommandOutput<ListBudgetResponse>;
 export type ListBudgetAmountByBudgetIDCommandOutput = CommandOutput<ListBudgetAmountByBudgetIDResponse>;
 export type ListBudgetFilterBillingModeCommandOutput = CommandOutput<ListBudgetFilterBillingModeResponse>;
+export type ListBudgetFilterConfigurationInfoCommandOutput = CommandOutput<ListBudgetFilterConfigurationInfoResponse>;
 export type ListBudgetFilterOwnerIDCommandOutput = CommandOutput<ListBudgetFilterOwnerIDResponse>;
 export type ListBudgetFilterPayerIDCommandOutput = CommandOutput<ListBudgetFilterPayerIDResponse>;
 export type ListBudgetFilterProductCommandOutput = CommandOutput<ListBudgetFilterProductResponse>;
@@ -168,11 +181,14 @@ export type ListBudgetFilterZoneCodeCommandOutput = CommandOutput<ListBudgetFilt
 export type ListCostAnalysisOpenApiCommandOutput = CommandOutput<ListCostAnalysisOpenApiResponse>;
 export type ListCouponUsageRecordsCommandOutput = CommandOutput<ListCouponUsageRecordsResponse>;
 export type ListCouponsCommandOutput = CommandOutput<ListCouponsResponse>;
+export type ListElementCommandOutput = CommandOutput<ListElementResponse>;
 export type ListFinancialRelationCommandOutput = CommandOutput<ListFinancialRelationResponse>;
 export type ListInvitationCommandOutput = CommandOutput<ListInvitationResponse>;
 export type ListOrderProductDetailsCommandOutput = CommandOutput<ListOrderProductDetailsResponse>;
 export type ListOrdersCommandOutput = CommandOutput<ListOrdersResponse>;
 export type ListPackageUsageDetailsCommandOutput = CommandOutput<ListPackageUsageDetailsResponse>;
+export type ListProductCommandOutput = CommandOutput<ListProductResponse>;
+export type ListProductStructureCommandOutput = CommandOutput<ListProductStructureResponse>;
 export type ListRecipientInformationCommandOutput = CommandOutput<ListRecipientInformationResponse>;
 export type ListResourcePackagesCommandOutput = CommandOutput<ListResourcePackagesResponse>;
 export type ListSplitBillDetailCommandOutput = CommandOutput<ListSplitBillDetailResponse>;
@@ -180,6 +196,8 @@ export type PayOrderCommandOutput = CommandOutput<PayOrderResponse>;
 export type PreCheckDropShippingOrderCommandOutput = CommandOutput<PreCheckDropShippingOrderResponse>;
 export type QueryBalanceAcctCommandOutput = CommandOutput<QueryBalanceAcctResponse>;
 export type QueryBudgetDetailCommandOutput = CommandOutput<QueryBudgetDetailResponse>;
+export type QueryBudgetSplitItemIDCommandOutput = CommandOutput<QueryBudgetSplitItemIDResponse>;
+export type QueryBudgetSplitItemNameCommandOutput = CommandOutput<QueryBudgetSplitItemNameResponse>;
 export type QueryPriceForPayAsYouGoCommandOutput = CommandOutput<QueryPriceForPayAsYouGoResponse>;
 export type QueryPriceForRenewCommandOutput = CommandOutput<QueryPriceForRenewResponse>;
 export type QueryPriceForSubscriptionCommandOutput = CommandOutput<QueryPriceForSubscriptionResponse>;
@@ -564,6 +582,21 @@ export class ListBudgetFilterBillingModeCommand extends Command<
   }
 }
 /**
+ * Command to ListBudgetFilterConfigurationInfo
+ */
+export class ListBudgetFilterConfigurationInfoCommand extends Command<
+  ListBudgetFilterConfigurationInfoRequest,
+  ListBudgetFilterConfigurationInfoCommandOutput,
+  'ListBudgetFilterConfigurationInfoCommand'
+> {
+  static readonly metaPath = '/ListBudgetFilterConfigurationInfo/2022-01-01/billing/post/application_json/';
+
+  constructor(input: ListBudgetFilterConfigurationInfoRequest) {
+    super(input);
+    this.requestConfig = buildRequestConfigFromMetaPath(ListBudgetFilterConfigurationInfoCommand.metaPath);
+  }
+}
+/**
  * Command to ListBudgetFilterOwnerID
  */
 export class ListBudgetFilterOwnerIDCommand extends Command<
@@ -744,6 +777,21 @@ export class ListCouponsCommand extends Command<
   }
 }
 /**
+ * Command to ListElement
+ */
+export class ListElementCommand extends Command<
+  ListElementRequest,
+  ListElementCommandOutput,
+  'ListElementCommand'
+> {
+  static readonly metaPath = '/ListElement/2022-01-01/billing/post/application_json/';
+
+  constructor(input: ListElementRequest) {
+    super(input);
+    this.requestConfig = buildRequestConfigFromMetaPath(ListElementCommand.metaPath);
+  }
+}
+/**
  * Command to ListFinancialRelation
  */
 export class ListFinancialRelationCommand extends Command<
@@ -816,6 +864,36 @@ export class ListPackageUsageDetailsCommand extends Command<
   constructor(input: ListPackageUsageDetailsRequest) {
     super(input);
     this.requestConfig = buildRequestConfigFromMetaPath(ListPackageUsageDetailsCommand.metaPath);
+  }
+}
+/**
+ * Command to ListProduct
+ */
+export class ListProductCommand extends Command<
+  ListProductRequest,
+  ListProductCommandOutput,
+  'ListProductCommand'
+> {
+  static readonly metaPath = '/ListProduct/2022-01-01/billing/post/application_json/';
+
+  constructor(input: ListProductRequest) {
+    super(input);
+    this.requestConfig = buildRequestConfigFromMetaPath(ListProductCommand.metaPath);
+  }
+}
+/**
+ * Command to ListProductStructure
+ */
+export class ListProductStructureCommand extends Command<
+  ListProductStructureRequest,
+  ListProductStructureCommandOutput,
+  'ListProductStructureCommand'
+> {
+  static readonly metaPath = '/ListProductStructure/2022-01-01/billing/post/application_json/';
+
+  constructor(input: ListProductStructureRequest) {
+    super(input);
+    this.requestConfig = buildRequestConfigFromMetaPath(ListProductStructureCommand.metaPath);
   }
 }
 /**
@@ -921,6 +999,36 @@ export class QueryBudgetDetailCommand extends Command<
   constructor(input: QueryBudgetDetailRequest) {
     super(input);
     this.requestConfig = buildRequestConfigFromMetaPath(QueryBudgetDetailCommand.metaPath);
+  }
+}
+/**
+ * Command to QueryBudgetSplitItemID
+ */
+export class QueryBudgetSplitItemIDCommand extends Command<
+  QueryBudgetSplitItemIDRequest,
+  QueryBudgetSplitItemIDCommandOutput,
+  'QueryBudgetSplitItemIDCommand'
+> {
+  static readonly metaPath = '/QueryBudgetSplitItemID/2022-01-01/billing/post/application_json/';
+
+  constructor(input: QueryBudgetSplitItemIDRequest) {
+    super(input);
+    this.requestConfig = buildRequestConfigFromMetaPath(QueryBudgetSplitItemIDCommand.metaPath);
+  }
+}
+/**
+ * Command to QueryBudgetSplitItemName
+ */
+export class QueryBudgetSplitItemNameCommand extends Command<
+  QueryBudgetSplitItemNameRequest,
+  QueryBudgetSplitItemNameCommandOutput,
+  'QueryBudgetSplitItemNameCommand'
+> {
+  static readonly metaPath = '/QueryBudgetSplitItemName/2022-01-01/billing/post/application_json/';
+
+  constructor(input: QueryBudgetSplitItemNameRequest) {
+    super(input);
+    this.requestConfig = buildRequestConfigFromMetaPath(QueryBudgetSplitItemNameCommand.metaPath);
   }
 }
 /**
@@ -1085,6 +1193,7 @@ export default {
   ListBudgetCommand,
   ListBudgetAmountByBudgetIDCommand,
   ListBudgetFilterBillingModeCommand,
+  ListBudgetFilterConfigurationInfoCommand,
   ListBudgetFilterOwnerIDCommand,
   ListBudgetFilterPayerIDCommand,
   ListBudgetFilterProductCommand,
@@ -1097,11 +1206,14 @@ export default {
   ListCostAnalysisOpenApiCommand,
   ListCouponUsageRecordsCommand,
   ListCouponsCommand,
+  ListElementCommand,
   ListFinancialRelationCommand,
   ListInvitationCommand,
   ListOrderProductDetailsCommand,
   ListOrdersCommand,
   ListPackageUsageDetailsCommand,
+  ListProductCommand,
+  ListProductStructureCommand,
   ListRecipientInformationCommand,
   ListResourcePackagesCommand,
   ListSplitBillDetailCommand,
@@ -1109,6 +1221,8 @@ export default {
   PreCheckDropShippingOrderCommand,
   QueryBalanceAcctCommand,
   QueryBudgetDetailCommand,
+  QueryBudgetSplitItemIDCommand,
+  QueryBudgetSplitItemNameCommand,
   QueryPriceForPayAsYouGoCommand,
   QueryPriceForRenewCommand,
   QueryPriceForSubscriptionCommand,
