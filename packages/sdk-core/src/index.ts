@@ -20,6 +20,14 @@ export { CLIConfigCredentialProvider } from "./credentials/CLIConfigCredentialPr
 export { EcsRoleCredentialProvider } from "./credentials/EcsRoleCredentialProvider";
 export { DefaultCredentialProvider } from "./credentials/DefaultCredentialProvider";
 export { presignUrl } from "./utils/signer";
+export {
+  EndpointValidationError,
+  ErrCodeInvalidRegion,
+  ErrCodeInvalidService,
+  validateRegion,
+  validateService,
+  validateServiceAndRegion,
+} from "./utils/endpoint-validation";
 export { buildAuthToken } from "./feature/rds/connect";
 
 // Endpoint resolution

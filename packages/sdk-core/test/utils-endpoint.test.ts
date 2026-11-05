@@ -152,17 +152,32 @@ describe("resolveDefaultEndpoint - region normalization", () => {
     useEnv();
   });
 
-  it("normalizes region via trim().toLowerCase() before matching cn", () => {
+  it("normalizes region case via toLowerCase() before matching cn", () => {
     const info: ServiceEndpointInfo = {
       Service: "svc-region-norm",
       IsGlobal: false,
       GoChinaEnabled: true,
     };
-    for (const region of ["CN-Beijing", "  cn-beijing  ", "cn-beijing"]) {
+    for (const region of ["CN-Beijing", "cn-beijing"]) {
       const got = withTempService(info, () =>
         resolveDefaultEndpoint("svc-region-norm", region),
       );
       expect(got).toBe("svc-region-norm.cn-beijing.byteplusapi.com.cn");
+    }
+  });
+
+  it("rejects region with leading/trailing whitespace instead of trimming it", () => {
+    const info: ServiceEndpointInfo = {
+      Service: "svc-region-norm",
+      IsGlobal: false,
+      GoChinaEnabled: true,
+    };
+    for (const region of ["  cn-beijing  ", " cn-beijing", "cn-beijing\t"]) {
+      expect(() =>
+        withTempService(info, () =>
+          resolveDefaultEndpoint("svc-region-norm", region),
+        ),
+      ).toThrow(expect.objectContaining({ code: "InvalidRegion" }));
     }
   });
 });

@@ -2,6 +2,7 @@
 // Implements the ServiceEndpointInfo(isGlobal, goChinaEnabled) decision table.
 
 import { loadEnv } from "./env";
+import { validateServiceAndRegion } from "./endpoint-validation";
 
 export interface ServiceEndpointInfo {
   Service: string;
@@ -144,9 +145,10 @@ function standardizeDomainServiceCode(serviceCode: string): string {
   return serviceCode.toLowerCase().replace(/_/g, "-");
 }
 
+// 调用前已通过 validateRegion，region 不含空白，这里只做大小写归一化。
 function normalizeRegion(regionCode: string | undefined | null): string {
   if (!regionCode) return "";
-  return regionCode.trim().toLowerCase();
+  return regionCode.toLowerCase();
 }
 
 function isCnRegion(normalizedRegion: string): boolean {
@@ -166,16 +168,22 @@ function hasEnableDualStack(useDualStack?: boolean): boolean {
 /**
  * resolveDefaultEndpoint is the SDK-internal entry point mirroring Go's
  * ResolveDefaultEndpoint. It consults the defaultEndpoint map and combines
- * IsGlobal + GoChinaEnabled + normalized region to produce a deterministic
+ * IsGlobal + GoChinaEnabled + lower-cased region to produce a deterministic
  * {service}[.{region}].byteplusapi.com[.cn] endpoint.
  *
- * Throws ServiceEndpointInfoMissingError when service is not registered.
+ * Throws EndpointValidationError (code InvalidService / InvalidRegion) when
+ * service or region is not a single host label (e.g. contains whitespace,
+ * '.', ':', '@', '/'); throws ServiceEndpointInfoMissingError when service is
+ * not registered.
  */
 export function resolveDefaultEndpoint(
   service: string,
   regionCode: string,
   useDualStack?: boolean,
 ): string {
+  // service/region 会被拼进主机名，在所有分支之前拒绝非法值，不回退到默认 endpoint。
+  validateServiceAndRegion(service, regionCode);
+
   const info = defaultEndpoint[service];
   if (!info) {
     throw new ServiceEndpointInfoMissingError(service);
@@ -200,15 +208,21 @@ export function resolveDefaultEndpoint(
 
 /**
  * getDefaultEndpointByServiceInfo is the backwards-compatible entry point that
- * preserves the original signature. Delegates to resolveDefaultEndpoint; if the
- * service is not registered, falls back to the default open endpoint so existing
- * call sites do not crash.
+ * preserves the original signature. Delegates to resolveDefaultEndpoint; if a
+ * valid service is not registered, falls back to the default open endpoint so
+ * existing call sites do not crash.
+ *
+ * Throws EndpointValidationError (unwrapped, code InvalidService /
+ * InvalidRegion) for an invalid service or region, including unregistered ones.
  */
 export function getDefaultEndpointByServiceInfo(
   service: string,
   regionCode: string,
   useDualStack?: boolean,
 ): string {
+  // service/region 会被拼进主机名，在所有分支之前拒绝非法值，不回退到默认 endpoint，也不包装错误码。
+  validateServiceAndRegion(service, regionCode);
+
   // Unregistered service: fall back to the default open endpoint (historical
   // behavior) instead of letting resolveDefaultEndpoint fail-fast.
   if (!defaultEndpoint[service]) {

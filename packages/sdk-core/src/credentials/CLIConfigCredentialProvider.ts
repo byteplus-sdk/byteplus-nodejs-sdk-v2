@@ -9,6 +9,7 @@ import { EcsRoleCredentialProvider } from "./EcsRoleCredentialProvider";
 import { OidcCredentialProvider } from "./OidcCredentialProvider";
 import { StsAssumeRoleProvider } from "./StsAssumeRoleProvider";
 import { loadEnv } from "../utils/env";
+import { validateRegion } from "../utils/endpoint-validation";
 
 const DEFAULT_REGION = "ap-southeast-1";
 const MODE_AK = "ak";
@@ -301,6 +302,19 @@ export class CLIConfigCredentialProvider implements Provider {
     configData: any,
     configPath: string,
   ): Promise<CredentialValue> {
+    // region 会被拼进 cloudidentity 主机名。读取 profile 后、命中内联 STS 缓存快路径前
+    // 先校验，让非法 region 配置第一时间暴露，而不是等缓存过期后才报错。
+    // session 此处仅宽松查找（缺失不抛错），以保持缓存命中时无需 sso-session 的既有行为。
+    const sessionName = this.trimToUndefined(profile["sso-session-name"]);
+    const session = sessionName
+      ? configData?.["sso-session"]?.[sessionName]
+      : undefined;
+    const region =
+      this.trimToUndefined(session?.region) ||
+      this.trimToUndefined(profile.region) ||
+      DEFAULT_REGION;
+    validateRegion(region);
+
     const cached = this.tryResolveSsoCachedStsToken(profile);
     if (cached) {
       this.delegate = new ExpiringCredentialDelegate(
@@ -311,14 +325,12 @@ export class CLIConfigCredentialProvider implements Provider {
       return cached.credentials;
     }
 
-    const sessionName = this.trimToUndefined(profile["sso-session-name"]);
     if (!sessionName) {
       throw new Error(
         `${this.providerName}: profile '${this.profileName}' mode is sso but sso-session-name is not set.`,
       );
     }
 
-    const session = configData?.["sso-session"]?.[sessionName];
     if (!session) {
       throw new Error(
         `${this.providerName}: sso-session '${sessionName}' not found in config file.`,
@@ -332,10 +344,6 @@ export class CLIConfigCredentialProvider implements Provider {
       );
     }
 
-    const region =
-      this.trimToUndefined(session.region) ||
-      this.trimToUndefined(profile.region) ||
-      DEFAULT_REGION;
     const tokenCachePath = this.resolveSsoTokenCachePath(
       configPath,
       startUrl,

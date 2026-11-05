@@ -6,6 +6,7 @@
 
 import { Client } from "../../client/Client";
 import { Command } from "../../command/Command";
+import { validateServiceAndRegion } from "../../utils/endpoint-validation";
 
 export interface BuildAuthTokenOptions {
   /** Database username */
@@ -69,6 +70,8 @@ export async function buildAuthToken(
 
   // Service name for RDS MySQL
   const service = "rds_mysql";
+  // 此入口会清空 host 并按 region 自动寻址，必须在改写 client.config 之前拒绝非法值。
+  validateServiceAndRegion(service, region);
 
   // Build query parameters
   const query: Record<string, string> = {
