@@ -24,6 +24,8 @@ import { CreateRepositoryRequest } from './types/index';
 import { CreateRepositoryResponse } from './types/index';
 import { CreateRobotAccountRequest } from './types/index';
 import { CreateRobotAccountResponse } from './types/index';
+import { CreateTagRequest } from './types/index';
+import { CreateTagResponse } from './types/index';
 import { DeleteEndpointAclPoliciesRequest } from './types/index';
 import { DeleteEndpointAclPoliciesResponse } from './types/index';
 import { DeleteNamespaceRequest } from './types/index';
@@ -62,12 +64,16 @@ import { StartRegistryRequest } from './types/index';
 import { StartRegistryResponse } from './types/index';
 import { UpdatePublicEndpointRequest } from './types/index';
 import { UpdatePublicEndpointResponse } from './types/index';
+import { UpdateRegistryRequest } from './types/index';
+import { UpdateRegistryResponse } from './types/index';
 import { UpdateRepositoryRequest } from './types/index';
 import { UpdateRepositoryResponse } from './types/index';
 import { UpdateRobotAccountPasswordRequest } from './types/index';
 import { UpdateRobotAccountPasswordResponse } from './types/index';
 import { UpdateRobotAccountRequest } from './types/index';
 import { UpdateRobotAccountResponse } from './types/index';
+import { UpdateTagDescriptionRequest } from './types/index';
+import { UpdateTagDescriptionResponse } from './types/index';
 import { UpdateVpcEndpointRequest } from './types/index';
 import { UpdateVpcEndpointResponse } from './types/index';
 
@@ -79,6 +85,7 @@ export type CreateNamespaceCommandOutput = CommandOutput<CreateNamespaceResponse
 export type CreateRegistryCommandOutput = CommandOutput<CreateRegistryResponse>;
 export type CreateRepositoryCommandOutput = CommandOutput<CreateRepositoryResponse>;
 export type CreateRobotAccountCommandOutput = CommandOutput<CreateRobotAccountResponse>;
+export type CreateTagCommandOutput = CommandOutput<CreateTagResponse>;
 export type DeleteEndpointAclPoliciesCommandOutput = CommandOutput<DeleteEndpointAclPoliciesResponse>;
 export type DeleteNamespaceCommandOutput = CommandOutput<DeleteNamespaceResponse>;
 export type DeleteRegistryCommandOutput = CommandOutput<DeleteRegistryResponse>;
@@ -98,9 +105,11 @@ export type ListTagsCommandOutput = CommandOutput<ListTagsResponse>;
 export type SetUserCommandOutput = CommandOutput<SetUserResponse>;
 export type StartRegistryCommandOutput = CommandOutput<StartRegistryResponse>;
 export type UpdatePublicEndpointCommandOutput = CommandOutput<UpdatePublicEndpointResponse>;
+export type UpdateRegistryCommandOutput = CommandOutput<UpdateRegistryResponse>;
 export type UpdateRepositoryCommandOutput = CommandOutput<UpdateRepositoryResponse>;
 export type UpdateRobotAccountCommandOutput = CommandOutput<UpdateRobotAccountResponse>;
 export type UpdateRobotAccountPasswordCommandOutput = CommandOutput<UpdateRobotAccountPasswordResponse>;
+export type UpdateTagDescriptionCommandOutput = CommandOutput<UpdateTagDescriptionResponse>;
 export type UpdateVpcEndpointCommandOutput = CommandOutput<UpdateVpcEndpointResponse>;
 
 /**
@@ -189,6 +198,21 @@ export class CreateRobotAccountCommand extends Command<
   constructor(input: CreateRobotAccountRequest) {
     super(input);
     this.requestConfig = buildRequestConfigFromMetaPath(CreateRobotAccountCommand.metaPath);
+  }
+}
+/**
+ * Command to CreateTag
+ */
+export class CreateTagCommand extends Command<
+  CreateTagRequest,
+  CreateTagCommandOutput,
+  'CreateTagCommand'
+> {
+  static readonly metaPath = '/CreateTag/2022-05-12/cr/post/application_json/';
+
+  constructor(input: CreateTagRequest) {
+    super(input);
+    this.requestConfig = buildRequestConfigFromMetaPath(CreateTagCommand.metaPath);
   }
 }
 /**
@@ -477,6 +501,21 @@ export class UpdatePublicEndpointCommand extends Command<
   }
 }
 /**
+ * Command to UpdateRegistry
+ */
+export class UpdateRegistryCommand extends Command<
+  UpdateRegistryRequest,
+  UpdateRegistryCommandOutput,
+  'UpdateRegistryCommand'
+> {
+  static readonly metaPath = '/UpdateRegistry/2022-05-12/cr/post/application_json/';
+
+  constructor(input: UpdateRegistryRequest) {
+    super(input);
+    this.requestConfig = buildRequestConfigFromMetaPath(UpdateRegistryCommand.metaPath);
+  }
+}
+/**
  * Command to UpdateRepository
  */
 export class UpdateRepositoryCommand extends Command<
@@ -522,6 +561,21 @@ export class UpdateRobotAccountPasswordCommand extends Command<
   }
 }
 /**
+ * Command to UpdateTagDescription
+ */
+export class UpdateTagDescriptionCommand extends Command<
+  UpdateTagDescriptionRequest,
+  UpdateTagDescriptionCommandOutput,
+  'UpdateTagDescriptionCommand'
+> {
+  static readonly metaPath = '/UpdateTagDescription/2022-05-12/cr/post/application_json/';
+
+  constructor(input: UpdateTagDescriptionRequest) {
+    super(input);
+    this.requestConfig = buildRequestConfigFromMetaPath(UpdateTagDescriptionCommand.metaPath);
+  }
+}
+/**
  * Command to UpdateVpcEndpoint
  */
 export class UpdateVpcEndpointCommand extends Command<
@@ -544,6 +598,7 @@ export default {
   CreateRegistryCommand,
   CreateRepositoryCommand,
   CreateRobotAccountCommand,
+  CreateTagCommand,
   DeleteEndpointAclPoliciesCommand,
   DeleteNamespaceCommand,
   DeleteRegistryCommand,
@@ -563,8 +618,10 @@ export default {
   SetUserCommand,
   StartRegistryCommand,
   UpdatePublicEndpointCommand,
+  UpdateRegistryCommand,
   UpdateRepositoryCommand,
   UpdateRobotAccountCommand,
   UpdateRobotAccountPasswordCommand,
+  UpdateTagDescriptionCommand,
   UpdateVpcEndpointCommand,
 };
