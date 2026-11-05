@@ -1,0 +1,8 @@
+{
+  "actions": [
+    "CreateTag"
+  ],
+  "description": "CR: added CreateTag",
+  "modules": "service/cr",
+  "type": "feature"
+}
