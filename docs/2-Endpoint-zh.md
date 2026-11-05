@@ -59,7 +59,7 @@ BytePlus 提供了灵活的 Endpoint 自动寻址机制。SDK 会根据服务名
 
    当服务在内置映射中标记 `GoChinaEnabled=true`，并且请求 Region 属于中国大陆（`cn-*` 前缀且不属于 `cn-hongkong` 等非大陆港澳台 Region）时，在域名后追加 `.cn` 后缀。
 
-   是否 GoChina 由服务侧决定，不可修改。匹配前会先对 region 做 `trim().toLowerCase()` 归一化，因此 `CN-Beijing`、`  cn-beijing  ` 与 `cn-beijing` 等价。
+   是否 GoChina 由服务侧决定，不可修改。匹配前会先对 region 做 `toLowerCase()` 归一化，因此 `CN-Beijing` 与 `cn-beijing` 等价；带首尾空白的 region（如 `  cn-beijing  `）不再被 trim，会直接抛出 `InvalidRegion`，参见 [region / service 合法性校验](#region--service-合法性校验)。
 
 4. **根据服务名和区域自动构造 Endpoint 地址**
 
@@ -114,6 +114,58 @@ try {
 ```
 
 遇到该情况时，建议先升级 SDK 版本；若确认 SDK 尚未内置该服务，可通过 `host` 显式指定 Endpoint。
+
+##### region / service 合法性校验
+
+region 和 service 会被拼进 Endpoint 主机名并进入签名的 credential scope。为防止 Endpoint 注入（SSRF），SDK 要求它们必须是单个主机名标签：
+
+- 只能包含 ASCII 字母、数字、`-` 和 `_`；
+- 以字母开头，且不以 `-` 或 `_` 结尾（等价正则：`^[A-Za-z]([A-Za-z0-9_-]*[A-Za-z0-9])?$`）；
+- 空字符串、`undefined`、`null` 视为未设置，不做校验（客户端未配置 `region` 时使用默认值 `ap-southeast-1`）；
+- 非字符串值按 `String()` 转换后再校验，例如数字 `123` 会因不以字母开头被拒绝。
+
+校验时机与覆盖入口：
+
+- `Client.send` / `Client.presign`：未显式设置 `host` 时，在整个中间件栈（寻址、取凭证、签名以及自定义中间件）执行之前校验，非法值不会触发凭证解析，也不会发出请求。
+- 默认 Endpoint 解析：`resolveDefaultEndpoint` 和 `getDefaultEndpointByServiceInfo` 都在所有分支之前校验，因此非法值不会回退到默认 open endpoint。在 `resolveDefaultEndpoint` 中，非法值优先于 `ServiceEndpointInfoMissingError` 抛出（只有 `resolveDefaultEndpoint` 会抛出这个错误）；`getDefaultEndpointByServiceInfo` 遇到非法值时，原样抛出校验产生的 `EndpointValidationError`，不做包装。
+- RDS `buildAuthToken`：无论是否设置 `host` 都会校验 `region`（该入口会把 `host` 写入 `X-HOST` 后清空 `host`、按 `region` 自动寻址），且在改写 `client.config` 之前校验。
+- CLI 配置文件的 SSO 模式：在使用 profile 内联 STS 凭证缓存、以及请求 `cloudidentity` 服务（主机名包含 region）之前，先校验 SSO region。
+
+显式设置 `host` 时（RDS `buildAuthToken` 除外），SDK 不使用 region / service 拼接主机名，因此跳过上述校验。
+
+校验失败时抛出 `EndpointValidationError`（继承自 `Error`，`name` 为 `"EndpointValidationError"`），通过 `code` 区分错误码 `ErrCodeInvalidRegion`（`"InvalidRegion"`）和 `ErrCodeInvalidService`（`"InvalidService"`）。`message` 形如：
+
+```text
+invalid region "ap-southeast-1@127.0.0.1": illegal character at index 14, region must start with a letter, end with a letter or digit, and contain only letters, digits, '-' and '_'
+```
+
+`EndpointValidationError`、`ErrCodeInvalidRegion`、`ErrCodeInvalidService` 以及校验函数 `validateRegion`、`validateService`、`validateServiceAndRegion` 均从 `@byteplus/sdk-core` 导出，校验函数也可用于提前校验外部输入。
+
+```typescript
+import {
+  EndpointValidationError,
+  ErrCodeInvalidRegion,
+  ErrCodeInvalidService,
+} from "@byteplus/sdk-core";
+
+try {
+  await client.send(command);
+} catch (err) {
+  if (err instanceof EndpointValidationError) {
+    if (err.code === ErrCodeInvalidRegion) {
+      // region 非法，例如 "ap-southeast-1@127.0.0.1" 或 "  ap-southeast-1  "
+    } else if (err.code === ErrCodeInvalidService) {
+      // service 非法
+    }
+  }
+  throw err;
+}
+```
+
+> **与旧版本不同**
+>
+> - 带首尾空白的 region（如 `"  cn-beijing  "`）不再自动 trim，改为直接抛出 `InvalidRegion`。此前这类值寻址时被 trim，但签名 credential scope 使用原值，请求本就会被服务端以 `InvalidAuthorization` 拒绝。从 CLI 配置文件读取的 region 仍会先 trim，不受影响。
+> - CLI 配置 SSO 模式下，region 校验提前到使用 profile 内联 STS 临时凭证之前。此前凭证未过期时会直接返回、不校验 region，凭证过期后才因 region 非法而抛错；现在 region 非法会立即抛错。缓存命中本身不发请求，不涉及 SSRF，仅让配置错误尽早暴露。
 
 ---
 

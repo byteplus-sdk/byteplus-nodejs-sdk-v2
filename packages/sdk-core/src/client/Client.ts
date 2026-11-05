@@ -35,6 +35,14 @@ import { Command } from "../command/Command";
 import { dotNMiddleware } from "../middlewares/dotn";
 import { shouldRetry, calculateRetryDelay } from "../utils/retry";
 import { resolveHttpOptions } from "../utils/proxy";
+import { validateServiceAndRegion } from "../utils/endpoint-validation";
+
+// 未显式设置 host 时 region/service 会参与寻址，必须在任何中间件（含自定义寻址、凭证、签名）之前拒绝非法值。
+function assertEndpointLabels(request: Request): void {
+  if (!request.host) {
+    validateServiceAndRegion(request.serviceName, request.region);
+  }
+}
 
 export class Client {
   config: ClientConfig;
@@ -183,6 +191,8 @@ export class Client {
       }
     }
 
+    assertEndpointLabels(request);
+
     const result = await handler({
       input: command.input,
       request,
@@ -214,6 +224,8 @@ export class Client {
       protocol: this.config.protocol || "https",
       region: this.config.region || "ap-southeast-1",
     });
+
+    assertEndpointLabels(request);
 
     const result = await handler({ input: command.input, request });
 
