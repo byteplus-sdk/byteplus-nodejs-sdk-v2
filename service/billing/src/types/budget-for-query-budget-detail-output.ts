@@ -24,6 +24,12 @@ export interface BudgetForQueryBudgetDetailOutput {
      * @type {string}
      * @memberof BudgetForQueryBudgetDetailOutput
      */
+    AmountType?: string;
+
+    /**
+     * @type {string}
+     * @memberof BudgetForQueryBudgetDetailOutput
+     */
     BudgetEndTime?: string;
 
     /**
@@ -36,7 +42,7 @@ export interface BudgetForQueryBudgetDetailOutput {
      * @type {string}
      * @memberof BudgetForQueryBudgetDetailOutput
      */
-    BudgetPlanType?: BudgetForQueryBudgetDetailOutputBudgetPlanTypeEnum;
+    BudgetPlanType?: string;
 
     /**
      * @type {string}
@@ -48,37 +54,17 @@ export interface BudgetForQueryBudgetDetailOutput {
      * @type {string}
      * @memberof BudgetForQueryBudgetDetailOutput
      */
-    BudgetType?: BudgetForQueryBudgetDetailOutputBudgetTypeEnum;
+    BudgetType?: string;
 
     /**
      * @type {string}
      * @memberof BudgetForQueryBudgetDetailOutput
      */
-    Period?: BudgetForQueryBudgetDetailOutputPeriodEnum;
-}
+    CurrencySettlement?: string;
 
-/**
- * @export
- * @enum {string}
- */
-export enum BudgetForQueryBudgetDetailOutputBudgetPlanTypeEnum {
-    FixedAmount = 'fixed_amount',
-    Planning = 'planning'
+    /**
+     * @type {string}
+     * @memberof BudgetForQueryBudgetDetailOutput
+     */
+    Period?: string;
 }
-/**
- * @export
- * @enum {string}
- */
-export enum BudgetForQueryBudgetDetailOutputBudgetTypeEnum {
-    CostBudget = 'cost_budget'
-}
-/**
- * @export
- * @enum {string}
- */
-export enum BudgetForQueryBudgetDetailOutputPeriodEnum {
-    Month = 'month',
-    Quarter = 'quarter',
-    Year = 'year'
-}
-

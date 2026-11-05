@@ -12,6 +12,7 @@
  * Do not edit the class manually.
  */
 
+import { TagKVForListBillDetailInput } from './tag-kvfor-list-bill-detail-input';
  /**
  * 
  *
@@ -109,4 +110,22 @@ export interface ListBillDetailRequest {
      * @memberof ListBillDetailRequest
      */
     Project?: Array<string>;
+
+    /**
+     * @type {Array<string>}
+     * @memberof ListBillDetailRequest
+     */
+    SalesChannel?: Array<string>;
+
+    /**
+     * @type {Array<TagKVForListBillDetailInput>}
+     * @memberof ListBillDetailRequest
+     */
+    TagKV?: Array<TagKVForListBillDetailInput>;
+
+    /**
+     * @type {number}
+     * @memberof ListBillDetailRequest
+     */
+    TagKVFilterMode?: number;
 }
