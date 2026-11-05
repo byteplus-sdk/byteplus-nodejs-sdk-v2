@@ -124,6 +124,7 @@ const defaultEndpoint: Record<string, ServiceEndpointInfo> = {
   redis: { Service: "redis", IsGlobal: false, GoChinaEnabled: true },
   vod: { Service: "vod", IsGlobal: false, GoChinaEnabled: false },
   vs: { Service: "vs", IsGlobal: true, GoChinaEnabled: false },
+  mse: { Service: "mse", IsGlobal: false, GoChinaEnabled: false },
 };
 
 /** ServiceEndpointInfoMissingError is thrown when the service is not registered
