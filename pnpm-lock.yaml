@@ -127,6 +127,19 @@ importers:
         specifier: ^5.2.2
         version: 5.9.3
 
+  service/clawsentry:
+    dependencies:
+      '@byteplus/sdk-core':
+        specifier: workspace:*
+        version: link:../../packages/sdk-core
+    devDependencies:
+      '@types/node':
+        specifier: ^20.8.0
+        version: 20.19.29
+      typescript:
+        specifier: ^5.2.2
+        version: 5.9.3
+
   service/clb:
     dependencies:
       '@byteplus/sdk-core':
