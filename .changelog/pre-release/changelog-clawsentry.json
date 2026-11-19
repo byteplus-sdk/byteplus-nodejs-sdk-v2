@@ -1,0 +1,5 @@
+{
+  "description": "CLAWSENTRY: chore changes",
+  "modules": "service/clawsentry",
+  "type": "bugfix"
+}
